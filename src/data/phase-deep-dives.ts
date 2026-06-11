@@ -190,6 +190,84 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
       },
     ],
   },
+  "03": {
+    intro:
+      "Phase 03 is the legal and structural foundation under everything you'll build. Entity formation, tax election, partner agreements, contracts, licenses. Most physicians outsource this work — and they should. But you still have to make the decisions, because the wrong structure is expensive to unwind once you've started operating.",
+    sections: [
+      {
+        heading: "Entity types, briefly.",
+        body:
+          "In most states, physician practices form as Professional Corporations (PC) or Professional Limited Liability Companies (PLLC). The choice depends on your state's rules, your tax election, and your partner structure.\n\nPC: traditional choice. Strong liability protection. Default C-corp taxation unless you elect S-corp.\n\nPLLC: newer option, available in most states. Same liability protection as PC, more flexible tax options, simpler ongoing compliance.\n\nLLC (non-professional): not allowed for licensed professional services in most states. Verify your state's rules — forming the wrong entity type can invalidate your liability protection.",
+      },
+      {
+        heading: "Tax elections matter more than the entity letter.",
+        body:
+          "For most physician practices, S-corp election is the right tax move — it minimizes self-employment tax on reasonable owner compensation while still allowing pass-through taxation. The savings are substantial enough that the S-corp election is usually worth the additional compliance.\n\nC-corp election is rarer but can work for practices planning to reinvest heavily, with multiple owner-employees, or pursuing specific benefit structures. Talk to a CPA who works with physician practices — generic small-business tax advice often misses healthcare-specific options.",
+      },
+      {
+        heading: "Partnership terms before partnership.",
+        body:
+          "If you're forming with one or more partners, the partnership agreement is the single most important legal document you'll sign. It defines ownership, decision-making, capital calls, profit distribution, what happens when a partner wants to leave, what happens when a partner dies or is disabled, and what happens when partners disagree.\n\nMost partnership disputes that end practices could have been prevented by an honest conversation captured in writing before anyone needed it. Hire a healthcare attorney. Spend the money. Have the hard conversations now.",
+      },
+      {
+        heading: "Licenses, registrations, and insurance.",
+        body:
+          "State business license, federal EIN, state tax registrations, DEA registration update for the new entity, CLIA waiver if you're doing in-office labs, OSHA compliance program, HIPAA risk analysis, malpractice insurance, workers comp, general liability, cyber insurance — most of this is mechanical, none of it is optional.\n\nMake the checklist with your attorney and your CPA, then work through it. Most of these items take days to weeks, not months. The mistake is treating them as urgent only when something goes wrong.",
+      },
+    ],
+  },
+  "05": {
+    intro:
+      "Phase 05 is where you choose the systems your practice actually runs on. EHR, practice management, billing, clearinghouse, telephony, scheduling, intake, HIPAA program, staffing model. Get the decisions right and the practice runs quietly. Get them wrong and you'll spend the first two years fighting your own infrastructure.",
+    sections: [
+      {
+        heading: "Design the workflow first. Pick the EHR second.",
+        body:
+          "The most common Phase 05 mistake is picking an EHR because everyone else uses it, then bending the practice's workflow around the EHR's defaults. The right sequence is the inverse: design how patients move through your practice (intake, check-in, exam, billing, follow-up), then pick the EHR that serves that workflow.\n\nFor most specialties, two or three EHRs are well-suited and the rest are wrong. Specialty fit matters more than brand. Test-drive the EHR with realistic data and a sample patient workflow before you sign a multi-year contract.",
+      },
+      {
+        heading: "The stack you actually need.",
+        body:
+          "EHR (clinical), practice management (administrative), clearinghouse (claims), telephony (patient communication), scheduling (booking + reminders), intake (forms), and a payment processor. Some EHRs bundle three or four of these; some specialize.\n\nWatch for hidden integration costs. A bundled solution that 'almost' fits is often more expensive over five years than a best-of-breed approach that integrates cleanly. The hard part is knowing which is which — talk to practices already running the stack you're considering.",
+      },
+      {
+        heading: "HIPAA is a program, not a project.",
+        body:
+          "HIPAA compliance is not a one-time setup. It's a documented risk analysis, a set of policies and procedures, Business Associate Agreements with every vendor that touches PHI, regular staff training, and incident response readiness.\n\nMost new practices set up just enough HIPAA to feel safe and discover the gaps when something happens — a lost laptop, a phishing email, a misdirected fax. Do the work upfront. The cost of doing it right is small. The cost of doing it wrong is enormous.",
+      },
+      {
+        heading: "Staffing model and timing.",
+        body:
+          "Most new practices over-hire too early or under-hire too long. The honest staffing model: one front-desk per provider FTE for most specialties, plus billing (in-house or outsourced) and clinical support as your specialty requires.\n\nHire the first front-desk 30 to 45 days before launch so they have time to train on the systems before patients arrive. Hire clinical support based on the actual patient volume you're seeing, not the volume you're hoping to see.",
+      },
+    ],
+  },
+  "07": {
+    intro:
+      "Phase 07 is the long tail — the work that turns 'open and billing' into 'profitable, sustainable, and growing.' The first 90 days post-launch show you where the leverage is. The next 12 to 24 months are about pulling those levers.",
+    sections: [
+      {
+        heading: "Your denials are a map.",
+        body:
+          "In the first 90 days of billing, your denied claims show you exactly where your operations need work. Wrong codes. Missing documentation. Eligibility errors. Authorization gaps. Untimely filing. Each denial reason category points to a specific process to fix.\n\nRun a denial reason report monthly. Pick the top two or three categories and fix the root cause, not the individual claims. A single fixed process can eliminate dozens of future denials.",
+      },
+      {
+        heading: "Payer contract review (yearly, minimum).",
+        body:
+          "Commercial payer contracts come up for renewal every one to three years. Many practices auto-renew without reviewing fee schedules or terms. This costs real money.\n\nOnce a year, pull every active payer contract. Compare current fee schedules to your case mix. Identify which payers are paying below your cost or below market. Negotiate, switch tiers, or in some cases drop the contract. This is one of the highest-ROI Phase 07 activities.",
+      },
+      {
+        heading: "Service line expansion.",
+        body:
+          "The right time to add a service line is when your existing operations have capacity, your patient base is asking for it, and the economics make sense. The wrong time is when you're bored or feel competitive pressure.\n\nNew service lines often require separate credentialing (Phase 04 again), separate equipment, separate staff competencies, and separate marketing. Plan accordingly.",
+      },
+      {
+        heading: "When to add providers.",
+        body:
+          "Add providers when your existing workflow can absorb them, your administrative infrastructure is ready, and your patient demand justifies it. Most practices that scramble after a hiring decision were trying to fix patient demand with capacity rather than the other way around.\n\nCredentialing takes 90 to 180 days for new providers too. Start it before the offer is signed, not after.",
+      },
+    ],
+  },
   "02": {
     intro:
       "Phase 02 is where most practice launches succeed or fail before a single patient is seen. The numbers either work for your specialty in your market — or they don't, and most physicians don't run them honestly until they're already committed to the lease. This is what real planning looks like, what should be in your pro forma, and what to do when the math says wait.",
