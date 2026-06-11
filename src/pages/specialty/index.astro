@@ -1,0 +1,57 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { specialties } from "@data/specialties";
+---
+
+<BaseLayout
+  title="Practice Startup Guidance by Specialty"
+  description="Specialty-specific practice startup guidance — capital requirements, payer mix dynamics, and the watchouts that change the launch sequence by specialty."
+>
+  <section class="border-b border-ink/8 py-16 lg:py-24">
+    <div class="container-site">
+      <div class="max-w-3xl">
+        <div class="phase-label text-bronze-700 mb-5">By specialty</div>
+        <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
+          Different specialties. Different math. Same blueprint.
+        </h1>
+        <p class="text-lede text-graphite-700 max-w-prose-wide text-pretty">
+          The 7-phase launch journey applies in every specialty. But capital requirements, payer mix,
+          credentialing nuances, and ancillary revenue plays shift specialty to specialty. Find yours
+          for the version that fits.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
+    <div class="container-site">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+        {
+          specialties.map((s) => (
+            <a
+              href={`/specialty/${s.slug}`}
+              class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+            >
+              <div class="phase-label text-graphite-500 mb-3">Specialty</div>
+              <div class="font-display text-base font-medium text-ink mb-2">{s.name}</div>
+              <p class="text-small text-graphite-700 text-pretty flex-1">{s.sub}</p>
+              <div class="mt-3 pt-3 border-t border-ink/8 text-small font-medium text-ink group-hover:text-bronze-700 transition-colors flex items-center justify-between">
+                See the guide
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+      <p class="text-small text-graphite-600 mt-6 max-w-prose-wide">
+        More specialties are added as we expand coverage. If yours isn't listed yet, the 7-phase
+        blueprint still applies — start there.
+      </p>
+    </div>
+  </section>
+
+  <FinalCta />
+</BaseLayout>

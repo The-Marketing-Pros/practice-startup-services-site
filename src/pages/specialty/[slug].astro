@@ -1,0 +1,187 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { specialties } from "@data/specialties";
+import { phases, phaseById } from "@data/phases";
+import { SITE } from "@data/site";
+
+export function getStaticPaths() {
+  return specialties.map((s) => ({ params: { slug: s.slug }, props: { specialty: s } }));
+}
+
+const { specialty } = Astro.props;
+
+const highlightedPhases = Object.entries(specialty.phaseHighlights) as Array<[
+  keyof typeof phaseById,
+  string
+]>;
+
+const title = `Starting a ${specialty.name} Practice`;
+const description = `Practice startup guidance specific to ${specialty.name} — payer mix, capital requirements, and the watchouts that change the launch sequence for this specialty.`;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+    { "@type": "ListItem", position: 2, name: "Specialties", item: "https://practicestartupservices.com/specialty/" },
+    { "@type": "ListItem", position: 3, name: specialty.name, item: `https://practicestartupservices.com/specialty/${specialty.slug}/` },
+  ],
+};
+---
+
+<BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+  <!-- Hero -->
+  <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id={`bp-grid-sp-${specialty.slug}`} x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#bp-grid-sp-${specialty.slug})`} />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-6">
+        <a href="/specialty" class="hover:text-ink transition-colors">Specialties</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-bronze-700 font-medium">{specialty.shortLabel}</span>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-10 items-start">
+        <div class="lg:col-span-8">
+          <h1 class="font-display font-medium text-display-xl text-balance text-ink mb-5">
+            {specialty.headline}
+          </h1>
+          <p class="text-lede text-graphite-700 max-w-prose-wide mb-7 text-pretty">
+            {specialty.sub}
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href={SITE.scheduleUrl} class="btn-primary">
+              {SITE.primaryCta}
+            </a>
+            <a href="/journey" class="btn-secondary">
+              See the 7-phase journey
+            </a>
+          </div>
+        </div>
+
+        <aside class="lg:col-span-4 card-blueprint">
+          <div class="phase-label text-graphite-500 mb-3">At a glance</div>
+          <dl class="space-y-3 text-small">
+            <div>
+              <dt class="phase-label text-graphite-500">Typical capital range</dt>
+              <dd class="text-ink mt-0.5 font-mono">{specialty.capitalRange}</dd>
+            </div>
+            <div>
+              <dt class="phase-label text-graphite-500">Payer mix</dt>
+              <dd class="text-ink mt-0.5">{specialty.payerMixNote}</dd>
+            </div>
+            {specialty.ancillaryRevenue && (
+              <div>
+                <dt class="phase-label text-graphite-500">Ancillary revenue</dt>
+                <dd class="text-ink mt-0.5">{specialty.ancillaryRevenue}</dd>
+              </div>
+            )}
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- What changes -->
+  <section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
+    <div class="container-site">
+      <div class="grid lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-7 max-w-prose-wide">
+          <div class="phase-label text-bronze-700 mb-3">What changes for {specialty.shortLabel.toLowerCase()}</div>
+          <h2 class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+            The blueprint applies. The details shift.
+          </h2>
+          <p class="text-body text-graphite-800 leading-relaxed mb-8 text-pretty">
+            {specialty.whatChanges}
+          </p>
+
+          {highlightedPhases.length > 0 && (
+            <>
+              <h3 class="font-display text-display-md font-medium text-ink mb-4 text-balance">
+                Phase-by-phase shifts.
+              </h3>
+              <div class="space-y-5">
+                {highlightedPhases.map(([id, note]) => {
+                  const p = phaseById[id];
+                  return (
+                    <div class="border-l-2 border-bronze/50 pl-5">
+                      <div class="phase-label text-bronze-700 mb-1">
+                        Phase {p.id} · {p.title}
+                      </div>
+                      <p class="text-body text-graphite-800 leading-relaxed text-pretty">{note}</p>
+                      <a
+                        href={`/journey/${p.slug}`}
+                        class="text-small text-graphite-700 hover:text-ink mt-2 inline-block transition-colors"
+                      >
+                        See the full Phase {p.id} guide →
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+
+        <aside class="lg:col-span-5">
+          <div class="do-not-skip">
+            <div class="do-not-skip-label">Specialty-specific watchouts</div>
+            <ul class="space-y-2.5 mt-3">
+              {
+                specialty.watchouts.map((w) => (
+                  <li class="flex gap-3 text-body text-graphite-900 leading-relaxed">
+                    <span class="text-warn font-mono mt-1">!</span>
+                    <span>{w}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Phases at a glance -->
+  <section class="border-b border-ink/8 py-16 lg:py-20">
+    <div class="container-site">
+      <div class="max-w-3xl mb-10">
+        <div class="phase-label text-bronze-700 mb-3">The 7 phases</div>
+        <h2 class="font-display text-display-lg font-medium text-ink mb-3 text-balance">
+          Start with the phase that matches where you are.
+        </h2>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {
+          phases.map((p) => (
+            <a
+              href={`/journey/${p.slug}`}
+              class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+            >
+              <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none mb-2">
+                {p.id}
+              </div>
+              <div class="font-display text-base font-medium text-ink mb-1">
+                {p.verb} · {p.title}
+              </div>
+              <p class="text-small text-graphite-700 text-pretty">{p.subtitle}</p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</BaseLayout>
