@@ -1,0 +1,106 @@
+---
+// The Blueprint — 7-phase journey, the spine of the entire site.
+// 03b §1 Layer 1 (Blueprint) + Layer 2 (Map navigation)
+import { phases } from "@data/phases";
+
+const stageGroups = [
+  { stage: "foundation", label: "Foundation", phases: phases.filter((p) => p.buildStage === "foundation") },
+  { stage: "structure", label: "Structure", phases: phases.filter((p) => p.buildStage === "structure") },
+  { stage: "systems", label: "Systems", phases: phases.filter((p) => p.buildStage === "systems") },
+  { stage: "launch", label: "Launch", phases: phases.filter((p) => p.buildStage === "launch") },
+  { stage: "growth", label: "Growth", phases: phases.filter((p) => p.buildStage === "growth") },
+];
+---
+
+<section class="border-b border-ink/8 py-20 lg:py-28">
+  <div class="container-site">
+    <div class="max-w-3xl mb-14">
+      <div class="phase-label text-bronze-700 mb-4">The Blueprint</div>
+      <h2 class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+        Seven phases. One launch. In order.
+      </h2>
+      <p class="text-lede text-graphite-700 text-pretty">
+        Starting a practice isn't a checklist. It's a build sequence with dependencies, timing windows,
+        and traps. Here's the order of operations — what comes first, what runs in parallel,
+        and what will cost you if you skip ahead.
+      </p>
+    </div>
+
+    <!-- Stage rail -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-10">
+      {
+        stageGroups.map((sg) => (
+          <div class="border-t-2 border-ink/15 pt-3">
+            <div class="phase-label text-graphite-600">{sg.label}</div>
+            <div class="font-mono text-small text-ink mt-1">
+              {sg.phases.map((p) => p.id).join(" · ")}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Phase grid -->
+    <ol class="space-y-3">
+      {
+        phases.map((p) => (
+          <li>
+            <a
+              href={`/journey/${p.slug}`}
+              class="block group bg-paper-50 hover:bg-paper-200/60 border border-ink/8 hover:border-ink/20 rounded-card transition-colors"
+            >
+              <div class="grid grid-cols-12 gap-6 p-6 lg:p-7 items-center">
+                <div class="col-span-2 lg:col-span-1">
+                  <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">
+                    {p.id}
+                  </div>
+                  <div class="phase-label text-graphite-500 mt-2">{p.verb}</div>
+                </div>
+
+                <div class="col-span-10 lg:col-span-5">
+                  <div class="font-display text-display-sm font-medium text-ink group-hover:text-ink mb-1">
+                    {p.title}
+                    {p.controlRoom && (
+                      <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-sharp bg-signal/15 text-signal-900 font-mono text-label">
+                        <span class="h-1.5 w-1.5 rounded-full bg-signal"></span>
+                        Control room
+                      </span>
+                    )}
+                  </div>
+                  <p class="text-small text-graphite-700">{p.subtitle}</p>
+                </div>
+
+                <div class="hidden lg:block lg:col-span-3">
+                  <div class="phase-label text-graphite-500 mb-1">The question</div>
+                  <p class="text-small text-graphite-800 leading-snug">{p.question}</p>
+                </div>
+
+                <div class="hidden lg:block lg:col-span-2">
+                  <div class="phase-label text-graphite-500 mb-1">Duration</div>
+                  <p class="text-small text-graphite-800 leading-snug">{p.duration}</p>
+                </div>
+
+                <div class="col-span-12 lg:col-span-1 flex lg:justify-end">
+                  <span class="inline-flex items-center justify-center h-9 w-9 rounded-sharp border border-ink/15 text-graphite-600 group-hover:bg-ink group-hover:text-paper-100 group-hover:border-ink transition-colors">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-12 text-center">
+      <a href="/journey" class="btn-secondary">
+        Open the full blueprint
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

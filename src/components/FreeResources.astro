@@ -1,0 +1,71 @@
+---
+import { SITE } from "@data/site";
+
+const resources = [
+  {
+    label: "Startup Checklist",
+    title: "The Practice Launch Checklist",
+    description:
+      "Phase-ordered, opinionated, and free. The exact tasks for each of the 7 phases — with the watchouts most checklists skip.",
+    href: "/resources/startup-checklist",
+    cta: "Download free",
+    type: "PDF + HTML",
+  },
+  {
+    label: "Medicare Tools",
+    title: "Free Medicare Fee Schedule + Revalidation Lookups",
+    description:
+      "Two tools every new practice should bookmark — built and hosted by our partner team at Metolius.",
+    href: "/resources/medicare-tools",
+    cta: "Open the tools",
+    type: "Live tools",
+  },
+  {
+    label: "Cost Guide",
+    title: "Practice Startup Cost Guide",
+    description:
+      "Honest ranges by specialty and location. What drives costs up, what drives them down, and how to manage cash flow during the credentialing lag.",
+    href: "/resources/startup-costs",
+    cta: "Read the guide",
+    type: "Guide",
+  },
+];
+---
+
+<section class="border-b border-ink/8 py-20 lg:py-28">
+  <div class="container-site">
+    <div class="max-w-3xl mb-14">
+      <div class="phase-label text-bronze-700 mb-4">Free, no email gate</div>
+      <h2 class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+        The most useful free content in the space.
+      </h2>
+      <p class="text-lede text-graphite-700 text-pretty">
+        We give the practical stuff away because the quality of our free content is the best signal
+        for the quality of our paid services. Read it, use it, and let us know when you want help.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      {
+        resources.map((r) => (
+          <a href={r.href} class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <div class="phase-label text-graphite-500">{r.label}</div>
+              <div class="font-mono text-label text-graphite-600">{r.type}</div>
+            </div>
+            <h3 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+              {r.title}
+            </h3>
+            <p class="text-small text-graphite-700 mb-5 text-pretty flex-1">{r.description}</p>
+            <div class="pt-4 border-t border-ink/8 flex items-center justify-between text-small font-medium text-ink group-hover:text-bronze-700 transition-colors">
+              {r.cta}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>

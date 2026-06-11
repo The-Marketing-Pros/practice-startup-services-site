@@ -1,0 +1,83 @@
+---
+import { SITE } from "@data/site";
+---
+
+<section class="relative overflow-hidden border-b border-ink/8">
+  <!-- Blueprint background — faint grid + bronze rule -->
+  <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="bp-grid" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
+          <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#0E1F36" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#bp-grid)" />
+    </svg>
+  </div>
+
+  <div class="container-site pt-20 lg:pt-28 pb-14 lg:pb-20">
+    <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7">
+        <div class="phase-label text-bronze-700 mb-6">
+          <span class="inline-block h-px w-8 bg-bronze align-middle mr-3"></span>
+          The Independent Practice Blueprint
+        </div>
+
+        <h1 class="font-display font-medium text-display-xl text-balance text-ink mb-6">
+          The practice launch guide<span class="text-bronze">.</span>
+          <span class="block text-graphite-700 font-normal">And the team to make it real.</span>
+        </h1>
+
+        <p class="text-lede text-graphite-700 max-w-narrow mb-8 text-pretty">
+          {SITE.promise}
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+          <a href={SITE.scheduleUrl} class="btn-primary">
+            {SITE.primaryCta}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+          <a href="/resources/startup-checklist" class="btn-secondary">
+            {SITE.secondaryCta}
+          </a>
+        </div>
+
+        <div class="mt-10 grid grid-cols-3 gap-6 max-w-md">
+          <div>
+            <div class="font-display text-display-sm font-medium text-ink">7</div>
+            <div class="phase-label text-graphite-600 mt-1">Phase Journey</div>
+          </div>
+          <div>
+            <div class="font-display text-display-sm font-medium text-ink">4</div>
+            <div class="phase-label text-graphite-600 mt-1">Build Crews</div>
+          </div>
+          <div>
+            <div class="font-display text-display-sm font-medium text-ink">2</div>
+            <div class="phase-label text-graphite-600 mt-1">Free Tools</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <!-- Hero side card: an editorial annotation establishing voice -->
+        <div class="card-blueprint relative">
+          <div class="phase-label text-bronze-700 mb-3">Operator's note</div>
+          <p class="text-body text-graphite-800 mb-4 leading-relaxed">
+            Most physicians launch private practices the way they were taught to do residency — show up,
+            work hard, hope it works. That's how you lose 90–180 days of revenue to credentialing,
+            burn working capital on the wrong EHR, and overpay for a marketing program that doesn't fit.
+          </p>
+          <p class="text-body text-ink leading-relaxed">
+            We built this site to give you the order of operations — and the team to execute it.
+          </p>
+          <div class="mt-5 pt-5 border-t border-ink/8 flex items-center gap-3">
+            <span class="phase-label text-graphite-600">From the team at</span>
+            <span class="font-display text-base font-medium text-ink">Practice Startup Services</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

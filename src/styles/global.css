@@ -1,0 +1,127 @@
+@import "@fontsource-variable/inter/index.css";
+@import "@fontsource/fraunces/400.css";
+@import "@fontsource/fraunces/500.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-ink: 14 31 54;
+    --color-paper: 247 244 238;
+    --color-bronze: 182 133 70;
+    --color-signal: 43 196 180;
+  }
+
+  html {
+    @apply scroll-smooth;
+    background: theme("colors.paper.100");
+    color: theme("colors.ink.DEFAULT");
+    font-family: theme("fontFamily.sans");
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-paper-100 text-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, h4 {
+    font-family: theme("fontFamily.display");
+    @apply text-ink;
+    font-feature-settings: "ss01";
+  }
+
+  /* Selection in Blueprint navy with bronze text */
+  ::selection {
+    background: theme("colors.ink.DEFAULT");
+    color: theme("colors.bronze.300");
+  }
+
+  /* Focus ring — bronze, not blue */
+  :focus-visible {
+    outline: 2px solid theme("colors.bronze.DEFAULT");
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Blueprint phase label — used everywhere a phase is referenced */
+  .phase-label {
+    @apply font-mono text-label uppercase tracking-[0.18em] text-ink-600;
+  }
+
+  /* The "rule" — thin gold/bronze line. Blueprint motif. */
+  .blueprint-rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-bronze/30 to-transparent;
+  }
+
+  /* "Do Not Skip This" warning callout — from 03a Direction 3, kept */
+  .do-not-skip {
+    @apply border-l-4 border-warn bg-warn-subtle px-5 py-4 my-6 text-ink rounded-r-soft;
+  }
+
+  .do-not-skip-label {
+    @apply font-mono text-label uppercase tracking-[0.18em] text-warn font-medium mb-1.5;
+  }
+
+  /* CTA button — bronze fill, navy text. The only colored button on the site. */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-bronze hover:bg-bronze-700 text-ink font-medium px-5 py-3 rounded-soft transition-colors duration-200 shadow-blueprint;
+  }
+
+  .btn-primary:focus-visible {
+    @apply outline-none ring-2 ring-bronze ring-offset-2 ring-offset-paper-100;
+  }
+
+  /* Secondary button — outlined, paper bg, ink text */
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 border border-ink/15 hover:border-ink/40 text-ink font-medium px-5 py-3 rounded-soft transition-colors duration-200 bg-paper-100/0 hover:bg-paper-200/50;
+  }
+
+  /* Editorial container — generous reading width */
+  .prose-editorial {
+    @apply max-w-prose mx-auto;
+  }
+  .prose-editorial p {
+    @apply text-body text-graphite-800 leading-relaxed mb-5;
+  }
+  .prose-editorial h2 {
+    @apply text-display-md font-medium mt-12 mb-5;
+  }
+  .prose-editorial h3 {
+    @apply text-display-sm font-medium mt-10 mb-3;
+  }
+
+  /* Site-wide container */
+  .container-site {
+    @apply max-w-7xl mx-auto px-6 lg:px-10;
+  }
+
+  /* Blueprint card — content blocks throughout the site */
+  .card-blueprint {
+    @apply bg-paper-50 border border-ink/8 rounded-card p-6 shadow-blueprint;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+}

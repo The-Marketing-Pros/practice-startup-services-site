@@ -1,0 +1,19 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Hero from "@components/Hero.astro";
+import LaunchReadinessScan from "@components/LaunchReadinessScan.astro";
+import BlueprintJourney from "@components/BlueprintJourney.astro";
+import BuildCrews from "@components/BuildCrews.astro";
+import FreeResources from "@components/FreeResources.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { SITE } from "@data/site";
+---
+
+<BaseLayout title={SITE.name} description={SITE.promise}>
+  <Hero />
+  <LaunchReadinessScan />
+  <BlueprintJourney />
+  <BuildCrews />
+  <FreeResources />
+  <FinalCta />
+</BaseLayout>

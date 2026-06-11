@@ -1,0 +1,67 @@
+---
+// Services as Build Crews — 03b §1 + §4 homepage section 5
+import { services } from "@data/services";
+import { phaseById } from "@data/phases";
+---
+
+<section class="border-b border-ink/8 py-20 lg:py-28 bg-paper-200/40">
+  <div class="container-site">
+    <div class="max-w-3xl mb-14">
+      <div class="phase-label text-bronze-700 mb-4">Build Crews</div>
+      <h2 class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+        Services framed by the work, not the org chart.
+      </h2>
+      <p class="text-lede text-graphite-700 text-pretty">
+        Each service is a build crew for a specific phase of the launch. You hire what you need,
+        when you need it — and we stay coordinated with the other crews so the build sequence holds.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      {
+        services.map((s) => {
+          const phase = phaseById[s.primaryPhase];
+          return (
+            <a
+              href={`/services/${s.slug}`}
+              class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="phase-label text-graphite-500">{s.crewLabel}</div>
+                <div class="font-mono text-label text-bronze-700">
+                  PHASE {phase.id} · {phase.verb}
+                </div>
+              </div>
+
+              <h3 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+                {s.outcomeHeadline}
+              </h3>
+
+              <p class="text-small text-graphite-700 mb-5 text-pretty">
+                {s.outcomeSub}
+              </p>
+
+              <ul class="space-y-1.5 mb-5 text-small text-graphite-800">
+                {s.whatsIncluded.slice(0, 3).map((item) => (
+                  <li class="flex gap-2">
+                    <span class="text-bronze-700 font-mono mt-0.5">·</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="mt-auto pt-4 border-t border-ink/8 flex items-center justify-between">
+                <span class="text-small font-medium text-ink group-hover:text-bronze-700 transition-colors">
+                  See how this crew works
+                </span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" class="text-graphite-600">
+                  <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

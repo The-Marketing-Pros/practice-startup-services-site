@@ -1,0 +1,35 @@
+---
+import { SITE } from "@data/site";
+---
+
+<section class="bg-ink text-paper-100 py-24 lg:py-32 relative overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.06] -z-0 pointer-events-none" aria-hidden="true">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="bp-grid-footer" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#F7F4EE" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#bp-grid-footer)" />
+    </svg>
+  </div>
+
+  <div class="container-site relative">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="phase-label text-bronze-400 mb-6">Ready to start?</div>
+      <h2 class="font-display text-display-xl font-medium text-paper-100 mb-6 text-balance">
+        Talk to the team before you pour the foundation wrong.
+      </h2>
+      <p class="text-lede text-paper-200/85 max-w-narrow mx-auto mb-8 text-pretty">
+        One free consultation. Real answers. We'll tell you whether you need us — and if you don't,
+        we'll tell you what to do anyway.
+      </p>
+      <a href={SITE.scheduleUrl} class="btn-primary text-base">
+        {SITE.primaryCta}
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

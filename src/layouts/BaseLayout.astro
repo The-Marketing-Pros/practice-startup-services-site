@@ -1,0 +1,64 @@
+---
+import "@/styles/global.css";
+import SiteHeader from "@components/SiteHeader.astro";
+import SiteFooter from "@components/SiteFooter.astro";
+import { SITE } from "@data/site";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+}
+
+const { title, description, ogImage, noIndex = false } = Astro.props;
+const pageTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
+const pageDescription = description ?? SITE.promise;
+const canonical = new URL(Astro.url.pathname, SITE.url).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+
+    {noIndex && <meta name="robots" content="noindex,nofollow" />}
+
+    <!-- OG / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.name} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Theme color (blueprint navy) -->
+    <meta name="theme-color" content="#0E1F36" />
+
+    <!-- Favicons (placeholder — replace before deploy) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:text-paper-100 focus:px-4 focus:py-2 focus:rounded-soft"
+    >
+      Skip to content
+    </a>
+
+    <SiteHeader />
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>
