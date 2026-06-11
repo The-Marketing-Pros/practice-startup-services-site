@@ -1,0 +1,98 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { publishedArticles } from "@data/articles";
+---
+
+<BaseLayout
+  title="Articles"
+  description="Long-form articles on starting an independent medical practice — credentialing, planning, marketing, technology, and the watchouts that catch the first-time owner."
+  schema={{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+      { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
+      { "@type": "ListItem", position: 3, name: "Articles", item: "https://practicestartupservices.com/resources/articles/" },
+    ],
+  }}
+>
+  <section class="border-b border-ink/8 py-16 lg:py-24 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid-articles" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bp-grid-articles)" />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="grid lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-9">
+          <div class="phase-label text-bronze-700 mb-5">Articles</div>
+          <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
+            Long-form on starting an independent practice.
+          </h1>
+        </div>
+        <div class="lg:col-span-12 max-w-prose-wide">
+          <p class="text-lede text-graphite-700 text-pretty">
+            Deeper than a phase guide, narrower than the full blueprint. Each article goes after one
+            decision, one watchout, or one playbook a new practice operator needs.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {publishedArticles.length > 0 ? (
+    <section class="border-b border-ink/8 py-16 lg:py-20">
+      <div class="container-site">
+        <ul class="divide-y divide-ink/10 border-t-2 border-b-2 border-ink/15 max-w-prose-wide mx-auto">
+          {publishedArticles.map((a) => (
+            <li class="py-6">
+              <a href={`/resources/articles/${a.slug}`} class="block group">
+                <div class="flex items-baseline gap-3 mb-1">
+                  <span class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700">
+                    {new Date(a.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
+                  <span class="font-mono text-label uppercase tracking-[0.18em] text-graphite-500">
+                    {a.readMinutes} min read
+                  </span>
+                </div>
+                <h2 class="font-display text-display-sm font-medium text-ink group-hover:text-bronze-700 transition-colors mb-2 text-balance">
+                  {a.title}
+                </h2>
+                <p class="text-body text-graphite-700 leading-relaxed text-pretty">{a.description}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ) : (
+    <section class="border-b border-ink/8 py-16 lg:py-24">
+      <div class="container-site">
+        <div class="max-w-prose-wide mx-auto text-center">
+          <div class="phase-label text-bronze-700 mb-4">Coming soon</div>
+          <p class="text-lede text-graphite-700 text-pretty mb-8">
+            First articles publishing soon. In the meantime, the full 7-phase blueprint covers most of
+            what you need to start.
+          </p>
+          <div class="flex flex-wrap gap-3 justify-center">
+            <a href="/journey" class="btn-primary">
+              Open the blueprint
+            </a>
+            <a href="/resources" class="btn-secondary">
+              See all resources
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <FinalCta variant="resource" />
+</BaseLayout>

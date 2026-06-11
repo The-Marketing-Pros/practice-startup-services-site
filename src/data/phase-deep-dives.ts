@@ -276,7 +276,7 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
   },
   "05": {
     intro:
-      "Phase 05 is where you choose the systems your practice actually runs on. EHR, practice management, billing, clearinghouse, telephony, scheduling, intake, HIPAA program, staffing model. Get the decisions right and the practice runs quietly. Get them wrong and you'll spend the first two years fighting your own infrastructure.",
+      "Phase 05 is where you choose the systems your practice actually runs on. EHR, practice management, billing, clearinghouse, telephony, scheduling, intake, patient experience, HIPAA program — plus the rapidly-evolving question of how to use AI safely to increase productivity. Get the decisions right and the practice runs quietly. Get them wrong and you spend the first two years fighting your own infrastructure.",
     sections: [
       {
         heading: "Design the workflow first. Pick the EHR second.",
@@ -286,17 +286,78 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
       {
         heading: "The stack you actually need.",
         body:
-          "EHR (clinical), practice management (administrative), clearinghouse (claims), telephony (patient communication), scheduling (booking + reminders), intake (forms), and a payment processor. Some EHRs bundle three or four of these; some specialize.\n\nWatch for hidden integration costs. A bundled solution that 'almost' fits is often more expensive over five years than a best-of-breed approach that integrates cleanly. The hard part is knowing which is which — talk to practices already running the stack you're considering.",
+          "Clinical: EHR. Administrative: practice management. Claims: clearinghouse. Patient communication: telephony, scheduling, intake forms, secure messaging. Payments: card processor, payment plans, statements. Front-of-house: check-in kiosk or tablet, lobby experience. HIPAA infrastructure: secure email, file sharing, password management, endpoint protection, vendor BAAs.\n\nSome EHRs bundle three or four of these; some specialize. Watch for hidden integration costs. A bundled solution that 'almost' fits is often more expensive over five years than a best-of-breed approach that integrates cleanly. The hard part is knowing which is which — talk to practices already running the stack you're considering, or talk to someone who has helped a dozen practices choose.",
+      },
+      {
+        heading: "",
+        body: "",
+        pullQuote:
+          "A bundled solution that almost fits is often more expensive over five years than a best-of-breed stack that integrates cleanly.",
+      },
+      {
+        heading: "AI for your practice — productivity with security.",
+        body:
+          "AI is no longer optional in a new medical practice. Ambient clinical documentation alone can reclaim 1–2 hours per provider per day. AI-assisted prior authorization, denial management, patient triage, and front-desk workflows are real productivity unlocks today — not in five years.\n\nThe two questions to answer for each AI tool: does it produce real productivity gain, and does it meet your security obligations (HIPAA Business Associate Agreement, no PHI in training data, audit logging)? Most consumer AI tools fail the security test. A growing number of healthcare-grade options pass it.\n\nThe right approach is layered. Ambient documentation that integrates with your EHR. RCM and denial-management AI that sits between the clearinghouse and your billing team. Patient communication AI that handles routine triage and FAQs before they reach the front desk. Each layer should be evaluated separately, contracted separately, and earn its place by measurable outcomes.",
+        numericCallout: { label: "Documentation time recovered", value: "1–2h", sub: "per provider per day with ambient AI" },
+      },
+      {
+        heading: "Patient experience is part of infrastructure.",
+        body:
+          "How patients schedule, check in, fill out forms, pay, message you, and review their care all happen inside your tech stack. If any link is broken, patient satisfaction degrades and reviews drop.\n\nThe baseline: online scheduling with real availability (not 'request an appointment'), digital intake that pre-populates the EHR, transparent billing (estimates before service when possible), secure messaging, telehealth-ready visits, and a simple review-request workflow. None of this is exotic in 2026 — it's table stakes for a competitive practice.",
       },
       {
         heading: "HIPAA is a program, not a project.",
         body:
-          "HIPAA compliance is not a one-time setup. It's a documented risk analysis, a set of policies and procedures, Business Associate Agreements with every vendor that touches PHI, regular staff training, and incident response readiness.\n\nMost new practices set up just enough HIPAA to feel safe and discover the gaps when something happens — a lost laptop, a phishing email, a misdirected fax. Do the work upfront. The cost of doing it right is small. The cost of doing it wrong is enormous.",
+          "HIPAA compliance is not a one-time setup. It's a documented risk analysis, a set of policies and procedures, Business Associate Agreements with every vendor that touches PHI, regular staff training, incident response readiness, and — now — explicit policies on AI use.\n\nMost new practices set up just enough HIPAA to feel safe and discover the gaps when something happens: a lost laptop, a phishing email, a misdirected fax, an AI tool that retained PHI for training. Do the work upfront. The cost of doing it right is small. The cost of doing it wrong is enormous.",
+      },
+      {
+        heading: "Vendor selection — what to actually look for.",
+        body:
+          "Three things matter more than feature lists. First: will they sign a real BAA, and what does it actually cover? Second: how do they price (is it per-provider, per-visit, percentage of collections, or some opaque blend)? Third: what is the all-in cost over five years, including implementation, training, integration, and reasonable growth?\n\nThe vendors with the loudest marketing are not always the best fit. The vendors with strong specialty fit, transparent pricing, real BAAs, and proven integration ecosystems usually are. We've sat through hundreds of vendor pitches and know who consistently delivers — part of what a consultation surfaces is which vendors will fit your specific practice.",
+      },
+      {
+        heading: "Avoid long-term contract traps.",
+        body:
+          "Multi-year exclusive contracts at launch are almost always a bad trade. The 'discount' on a 3-year EHR contract typically doesn't account for the cost of switching when it inevitably doesn't fit. Pricing should be value-based and have reasonable exit terms.\n\nThis is especially true for AI tools, which are evolving fast. A great tool today may be middle-of-the-pack in 18 months. Buy productivity and security, not lock-in.",
+        pullQuote:
+          "Buy productivity and security, not lock-in. Multi-year exclusive contracts at launch are almost always a bad trade.",
       },
       {
         heading: "Staffing model and timing.",
         body:
-          "Most new practices over-hire too early or under-hire too long. The honest staffing model: one front-desk per provider FTE for most specialties, plus billing (in-house or outsourced) and clinical support as your specialty requires.\n\nHire the first front-desk 30 to 45 days before launch so they have time to train on the systems before patients arrive. Hire clinical support based on the actual patient volume you're seeing, not the volume you're hoping to see.",
+          "Most new practices over-hire too early or under-hire too long. The honest staffing model: one front-desk per provider FTE for most specialties, plus billing (in-house or outsourced) and clinical support as your specialty requires. AI tools change the math by reducing the documentation, intake, and triage burden — but they don't eliminate the need for thoughtful staffing.\n\nHire the first front-desk 30 to 45 days before launch so they have time to train on the systems before patients arrive. Hire clinical support based on the actual patient volume you're seeing, not the volume you're hoping to see.",
+      },
+      {
+        heading: "What to do in the next 30 days.",
+        body:
+          "Map your patient workflow on paper: intake → check-in → visit → documentation → billing → follow-up. Identify the 2 or 3 EHRs that fit your specialty. Run real test patients through each. Get pricing for the full stack you'll need — not just the EHR.\n\nList the AI tools you're considering and run each through a 4-question screen: real productivity gain measurable? BAA available? Healthcare-specific? Reasonable exit terms? If any answer is 'no,' reconsider.\n\nDraft the HIPAA program. List every vendor that will touch PHI and start the BAA process. Don't sign multi-year contracts on day one.",
+      },
+    ],
+    faq: [
+      {
+        q: "Should I pick the same EHR my hospital used?",
+        a:
+          "Probably not. Hospital EHRs (Epic, Cerner) are designed for very different workflows than independent ambulatory practices. Specialty-fit EHRs (athenahealth, Practice Fusion, eClinicalWorks, Modernizing Medicine for derm, NextGen for various, OncoEMR for oncology, SimplePractice for behavioral health, etc.) are usually better fits and dramatically less expensive.",
+      },
+      {
+        q: "Which AI tools should I evaluate first?",
+        a:
+          "Ambient clinical documentation has the highest immediate ROI for most specialties. After that, evaluate AI for RCM and denial management (high ROI for practices with significant payer mix), then patient communication and triage. Always require a BAA, healthcare-specific training, and reasonable exit terms before signing.",
+      },
+      {
+        q: "What does a real medical practice technology stack cost?",
+        a:
+          "For a solo practice, expect $1,500 to $4,000 per month in recurring software costs (EHR, practice management, clearinghouse, telephony, scheduling, payments) once you're up and running. Implementation and training adds $5,000 to $25,000 upfront depending on complexity. AI tools typically add $200 to $800 per provider per month for the high-value categories.",
+      },
+      {
+        q: "Is in-house billing or outsourced billing better?",
+        a:
+          "Depends on your specialty, payer mix, and growth plans. In-house gives you control and visibility; outsourced gives you predictability and frees clinical attention. Most new practices benefit from outsourced billing for the first 12–18 months while they focus on patient volume, then revisit the decision once they have real billing data.",
+      },
+      {
+        q: "Do I really need a HIPAA risk analysis?",
+        a:
+          "Yes. It is required by law (45 CFR §164.308(a)(1)(ii)(A)) and is one of the first things examined in any HIPAA audit or breach investigation. The risk analysis is the foundation of every other HIPAA decision. Doing it once at launch (and updating annually) is straightforward; not doing it can be catastrophic.",
       },
     ],
   },

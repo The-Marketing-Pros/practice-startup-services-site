@@ -103,6 +103,31 @@ export const services: Service[] = [
     consultationHook: "Show us your current site (or lack of one). We'll show you what's possible.",
   },
   {
+    slug: "technology-ai-implementation",
+    name: "Technology + AI for Medical Practices",
+    crewLabel: "Build crew for Phase 5 · technology stack + AI",
+    scopeBadge: "single-phase",
+    outcomeHeadline: "The right tech stack. The right AI. No long-term contract traps.",
+    outcomeSub:
+      "EHR, billing, telephony, patient experience, and AI productivity tools — selected, contracted, and implemented for your specialty. Decades of vendor relationships, focus on value not lock-in.",
+    primaryPhase: "05",
+    secondaryPhases: ["06", "07"],
+    whatsIncluded: [
+      "EHR + practice management evaluation and selection",
+      "Telephony, scheduling, intake, payments — best-in-breed stack",
+      "AI tool evaluation: ambient documentation, RCM/denial management, patient communication",
+      "BAA management and security governance for every vendor",
+      "Implementation, integration testing, staff training",
+      "HIPAA risk analysis + policy framework",
+      "Patient experience design (scheduling, intake, billing transparency)",
+      "Vendor pricing negotiation with our relationships",
+    ],
+    pricingPlaceholder:
+      "Project pricing for selection + implementation. Optional ongoing technology management. We focus on value, not multi-year exclusive contracts that lock you in.",
+    consultationHook:
+      "Tell us your specialty and target open date. We'll surface the 2 or 3 stack options that fit your practice, the AI tools that will earn their place on day one, and a realistic implementation timeline.",
+  },
+  {
     slug: "practice-infrastructure",
     name: "Practice Infrastructure Support",
     crewLabel: "Build crew for Phase 5",
