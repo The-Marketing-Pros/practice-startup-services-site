@@ -16,17 +16,28 @@ const highlightedPhases = Object.entries(specialty.phaseHighlights) as Array<[
   string
 ]>;
 
-// Pick 'a' vs 'an' based on initial vowel sound. Special-case some specialties
-// where 'a' doesn't read naturally (Orthopedics, OB/GYN treated as initialism).
+// Pick 'a' vs 'an' based on initial vowel SOUND, not just the letter.
+// English has tricky cases: 'urology' (yoo-rology) takes 'a', 'OB/GYN' takes 'an'.
 function articleFor(name: string): string {
   const lower = name.toLowerCase();
-  const startsWithVowel = /^[aeiou]/.test(lower);
+  // Explicit overrides where the letter rule fails the sound rule
+  const consonantSoundOverrides = [
+    "urology", // yoo-
+    "university",
+    "useful",
+    "european",
+    "unique",
+    "unit",
+  ];
+  if (consonantSoundOverrides.some((w) => lower.startsWith(w))) return "a";
   // OB/GYN reads as 'oh-bee-gee-why-en' → 'an'
   if (lower.startsWith("ob/gyn") || lower.startsWith("obgyn")) return "an";
-  return startsWithVowel ? "an" : "a";
+  // Honorary 'h' words that take 'an' (hour, honor) — none in our list but defensive
+  if (/^(hour|honest|honor|herb)/.test(lower)) return "an";
+  return /^[aeiou]/.test(lower) ? "an" : "a";
 }
 const article = articleFor(specialty.name);
-const title = `Starting ${article === "a" ? "a" : "an"} ${specialty.name} Practice`;
+const title = `Starting ${article} ${specialty.name} Practice`;
 const description = `Practice startup guidance specific to ${specialty.name} — payer mix, capital requirements, and the watchouts that change the launch sequence for this specialty.`;
 
 const breadcrumbSchema = {
