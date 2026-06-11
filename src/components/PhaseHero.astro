@@ -1,0 +1,110 @@
+---
+import type { Phase } from "@data/phases";
+import { phases } from "@data/phases";
+
+interface Props {
+  phase: Phase;
+}
+
+const { phase } = Astro.props;
+const idx = phases.findIndex((p) => p.id === phase.id);
+const prev = idx > 0 ? phases[idx - 1] : null;
+const next = idx < phases.length - 1 ? phases[idx + 1] : null;
+const buildStageLabel = {
+  foundation: "Foundation",
+  structure: "Structure",
+  systems: "Systems",
+  launch: "Launch",
+  growth: "Growth",
+}[phase.buildStage];
+---
+
+<section class="border-b border-ink/8 relative overflow-hidden">
+  <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id={`bp-grid-${phase.id}`} x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#bp-grid-${phase.id})`} />
+    </svg>
+  </div>
+
+  <div class="container-site pt-14 lg:pt-20 pb-12 lg:pb-16 relative">
+    <!-- Breadcrumb / phase coordinate -->
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 phase-label text-graphite-600 mb-7">
+      <a href="/journey" class="hover:text-ink transition-colors">The Launch Journey</a>
+      <span aria-hidden="true">/</span>
+      <span class="text-graphite-500">{buildStageLabel}</span>
+      <span aria-hidden="true">/</span>
+      <span class="text-bronze-700 font-medium">Phase {phase.id} · {phase.verb}</span>
+      {
+        phase.controlRoom && (
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sharp bg-signal/15 text-signal-900 font-mono text-label">
+            <span class="h-1.5 w-1.5 rounded-full bg-signal"></span>
+            Control room
+          </span>
+        )
+      }
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-8">
+        <h1 class="font-display font-medium text-display-xl text-balance text-ink mb-5">
+          {phase.title}
+        </h1>
+        <p class="text-lede text-graphite-700 max-w-prose-wide mb-8 text-pretty">
+          {phase.subtitle}
+        </p>
+
+        <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-6 max-w-prose-wide">
+          <div>
+            <dt class="phase-label text-graphite-500 mb-2">The question you're asking</dt>
+            <dd class="text-body text-ink leading-relaxed">{phase.question}</dd>
+          </div>
+          <div>
+            <dt class="phase-label text-graphite-500 mb-2">The decision in front of you</dt>
+            <dd class="text-body text-ink leading-relaxed">{phase.decision}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <aside class="lg:col-span-4 lg:pl-6 lg:border-l lg:border-ink/8">
+        <div class="phase-label text-graphite-500 mb-3">Move between phases</div>
+        <ul class="space-y-3">
+          {
+            prev && (
+              <li>
+                <a href={`/journey/${prev.slug}`} class="group flex items-center gap-3">
+                  <span class="font-mono text-label text-bronze-700">← {prev.id}</span>
+                  <span class="text-small text-graphite-700 group-hover:text-ink transition-colors">
+                    {prev.title}
+                  </span>
+                </a>
+              </li>
+            )
+          }
+          {
+            next && (
+              <li>
+                <a href={`/journey/${next.slug}`} class="group flex items-center gap-3">
+                  <span class="font-mono text-label text-bronze-700">{next.id} →</span>
+                  <span class="text-small text-graphite-700 group-hover:text-ink transition-colors">
+                    {next.title}
+                  </span>
+                </a>
+              </li>
+            )
+          }
+        </ul>
+
+        <div class="mt-6 pt-6 border-t border-ink/8">
+          <a href="/journey" class="text-small text-graphite-700 hover:text-ink transition-colors">
+            ← See all 7 phases
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

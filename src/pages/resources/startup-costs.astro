@@ -1,0 +1,136 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { SITE } from "@data/site";
+
+const costCategories = [
+  {
+    category: "Capital expenses",
+    range: "$50k – $250k+",
+    items: [
+      "Office build-out (paint, furniture, exam tables, signage) — $20k–$150k",
+      "Medical equipment (specialty-dependent) — $10k–$100k+",
+      "Office IT (computers, phones, printers, networking) — $5k–$20k",
+      "Lease deposits + first/last month — $10k–$40k",
+    ],
+  },
+  {
+    category: "Recurring monthly (pre-revenue)",
+    range: "$15k – $40k / mo",
+    items: [
+      "Rent — $3k–$15k/mo (varies wildly by market)",
+      "EHR + Practice Management — $300–$1,500/mo",
+      "Clearinghouse + billing software — $200–$800/mo",
+      "Telephony + internet — $200–$600/mo",
+      "Malpractice insurance — $5k–$30k/year, often paid quarterly",
+      "Staff salaries — $8k–$25k/mo for 1–3 FTE",
+      "Marketing — $1k–$5k/mo at launch",
+    ],
+  },
+  {
+    category: "One-time professional",
+    range: "$5k – $50k",
+    items: [
+      "Healthcare attorney (entity, leases, employment) — $3k–$15k",
+      "CPA setup + bookkeeping start — $1k–$5k",
+      "Credentialing service or in-house — $1k–$3k per provider, per payer",
+      "Website + brand — $5k–$25k for real custom build",
+      "HIPAA program + risk analysis — $2k–$8k",
+    ],
+  },
+  {
+    category: "Working capital reserve",
+    range: "6 months minimum",
+    items: [
+      "Credentialing lag means you bill but get paid late. Cushion for it.",
+      "Most practices reach break-even months 7–12, not months 3–4.",
+      "Underestimating this reserve is the most common reason new practices stall.",
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Practice Startup Cost Guide"
+  description="Honest cost ranges for launching a private medical practice — capital expenses, monthly burn, professional fees, and working capital."
+>
+  <section class="border-b border-ink/8 py-14 lg:py-20">
+    <div class="container-site">
+      <div class="max-w-3xl">
+        <div class="phase-label text-bronze-700 mb-5">Free guide</div>
+        <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
+          Practice startup costs — honest ranges, no fake precision.
+        </h1>
+        <p class="text-lede text-graphite-700 max-w-prose-wide text-pretty mb-2">
+          What launching a private medical practice actually costs in 2026, broken into the four
+          buckets every pro forma needs.
+        </p>
+        <p class="text-small text-graphite-600 max-w-prose-wide">
+          Ranges are wide on purpose — your specialty, market, and ambition all move the numbers.
+          When you want a real number for your specific situation, that's what a consultation is for.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
+    <div class="container-site">
+      <div class="grid lg:grid-cols-2 gap-5">
+        {
+          costCategories.map((c) => (
+            <div class="card-blueprint">
+              <div class="flex items-center justify-between mb-4">
+                <div class="phase-label text-bronze-700">{c.category}</div>
+                <div class="font-mono text-small text-ink font-medium">{c.range}</div>
+              </div>
+              <ul class="space-y-2">
+                {c.items.map((item) => (
+                  <li class="flex gap-3 text-body text-graphite-800 leading-relaxed">
+                    <span class="text-bronze-700 font-mono mt-1">·</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="do-not-skip max-w-prose-wide mx-auto mt-10">
+        <div class="do-not-skip-label">Do not skip this · the credentialing cash gap</div>
+        <p class="text-body text-graphite-900 leading-relaxed">
+          Even after you open, you'll bill insurance for 30–60 days before payments arrive. Credentialing
+          delays can extend the gap by another 60–120 days for some payers. Plan your reserve for the
+          worst-case version of this timeline, not the best case.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-ink/8 py-16 lg:py-20">
+    <div class="container-site">
+      <div class="max-w-prose-wide mx-auto">
+        <h2 class="font-display text-display-lg font-medium text-ink mb-4 text-balance">
+          The honest part most calculators skip.
+        </h2>
+        <p class="text-body text-graphite-800 leading-relaxed mb-4">
+          Online calculators output a single number. Reality is a spread. A solo therapist launching in
+          a low-cost market with no equipment needs is at the bottom of every range. An orthopedist
+          opening a full clinic with imaging is at the top. Most physicians land somewhere in between —
+          but their pro forma usually doesn't reflect that range honestly.
+        </p>
+        <p class="text-body text-graphite-800 leading-relaxed mb-4">
+          We've helped enough practices launch to know which line items new operators undercount,
+          which they overcount, and where the surprises usually hide. If you want help pressure-testing
+          your numbers before you sign a lease or take a loan, that's exactly what we do in a
+          consultation.
+        </p>
+        <a href={SITE.scheduleUrl} class="btn-primary mt-4">
+          {SITE.primaryCta}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</BaseLayout>

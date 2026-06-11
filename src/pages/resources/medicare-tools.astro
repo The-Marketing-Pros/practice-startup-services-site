@@ -1,0 +1,120 @@
+---
+// CONTROL ROOM MOMENT #2 — Medicare Tools
+// 03b §1 Layer 3 — Metolius tools framed as instruments inside the workflow.
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { SITE } from "@data/site";
+
+const tools = [
+  {
+    name: "Medicare Physician Fee Schedule Lookup",
+    description:
+      "Look up the Medicare allowed amount for any HCPCS / CPT code, in any locality, for any year. The numbers behind your pro forma and your payer negotiations.",
+    when: "Phase 2 (Planning) — sizing the pro forma. Phase 7 (Grow) — payer fee comparisons.",
+    href: "https://mymetolius.com/tools",
+    cta: "Open the lookup",
+    code: "MPFS",
+  },
+  {
+    name: "Medicare Revalidation Lookup",
+    description:
+      "Check your Medicare revalidation due date by NPI. Miss it and your enrollment goes inactive — and so does your ability to bill Medicare. This tool tells you when your clock is up.",
+    when: "Phase 4 (Credentialing) — initial enrollment. Phase 7 (Grow) — every 3 or 5 years thereafter.",
+    href: "https://mymetolius.com/tools",
+    cta: "Check revalidation status",
+    code: "REVAL",
+  },
+];
+---
+
+<BaseLayout
+  title="Free Medicare Tools for New Practices"
+  description="Two free Medicare tools every new practice should bookmark — fee schedule lookup and revalidation status checker."
+>
+  <!-- Control Room hero -->
+  <section class="bg-ink text-paper-100 py-16 lg:py-24 relative overflow-hidden border-b border-paper-200/10">
+    <div class="absolute inset-0 opacity-30 -z-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-signal/10 blur-3xl"></div>
+      <div class="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-bronze/10 blur-3xl"></div>
+    </div>
+
+    <div class="container-site relative">
+      <div class="max-w-3xl">
+        <div class="phase-label text-signal mb-5">
+          <span class="inline-flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-signal animate-pulse"></span>
+            Control room · Free tools
+          </span>
+        </div>
+        <h1 class="font-display text-display-xl font-medium text-paper-100 mb-5 text-balance">
+          Two free Medicare tools every new practice should bookmark.
+        </h1>
+        <p class="text-lede text-paper-200/85 max-w-prose-wide text-pretty">
+          Hosted by our partner team at Metolius. No login. No email gate. The exact instruments you'll
+          actually use during your launch — and forever after.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-ink/8 py-16 lg:py-20">
+    <div class="container-site">
+      <div class="grid lg:grid-cols-2 gap-6">
+        {
+          tools.map((t) => (
+            <a
+              href={t.href}
+              target="_blank"
+              rel="noopener"
+              class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="font-mono text-label text-signal-900 bg-signal/15 px-2 py-1 rounded-sharp">
+                  {t.code}
+                </div>
+                <div class="phase-label text-graphite-500">Live tool · external</div>
+              </div>
+
+              <h2 class="font-display text-display-md font-medium text-ink mb-3 text-balance">
+                {t.name}
+              </h2>
+
+              <p class="text-body text-graphite-800 leading-relaxed mb-5">{t.description}</p>
+
+              <div class="phase-label text-graphite-500 mb-1">When you'll use it</div>
+              <p class="text-small text-graphite-700 mb-5">{t.when}</p>
+
+              <div class="mt-auto pt-4 border-t border-ink/8 flex items-center justify-between text-small font-medium text-ink group-hover:text-bronze-700 transition-colors">
+                {t.cta}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path
+                    d="M3 11l8-8M4 3h7v7"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+
+      <div class="max-w-prose-wide mx-auto mt-16">
+        <div class="phase-label text-graphite-600 mb-3">Why these tools</div>
+        <p class="text-body text-graphite-800 leading-relaxed mb-4">
+          Most practice management vendors charge for fee schedule data and never tell you when your
+          Medicare enrollment is due for revalidation. Both of these tools are the kind of operational
+          basics that should be free for anyone running a practice.
+        </p>
+        <p class="text-body text-graphite-800 leading-relaxed">
+          They're built by our partner team at Metolius. If you'd like help applying them to your
+          specific pro forma or revalidation timeline, that's what our consultation is for.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</BaseLayout>

@@ -1,0 +1,149 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import PhaseStrip from "@components/PhaseStrip.astro";
+import { services } from "@data/services";
+import { phaseById } from "@data/phases";
+import { SITE } from "@data/site";
+
+export function getStaticPaths() {
+  return services.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
+}
+
+const { service } = Astro.props;
+const primaryPhase = phaseById[service.primaryPhase];
+const secondaryPhases = service.secondaryPhases.map((id) => phaseById[id]);
+
+const description = `${service.outcomeHeadline} ${service.outcomeSub}`;
+---
+
+<BaseLayout title={service.name} description={description}>
+  <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid-svc" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bp-grid-svc)" />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-6">
+        <a href="/services" class="hover:text-ink transition-colors">Services</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-bronze-700">{service.crewLabel}</span>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-10 items-start">
+        <div class="lg:col-span-8">
+          <h1 class="font-display font-medium text-display-xl text-balance text-ink mb-5">
+            {service.outcomeHeadline}
+          </h1>
+          <p class="text-lede text-graphite-700 max-w-prose-wide mb-7 text-pretty">
+            {service.outcomeSub}
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href={SITE.scheduleUrl} class="btn-primary">
+              {SITE.primaryCta}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M5 3l4 4-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+            <a href={`/journey/${primaryPhase.slug}`} class="btn-secondary">
+              See Phase {primaryPhase.id}: {primaryPhase.title}
+            </a>
+          </div>
+        </div>
+
+        <aside class="lg:col-span-4 card-blueprint">
+          <div class="phase-label text-graphite-500 mb-2">Primary phase</div>
+          <a href={`/journey/${primaryPhase.slug}`} class="group block mb-4">
+            <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">
+              {primaryPhase.id}
+            </div>
+            <div class="font-display text-display-sm font-medium text-ink mt-1 group-hover:text-bronze-700 transition-colors">
+              {primaryPhase.title}
+            </div>
+          </a>
+          {
+            secondaryPhases.length > 0 && (
+              <div class="pt-4 border-t border-ink/8">
+                <div class="phase-label text-graphite-500 mb-2">Also supports</div>
+                <ul class="space-y-1.5">
+                  {secondaryPhases.map((p) => (
+                    <li>
+                      <a
+                        href={`/journey/${p.slug}`}
+                        class="text-small text-graphite-700 hover:text-ink transition-colors flex items-center gap-2"
+                      >
+                        <span class="font-mono text-label text-bronze-700">{p.id}</span>
+                        {p.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <PhaseStrip current={service.primaryPhase} ariaLabel="Phases this crew supports" />
+
+  <section class="border-b border-ink/8 py-16 lg:py-20">
+    <div class="container-site">
+      <div class="grid lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-7">
+          <div class="phase-label text-bronze-700 mb-3">What this crew handles</div>
+          <h2 class="font-display text-display-lg font-medium text-ink mb-7 text-balance">
+            The scope, in plain English.
+          </h2>
+          <ul class="space-y-3 max-w-prose-wide">
+            {
+              service.whatsIncluded.map((item) => (
+                <li class="flex gap-3 text-body text-ink leading-relaxed">
+                  <span class="text-bronze-700 font-mono mt-1.5 text-label">●</span>
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <aside class="lg:col-span-5">
+          <div class="card-blueprint">
+            <div class="phase-label text-graphite-500 mb-3">Pricing</div>
+            <p class="text-body text-ink leading-relaxed mb-5">{service.pricingPlaceholder}</p>
+            <div class="blueprint-rule mb-5"></div>
+            <p class="text-small text-graphite-700 mb-4">{service.consultationHook}</p>
+            <a href={SITE.scheduleUrl} class="btn-primary text-small w-full justify-center">
+              {SITE.primaryCta}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M5 3l4 4-4 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</BaseLayout>

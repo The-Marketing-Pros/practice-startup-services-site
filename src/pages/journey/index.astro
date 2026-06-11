@@ -1,0 +1,44 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import BlueprintJourney from "@components/BlueprintJourney.astro";
+import FinalCta from "@components/FinalCta.astro";
+---
+
+<BaseLayout
+  title="The Launch Journey"
+  description="The 7-phase blueprint for launching an independent medical practice. Foundation, structure, systems, launch, growth — in order, with the watchouts most checklists skip."
+>
+  <section class="border-b border-ink/8 py-16 lg:py-24 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid-journey" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bp-grid-journey)" />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="max-w-3xl">
+        <div class="phase-label text-bronze-700 mb-5">The Independent Practice Blueprint</div>
+        <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
+          The launch journey, in order.
+        </h1>
+        <p class="text-lede text-graphite-700 max-w-prose-wide text-pretty mb-6">
+          Starting a practice isn't a checklist. It's a build sequence with dependencies, timing windows,
+          and traps. Most physicians launch the way they were taught to do residency — show up, work hard,
+          hope it works. That's how 90 to 180 days of revenue get lost to credentialing, working capital
+          gets burned on the wrong EHR, and marketing money goes to programs that don't fit.
+        </p>
+        <p class="text-lede text-ink max-w-prose-wide text-pretty">
+          This is the order of operations. Use it for free. Hire us when you want the build crew.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <BlueprintJourney />
+  <FinalCta />
+</BaseLayout>

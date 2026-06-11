@@ -1,0 +1,79 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import PhaseHero from "@components/PhaseHero.astro";
+import PhaseStrip from "@components/PhaseStrip.astro";
+import BuildSequence from "@components/BuildSequence.astro";
+import CredentialingClock from "@components/CredentialingClock.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { phases } from "@data/phases";
+import { services } from "@data/services";
+
+export function getStaticPaths() {
+  return phases.map((p) => ({ params: { slug: p.slug }, props: { phase: p } }));
+}
+
+const { phase } = Astro.props;
+
+// Related services — any service whose primary or secondary phase matches this phase
+const relatedServices = services.filter(
+  (s) => s.primaryPhase === phase.id || s.secondaryPhases.includes(phase.id)
+);
+
+const title = `Phase ${phase.id} · ${phase.title}`;
+const description = `${phase.subtitle} ${phase.question}`;
+---
+
+<BaseLayout title={title} description={description}>
+  <PhaseHero phase={phase} />
+  <PhaseStrip current={phase.id} />
+  <BuildSequence phase={phase} />
+
+  {phase.controlRoom && <CredentialingClock />}
+
+  {
+    relatedServices.length > 0 && (
+      <section class="border-b border-ink/8 py-16 lg:py-20">
+        <div class="container-site">
+          <div class="max-w-3xl mb-10">
+            <div class="phase-label text-bronze-700 mb-3">Build crews for this phase</div>
+            <h2 class="font-display text-display-lg font-medium text-ink mb-4 text-balance">
+              When you want help with this phase.
+            </h2>
+            <p class="text-lede text-graphite-700 text-pretty">
+              Each crew owns a specific piece of the build. You hire what you need, when you need it.
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-5">
+            {relatedServices.map((s) => (
+              <a
+                href={`/services/${s.slug}`}
+                class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+              >
+                <div class="phase-label text-graphite-500 mb-3">{s.crewLabel}</div>
+                <h3 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+                  {s.outcomeHeadline}
+                </h3>
+                <p class="text-small text-graphite-700 text-pretty mb-4 flex-1">{s.outcomeSub}</p>
+                <div class="mt-auto pt-4 border-t border-ink/8 flex items-center justify-between text-small font-medium text-ink group-hover:text-bronze-700 transition-colors">
+                  See the crew
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path
+                      d="M5 3l4 4-4 4"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <FinalCta />
+</BaseLayout>

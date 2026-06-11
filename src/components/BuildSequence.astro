@@ -1,0 +1,114 @@
+---
+// Build Sequence module — 03b §1 Layer 1, the core Blueprint pattern.
+// "what must happen first, what can run in parallel, what delays launch, free resource, when to schedule a consult"
+import type { Phase } from "@data/phases";
+import { SITE } from "@data/site";
+
+interface Props {
+  phase: Phase;
+}
+
+const { phase } = Astro.props;
+---
+
+<section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
+  <div class="container-site">
+    <div class="max-w-3xl mb-10">
+      <div class="phase-label text-bronze-700 mb-3">Build sequence · Phase {phase.id}</div>
+      <h2 class="font-display text-display-lg font-medium text-ink mb-4 text-balance">
+        How to actually run {phase.verb.toLowerCase()}.
+      </h2>
+      <p class="text-lede text-graphite-700 text-pretty">
+        The order of operations for this phase. What comes first, what can run in parallel,
+        what will cost you if you skip ahead.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-6">
+      <!-- What must happen first -->
+      <div class="lg:col-span-7 card-blueprint">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="font-mono text-label text-paper-100 bg-ink rounded-sharp px-2 py-1">01</span>
+          <div class="phase-label text-graphite-600">What must happen first</div>
+        </div>
+        <p class="text-body text-ink leading-relaxed">{phase.whatHappensFirst}</p>
+      </div>
+
+      <!-- Duration callout -->
+      <div class="lg:col-span-5 card-blueprint bg-ink text-paper-100 border-ink">
+        <div class="phase-label text-bronze-300 mb-3">Realistic duration</div>
+        <div class="font-display text-display-md font-medium text-paper-100 leading-tight">
+          {phase.duration}
+        </div>
+      </div>
+
+      <!-- What can happen in parallel -->
+      <div class="lg:col-span-6 card-blueprint">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="font-mono text-label text-paper-100 bg-ink rounded-sharp px-2 py-1">02</span>
+          <div class="phase-label text-graphite-600">What can run in parallel</div>
+        </div>
+        <ul class="space-y-2">
+          {
+            phase.whatCanHappenInParallel.map((item) => (
+              <li class="flex gap-3 text-body text-graphite-800 leading-relaxed">
+                <span class="text-bronze-700 font-mono mt-1">·</span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- What commonly delays -->
+      <div class="lg:col-span-6 do-not-skip !my-0">
+        <div class="do-not-skip-label">Do not skip this · what delays launches</div>
+        <ul class="space-y-2 mt-3">
+          {
+            phase.whatCommonlyDelays.map((item) => (
+              <li class="flex gap-3 text-body text-graphite-900 leading-relaxed">
+                <span class="text-warn font-mono mt-1">!</span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Free resource -->
+      <div class="lg:col-span-6 card-blueprint">
+        <div class="phase-label text-graphite-600 mb-3">Free resource for this phase</div>
+        <a
+          href={phase.freeResource.href}
+          class="group flex items-center justify-between gap-3 -m-2 p-2 rounded-soft hover:bg-paper-200/60 transition-colors"
+        >
+          <div>
+            <div class="font-display text-display-sm font-medium text-ink">
+              {phase.freeResource.label}
+            </div>
+            <div class="text-small text-graphite-600 mt-1">
+              Free. No email gate.
+            </div>
+          </div>
+          <span class="inline-flex items-center justify-center h-9 w-9 rounded-sharp border border-ink/15 text-graphite-600 group-hover:bg-ink group-hover:text-paper-100 group-hover:border-ink transition-colors flex-shrink-0">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <!-- Consultation trigger -->
+      <div class="lg:col-span-6 card-blueprint border-bronze-600 bg-paper-100">
+        <div class="phase-label text-bronze-700 mb-3">When to schedule a consultation</div>
+        <p class="text-body text-ink leading-relaxed mb-4">{phase.consultationTrigger}</p>
+        <a href={SITE.scheduleUrl} class="btn-primary text-small">
+          Schedule a consultation
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

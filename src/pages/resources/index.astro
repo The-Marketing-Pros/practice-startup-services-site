@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FreeResources from "@components/FreeResources.astro";
+import FinalCta from "@components/FinalCta.astro";
+---
+
+<BaseLayout
+  title="Free Resources"
+  description="The most useful free content in the practice startup space. Checklists, Medicare tools, cost guides — no email gate."
+>
+  <section class="border-b border-ink/8 py-16 lg:py-24">
+    <div class="container-site">
+      <div class="max-w-3xl">
+        <div class="phase-label text-bronze-700 mb-5">Free, no email gate</div>
+        <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
+          Practical resources for new private practices.
+        </h1>
+        <p class="text-lede text-graphite-700 max-w-prose-wide text-pretty">
+          We give the practical stuff away because the quality of our free content is the best signal
+          for the quality of our paid work. Read it, use it, and let us know when you want help.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <FreeResources />
+  <FinalCta />
+</BaseLayout>
