@@ -9,6 +9,11 @@ export interface DeepDiveSection {
   body: string; // markdown-light: paragraphs separated by blank lines
   pullQuote?: string; // optional editorial pull quote to break visual rhythm
   numericCallout?: { label: string; value: string; sub?: string }; // optional inline stat
+  // Optional horizontal comparison grid — breaks vertical prose monotony with a horizontal scan unit
+  comparisonGrid?: {
+    columnLabel: string; // e.g. "Model"
+    rows: Array<{ name: string; lead: string; detail: string }>;
+  };
 }
 
 export interface PhaseDeepDive {
@@ -37,7 +42,37 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
       {
         heading: "Practice models, briefly.",
         body:
-          "Solo fee-for-service: the traditional model. Bills insurance, sees patients in volume, requires careful payer mix planning. Highest revenue ceiling for most specialties, highest operational burden.\n\nGroup practice: multiple providers share infrastructure. Lower per-provider operational burden, more complex partnership dynamics, often easier credentialing economics.\n\nDirect primary care (DPC): patients pay a monthly membership fee directly to the practice. No insurance billing for primary care visits. Lower patient volumes, predictable revenue, growing rapidly. Works best for primary care and a few specialties.\n\nConcierge: hybrid that combines insurance billing with a separate retainer fee. Common in primary care and some specialties.\n\nCash-pay specialty: select services billed cash, no insurance involvement. Common for plastic surgery, derm, some psychiatry, integrative medicine.\n\nThere are good reasons to pick each. There is no universal right answer.",
+          "Five models account for most independent practice launches. Each has different startup economics, different operational burden, and different long-term profitability. There is no universal best; the right choice is the one that fits your specialty, your market, and your appetite for the business side.",
+        comparisonGrid: {
+          columnLabel: "Model",
+          rows: [
+            {
+              name: "Solo FFS",
+              lead: "Traditional fee-for-service.",
+              detail: "Bills insurance, volume-driven. Highest revenue ceiling for most specialties, highest operational burden.",
+            },
+            {
+              name: "Group",
+              lead: "Multiple providers, shared infrastructure.",
+              detail: "Lower per-provider operational burden. More complex partnership dynamics. Often easier credentialing economics.",
+            },
+            {
+              name: "DPC",
+              lead: "Direct primary care.",
+              detail: "Monthly membership, no insurance billing for primary care visits. Predictable revenue, growing rapidly. Best for primary care.",
+            },
+            {
+              name: "Concierge",
+              lead: "Insurance + retainer hybrid.",
+              detail: "Bills insurance plus a separate annual or monthly retainer. Common in primary care and select specialties.",
+            },
+            {
+              name: "Cash-pay",
+              lead: "Select services, no insurance.",
+              detail: "Common for plastic surgery, derm, some psychiatry, integrative medicine. Fast ramp because no credentialing lag.",
+            },
+          ],
+        },
       },
       {
         heading: "Signals that you're ready.",

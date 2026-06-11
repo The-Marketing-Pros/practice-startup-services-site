@@ -64,6 +64,32 @@ const dd = getDeepDive(phaseId);
                     )}
                   </div>
                 )}
+                {s.comparisonGrid && (
+                  <div class="mt-8 -mx-2 sm:mx-0">
+                    <div class="phase-label text-bronze-700 mb-3 ml-2 sm:ml-0">
+                      {s.comparisonGrid.columnLabel} · at a glance
+                    </div>
+                    <div class="divide-y divide-ink/10 border-t-2 border-b-2 border-ink/15">
+                      {s.comparisonGrid.rows.map((row) => (
+                        <div class="grid grid-cols-12 gap-4 py-4 px-2 sm:px-0 hover:bg-paper-200/40 transition-colors">
+                          <div class="col-span-12 sm:col-span-3">
+                            <div class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700">
+                              {row.name}
+                            </div>
+                          </div>
+                          <div class="col-span-12 sm:col-span-3">
+                            <div class="font-display text-base font-medium text-ink leading-tight">
+                              {row.lead}
+                            </div>
+                          </div>
+                          <div class="col-span-12 sm:col-span-6 text-small text-graphite-700 leading-relaxed text-pretty">
+                            {row.detail}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
