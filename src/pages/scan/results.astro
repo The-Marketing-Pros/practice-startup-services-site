@@ -1,0 +1,243 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { SITE } from "@data/site";
+import { phases } from "@data/phases";
+
+// Read the scan answers from the URL search params.
+// Note: this page runs at static build time, so the actual routing happens
+// client-side via small inline JS that reads window.location.search.
+---
+
+<BaseLayout
+  title="Your launch readiness — results"
+  description="The phase you should focus on now, the resources you need, and the next decision in front of you."
+>
+  <section class="bg-ink text-paper-100 py-16 lg:py-24 relative overflow-hidden border-b border-paper-200/10">
+    <div class="absolute inset-0 opacity-30 -z-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-signal/10 blur-3xl"></div>
+    </div>
+
+    <div class="container-site relative">
+      <div class="phase-label text-signal mb-5">
+        <span class="inline-flex items-center gap-2">
+          <span class="h-1.5 w-1.5 rounded-full bg-signal animate-pulse"></span>
+          Scan complete
+        </span>
+      </div>
+      <h1 class="font-display text-display-xl font-medium text-paper-100 mb-4 text-balance max-w-prose-wide">
+        Based on what you told us.
+      </h1>
+      <p class="text-lede text-paper-200/85 max-w-prose-wide text-pretty">
+        We mapped your answers to the 7-phase blueprint. Here's the phase to focus on now, the watchouts
+        most likely to bite you, and where a consultation would close the gap.
+      </p>
+    </div>
+  </section>
+
+  <section class="border-b border-ink/8 py-14 lg:py-20">
+    <div class="container-site">
+      <div id="scan-recap" class="mb-10 p-5 rounded-card border border-ink/10 bg-paper-100">
+        <div class="phase-label text-graphite-600 mb-3">Your answers</div>
+        <dl id="scan-answers" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-small"></dl>
+      </div>
+
+      <div id="recommended-phase" class="hidden mb-12"></div>
+
+      <div class="grid lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-7">
+          <div class="phase-label text-bronze-700 mb-3">All seven phases</div>
+          <h2 class="font-display text-display-lg font-medium text-ink mb-6 text-balance">
+            The full launch journey.
+          </h2>
+          <ol class="space-y-3">
+            {
+              phases.map((p) => (
+                <li>
+                  <a
+                    href={`/journey/${p.slug}`}
+                    class="block p-4 rounded-soft border border-ink/8 hover:border-ink/25 hover:bg-paper-200/40 transition-colors group"
+                  >
+                    <div class="grid grid-cols-12 gap-4 items-center">
+                      <div class="col-span-2 lg:col-span-1">
+                        <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">{p.id}</div>
+                      </div>
+                      <div class="col-span-10 lg:col-span-9">
+                        <div class="font-display text-base font-medium text-ink group-hover:text-bronze-700 transition-colors">
+                          {p.verb} — {p.title}
+                        </div>
+                        <p class="text-small text-graphite-700 leading-snug mt-0.5">{p.subtitle}</p>
+                      </div>
+                      <div class="col-span-12 lg:col-span-2 text-small text-graphite-600 lg:text-right">
+                        {p.duration.split(",")[0]}
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <aside class="lg:col-span-5">
+          <div class="card-blueprint">
+            <div class="phase-label text-bronze-700 mb-3">Ready for a real plan?</div>
+            <h3 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+              We picked up your scan answers.
+            </h3>
+            <p class="text-small text-graphite-700 mb-5">
+              A free consultation surfaces a real plan for your specialty, market, and target timing —
+              starting from where you are right now.
+            </p>
+            <a id="scan-cta" href={SITE.scheduleUrl} class="btn-primary w-full justify-center">
+              {SITE.primaryCta}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="mt-5 card-blueprint">
+            <div class="phase-label text-graphite-500 mb-2">Or start with the resources</div>
+            <ul class="space-y-2 text-small">
+              <li><a href="/resources/startup-checklist" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Practice Launch Checklist</a></li>
+              <li><a href="/resources/startup-costs" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Startup Cost Guide</a></li>
+              <li><a href="/resources/medicare-tools" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Free Medicare Tools</a></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta variant="default" />
+
+  <script is:inline>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const answers = {
+        role: params.get("role"),
+        stage: params.get("stage"),
+        timeline: params.get("timeline"),
+        unknown: params.get("unknown"),
+        state: params.get("state"),
+      };
+
+      const roleLabels = {
+        md: "Physician (MD/DO)",
+        np: "Nurse Practitioner",
+        pa: "Physician Assistant",
+        bh: "Behavioral Health Provider",
+        admin: "Practice Administrator",
+      };
+      const stageLabels = {
+        thinking: "Thinking about it",
+        planning: "Planning",
+        forming: "Forming the business",
+        credentialing: "In credentialing",
+        building: "Building infrastructure",
+        launching: "Launching marketing",
+        open: "Open and growing",
+      };
+      const timelineLabels = {
+        "3mo": "Within 3 months",
+        "6mo": "3–6 months",
+        "9mo": "6–9 months",
+        "12mo": "9–12 months",
+        exploring: "Just exploring",
+      };
+      const unknownLabels = {
+        model: "What practice model fits",
+        numbers: "Whether the numbers work",
+        credentialing: "Credentialing timing",
+        systems: "EHR / billing / infrastructure",
+        marketing: "How to find patients",
+        financing: "How to finance the launch",
+        legal: "Legal / entity setup",
+      };
+
+      const answersEl = document.getElementById("scan-answers");
+      const pairs = [
+        ["Role", answers.role && roleLabels[answers.role]],
+        ["Current stage", answers.stage && stageLabels[answers.stage]],
+        ["Target open", answers.timeline && timelineLabels[answers.timeline]],
+        ["Biggest unknown", answers.unknown && unknownLabels[answers.unknown]],
+        ["State", answers.state],
+      ];
+      let hasAny = false;
+      for (const [label, value] of pairs) {
+        if (!value) continue;
+        hasAny = true;
+        const dt = document.createElement("dt");
+        dt.className = "font-mono text-label uppercase tracking-[0.18em] text-graphite-500 mb-1";
+        dt.textContent = label;
+        const dd = document.createElement("dd");
+        dd.className = "text-body text-ink leading-tight mb-3";
+        dd.textContent = value;
+        answersEl.appendChild(dt);
+        answersEl.appendChild(dd);
+      }
+      if (!hasAny) {
+        const recap = document.getElementById("scan-recap");
+        if (recap) recap.style.display = "none";
+      }
+
+      // Recommended phase from stage/unknown
+      const stageToPhase = {
+        thinking: "is-this-right-for-me",
+        planning: "business-planning",
+        forming: "legal-entity-setup",
+        credentialing: "credentialing-enrollment",
+        building: "infrastructure-technology",
+        launching: "launch-marketing",
+        open: "grow-optimize",
+      };
+      const unknownToPhase = {
+        model: "is-this-right-for-me",
+        numbers: "business-planning",
+        legal: "legal-entity-setup",
+        credentialing: "credentialing-enrollment",
+        systems: "infrastructure-technology",
+        marketing: "launch-marketing",
+        financing: "business-planning",
+      };
+      const recSlug = (answers.unknown && unknownToPhase[answers.unknown]) || (answers.stage && stageToPhase[answers.stage]);
+      const phaseTitles = {
+        "is-this-right-for-me": ["01", "Decide", "Is This Right for Me?"],
+        "business-planning": ["02", "Plan", "Business Planning"],
+        "legal-entity-setup": ["03", "Form", "Legal & Entity Setup"],
+        "credentialing-enrollment": ["04", "Credential", "Credentialing & Enrollment"],
+        "infrastructure-technology": ["05", "Build", "Infrastructure & Technology"],
+        "launch-marketing": ["06", "Launch", "Launch & Marketing"],
+        "grow-optimize": ["07", "Grow", "Grow & Optimize"],
+      };
+      if (recSlug && phaseTitles[recSlug]) {
+        const [id, verb, title] = phaseTitles[recSlug];
+        const recEl = document.getElementById("recommended-phase");
+        recEl.classList.remove("hidden");
+        recEl.innerHTML =
+          '<div class="phase-label text-bronze-700 mb-3">Start here</div>' +
+          '<a href="/journey/' + recSlug + '" class="block bg-ink text-paper-100 rounded-card p-6 lg:p-8 hover:bg-ink-700 transition-colors group">' +
+          '<div class="grid grid-cols-12 gap-6 items-center">' +
+          '<div class="col-span-3 lg:col-span-2"><div class="font-mono text-display-lg text-bronze font-medium leading-none">' + id + '</div><div class="phase-label text-paper-200/60 mt-2">' + verb + '</div></div>' +
+          '<div class="col-span-9 lg:col-span-8"><div class="font-display text-display-md font-medium text-paper-100 mb-1">' + title + '</div><p class="text-small text-paper-200/75">Open the phase guide to see the build sequence, watchouts, and where help fits.</p></div>' +
+          '<div class="col-span-12 lg:col-span-2 lg:text-right"><span class="phase-label text-bronze">Open phase &rarr;</span></div>' +
+          '</div></a>';
+      }
+
+      // Append scan params to the CTA href so the CRM gets context once the URL is real
+      const cta = document.getElementById("scan-cta");
+      if (cta) {
+        const base = cta.getAttribute("href") || "/";
+        if (base.indexOf("{{") < 0) {
+          try {
+            const u = new URL(base, window.location.origin);
+            for (const [k, v] of Object.entries(answers)) if (v) u.searchParams.set(k, v);
+            u.searchParams.set("source", "launch-readiness-scan-results");
+            cta.setAttribute("href", u.toString());
+          } catch (e) {}
+        }
+      }
+    })();
+  </script>
+</BaseLayout>

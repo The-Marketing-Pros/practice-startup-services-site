@@ -10,12 +10,13 @@ import { states } from "@data/states";
 >
   <section class="border-b border-ink/8 py-16 lg:py-24">
     <div class="container-site">
-      <div class="max-w-3xl">
-        <div class="phase-label text-bronze-700 mb-5">By state</div>
-        <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
-          Different states. Different watchouts. Same blueprint.
-        </h1>
-        <p class="text-lede text-graphite-700 max-w-prose-wide text-pretty">
+      <div class="grid lg:grid-cols-12 gap-8 items-end">
+        <div class="lg:col-span-9">
+          <div class="phase-label text-bronze-700 mb-5">By state</div>
+          <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">Different states. Different watchouts. Same blueprint.</h1>
+        </div>
+        <div class="lg:col-span-12 max-w-prose-wide">
+          <p class="text-lede text-graphite-700 text-pretty">
           The 7-phase launch journey applies in every state. But the specific watchouts —
           credentialing timing, payer mix, entity rules, scope of practice — shift state to state.
           Find your state for the version that fits.
@@ -48,6 +49,7 @@ import { states } from "@data/states";
         More states are added as we expand coverage. If yours isn't listed yet, the 7-phase blueprint
         still applies — start there.
       </p>
+    </div>
     </div>
   </section>
 
