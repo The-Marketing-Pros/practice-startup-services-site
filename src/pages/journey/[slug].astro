@@ -51,7 +51,7 @@ const title = `Phase ${phase.id} · ${phase.title}`;
 const description = `${phase.subtitle} ${phase.question}`;
 ---
 
-<BaseLayout title={title} description={description} schema={schemas}>
+<BaseLayout title={title} titleAsIs={true} description={description} schema={schemas}>
   <PhaseHero phase={phase} />
   <PhaseStrip current={phase.id} />
   <BuildSequence phase={phase} />
@@ -77,7 +77,7 @@ const description = `${phase.subtitle} ${phase.question}`;
           <div class="grid md:grid-cols-2 gap-5">
             {relatedServices.map((s) => (
               <a
-                href={`/services/${s.slug}`}
+                href={`/services/${s.slug}/`}
                 class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
               >
                 <div class="phase-label text-graphite-500 mb-3">{s.crewLabel}</div>

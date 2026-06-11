@@ -11,10 +11,13 @@ interface Props {
   ogImage?: string;
   noIndex?: boolean;
   schema?: Record<string, unknown> | Record<string, unknown>[];
+  // When true, the title is used as-is without ' · Practice Startup Services' suffix
+  // (used on the homepage where we want a head-term-loaded title without brand padding)
+  titleAsIs?: boolean;
 }
 
-const { title, description, ogImage, noIndex = false, schema } = Astro.props;
-const pageTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
+const { title, description, ogImage, noIndex = false, schema, titleAsIs = false } = Astro.props;
+const pageTitle = (titleAsIs || title === SITE.name) ? title : `${title} · ${SITE.name}`;
 const pageDescription = description ?? SITE.promise;
 const canonical = new URL(Astro.url.pathname, SITE.url).toString();
 
@@ -88,8 +91,13 @@ const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : 
     <!-- Theme color (blueprint navy) -->
     <meta name="theme-color" content="#0E1F36" />
 
-    <!-- Favicons (placeholder — replace before deploy) -->
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Structured data -->
     {

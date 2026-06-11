@@ -63,7 +63,7 @@ const breadcrumbSchema = {
 };
 ---
 
-<BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+<BaseLayout title={title} titleAsIs={true} description={description} schema={breadcrumbSchema}>
   <!-- Hero -->
   <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
     <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
@@ -79,7 +79,7 @@ const breadcrumbSchema = {
 
     <div class="container-site relative">
       <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-6">
-        <a href="/specialty" class="hover:text-ink transition-colors">Specialties</a>
+        <a href="/specialty/" class="hover:text-ink transition-colors">Specialties</a>
         <span aria-hidden="true">/</span>
         <span class="text-bronze-700 font-medium">{specialty.shortLabel}</span>
       </div>
@@ -96,7 +96,7 @@ const breadcrumbSchema = {
             <a href={SITE.scheduleUrl} class="btn-primary">
               {SITE.primaryCta}
             </a>
-            <a href="/journey" class="btn-secondary">
+            <a href="/journey/" class="btn-secondary">
               See the 7-phase journey
             </a>
           </div>
@@ -153,7 +153,7 @@ const breadcrumbSchema = {
                       </div>
                       <p class="text-body text-graphite-800 leading-relaxed text-pretty">{note}</p>
                       <a
-                        href={`/journey/${p.slug}`}
+                        href={`/journey/${p.slug}/`}
                         class="text-small text-graphite-700 hover:text-ink mt-2 inline-block transition-colors"
                       >
                         See the full Phase {p.id} guide →
@@ -199,7 +199,7 @@ const breadcrumbSchema = {
         {
           phases.map((p) => (
             <a
-              href={`/journey/${p.slug}`}
+              href={`/journey/${p.slug}/`}
               class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
             >
               <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none mb-2">
@@ -231,7 +231,7 @@ const breadcrumbSchema = {
                 {relatedSpecialties.map((s) => (
                   <li>
                     <a
-                      href={`/specialty/${s.slug}`}
+                      href={`/specialty/${s.slug}/`}
                       class="block p-4 rounded-soft border border-ink/8 hover:border-ink/25 hover:bg-paper-200/60 transition-colors group"
                     >
                       <div class="font-display text-base font-medium text-ink group-hover:text-bronze-700 transition-colors mb-1">
@@ -248,7 +248,7 @@ const breadcrumbSchema = {
             <div class="lg:col-span-5">
               <div class="phase-label text-bronze-700 mb-3">When you want help</div>
               <a
-                href={`/services/${topRelatedService.slug}`}
+                href={`/services/${topRelatedService.slug}/`}
                 class="block p-5 rounded-soft border border-ink/8 hover:border-ink/25 hover:bg-paper-200/60 transition-colors group h-full"
               >
                 <div class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700 mb-2">

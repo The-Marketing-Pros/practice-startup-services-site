@@ -20,7 +20,7 @@ const { current, ariaLabel = "Phase navigation" } = Astro.props;
           return (
             <li>
               <a
-                href={`/journey/${p.slug}`}
+                href={`/journey/${p.slug}/`}
                 aria-current={isCurrent ? "page" : undefined}
                 class={`block text-center py-2 px-1 rounded-soft border transition-colors ${
                   isCurrent

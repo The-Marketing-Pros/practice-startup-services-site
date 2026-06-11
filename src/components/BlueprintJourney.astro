@@ -46,7 +46,7 @@ const stageGroups = [
         phases.map((p) => (
           <li>
             <a
-              href={`/journey/${p.slug}`}
+              href={`/journey/${p.slug}/`}
               class="block group bg-paper-50 hover:bg-paper-200/70 border border-ink/8 hover:border-ink/25 rounded-card transition-all duration-200 hover:shadow-blueprint"
             >
               <div class="grid grid-cols-12 gap-6 p-6 lg:p-7 items-center">
@@ -95,7 +95,7 @@ const stageGroups = [
     </ol>
 
     <div class="mt-12 text-center">
-      <a href="/journey" class="btn-secondary">
+      <a href="/journey/" class="btn-secondary">
         Open the full blueprint
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />

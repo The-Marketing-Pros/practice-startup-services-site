@@ -12,13 +12,17 @@ import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
   site: "https://practicestartupservices.com",
+  trailingSlash: "always",
+  build: {
+    format: "directory",
+    inlineStylesheets: "auto",
+  },
   integrations: [
     tailwind({
       applyBaseStyles: false,
     }),
-    sitemap(),
+    sitemap({
+      filter: (page) => !page.includes("/scan/results"),
+    }),
   ],
-  build: {
-    inlineStylesheets: "auto",
-  },
 });

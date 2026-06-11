@@ -50,7 +50,7 @@ export const phases: Phase[] = [
       "Not running the numbers and getting scared by the unknown",
       "Trying to decide alone",
     ],
-    freeResource: { label: "Practice Model Decision Guide", href: "/resources/practice-model-guide" },
+    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
     consultationTrigger:
       "Schedule a consultation when you've decided you're serious — before you sign anything.",
   },
@@ -77,7 +77,7 @@ export const phases: Phase[] = [
       "Picking a location before validating the payer mix",
       "Skipping the working-capital reserve and running out of cash month 4",
     ],
-    freeResource: { label: "Startup Cost Guide", href: "/resources/startup-costs" },
+    freeResource: { label: "Startup Cost Guide", href: "/resources/startup-costs/" },
     consultationTrigger:
       "Before you sign a lease or take a loan, talk to someone who's seen the next 18 months play out a dozen times.",
   },
@@ -105,7 +105,7 @@ export const phases: Phase[] = [
       "Mismatched partnership terms between founders",
       "Forgetting to renew local business licenses annually",
     ],
-    freeResource: { label: "Entity & Tax Election Decision Tree", href: "/resources/entity-decision-tree" },
+    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
     consultationTrigger:
       "If you have a partner, multi-provider plan, or any state-specific question — schedule before you file.",
   },
@@ -164,7 +164,7 @@ export const phases: Phase[] = [
       "Underspending on training and overspending on features",
       "Ignoring HIPAA until something happens",
     ],
-    freeResource: { label: "EHR Selection Framework", href: "/resources/ehr-selection" },
+    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
     consultationTrigger:
       "Before you sign a 3-year EHR contract or hire your first 3 staff members.",
   },
@@ -192,7 +192,7 @@ export const phases: Phase[] = [
       "Generic vendor website that doesn't rank or convert",
       "Forgetting to ask your first 50 patients for reviews",
     ],
-    freeResource: { label: "Practice Launch Marketing Checklist", href: "/resources/launch-marketing-checklist" },
+    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
     consultationTrigger:
       "If you need a real medical practice website + local SEO program, we build them.",
   },

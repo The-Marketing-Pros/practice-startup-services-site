@@ -74,7 +74,7 @@ const schemas = [breadcrumbSchema, serviceSchema];
 
     <div class="container-site relative">
       <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-4">
-        <a href="/services" class="hover:text-ink transition-colors">Services</a>
+        <a href="/services/" class="hover:text-ink transition-colors">Services</a>
         <span aria-hidden="true">/</span>
         <span class="text-bronze-700">{service.name}</span>
       </div>
@@ -121,7 +121,7 @@ const schemas = [breadcrumbSchema, serviceSchema];
                 />
               </svg>
             </a>
-            <a href={`/journey/${primaryPhase.slug}`} class="btn-secondary">
+            <a href={`/journey/${primaryPhase.slug}/`} class="btn-secondary">
               See Phase {primaryPhase.id}: {primaryPhase.title}
             </a>
           </div>
@@ -148,7 +148,7 @@ const schemas = [breadcrumbSchema, serviceSchema];
           ) : (
             <>
               <div class="phase-label text-graphite-500 mb-2">Primary phase</div>
-              <a href={`/journey/${primaryPhase.slug}`} class="group block mb-4">
+              <a href={`/journey/${primaryPhase.slug}/`} class="group block mb-4">
                 <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">
                   {primaryPhase.id}
                 </div>
@@ -163,7 +163,7 @@ const schemas = [breadcrumbSchema, serviceSchema];
                     {secondaryPhases.map((p) => (
                       <li>
                         <a
-                          href={`/journey/${p.slug}`}
+                          href={`/journey/${p.slug}/`}
                           class="text-small text-graphite-700 hover:text-ink transition-colors flex items-center gap-2"
                         >
                           <span class="font-mono text-label text-bronze-700">{p.id}</span>

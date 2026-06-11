@@ -34,7 +34,7 @@ const buildStageLabel = {
   <div class="container-site pt-14 lg:pt-20 pb-12 lg:pb-16 relative">
     <!-- Breadcrumb / phase coordinate -->
     <div class="flex flex-wrap items-center gap-x-3 gap-y-2 phase-label text-graphite-600 mb-7">
-      <a href="/journey" class="hover:text-ink transition-colors">The Launch Journey</a>
+      <a href="/journey/" class="hover:text-ink transition-colors">The Launch Journey</a>
       <span aria-hidden="true">/</span>
       <span class="text-graphite-500">{buildStageLabel}</span>
       <span aria-hidden="true">/</span>
@@ -76,7 +76,7 @@ const buildStageLabel = {
           {
             prev && (
               <li>
-                <a href={`/journey/${prev.slug}`} class="group flex items-center gap-3">
+                <a href={`/journey/${prev.slug}/`} class="group flex items-center gap-3">
                   <span class="font-mono text-label text-bronze-700">← {prev.id}</span>
                   <span class="text-small text-graphite-700 group-hover:text-ink transition-colors">
                     {prev.title}
@@ -88,7 +88,7 @@ const buildStageLabel = {
           {
             next && (
               <li>
-                <a href={`/journey/${next.slug}`} class="group flex items-center gap-3">
+                <a href={`/journey/${next.slug}/`} class="group flex items-center gap-3">
                   <span class="font-mono text-label text-bronze-700">{next.id} →</span>
                   <span class="text-small text-graphite-700 group-hover:text-ink transition-colors">
                     {next.title}
@@ -100,7 +100,7 @@ const buildStageLabel = {
         </ul>
 
         <div class="mt-6 pt-6 border-t border-ink/8">
-          <a href="/journey" class="text-small text-graphite-700 hover:text-ink transition-colors">
+          <a href="/journey/" class="text-small text-graphite-700 hover:text-ink transition-colors">
             ← See all 7 phases
           </a>
         </div>

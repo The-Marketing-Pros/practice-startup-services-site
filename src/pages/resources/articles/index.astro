@@ -53,7 +53,7 @@ import { publishedArticles } from "@data/articles";
         <ul class="divide-y divide-ink/10 border-t-2 border-b-2 border-ink/15 max-w-prose-wide mx-auto">
           {publishedArticles.map((a) => (
             <li class="py-6">
-              <a href={`/resources/articles/${a.slug}`} class="block group">
+              <a href={`/resources/articles/${a.slug}/`} class="block group">
                 <div class="flex items-baseline gap-3 mb-1">
                   <span class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700">
                     {new Date(a.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -82,10 +82,10 @@ import { publishedArticles } from "@data/articles";
             what you need to start.
           </p>
           <div class="flex flex-wrap gap-3 justify-center">
-            <a href="/journey" class="btn-primary">
+            <a href="/journey/" class="btn-primary">
               Open the blueprint
             </a>
-            <a href="/resources" class="btn-secondary">
+            <a href="/resources/" class="btn-secondary">
               See all resources
             </a>
           </div>

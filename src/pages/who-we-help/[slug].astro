@@ -46,7 +46,7 @@ const breadcrumbSchema = {
 
     <div class="container-site relative">
       <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-6">
-        <a href="/who-we-help" class="hover:text-ink transition-colors">Who we help</a>
+        <a href="/who-we-help/" class="hover:text-ink transition-colors">Who we help</a>
         <span aria-hidden="true">/</span>
         <span class="text-bronze-700">{segment.shortLabel}</span>
       </div>
@@ -63,7 +63,7 @@ const breadcrumbSchema = {
             <a href={SITE.scheduleUrl} class="btn-primary">
               {SITE.primaryCta}
             </a>
-            <a href={`/journey/${entryPhase.slug}`} class="btn-secondary">
+            <a href={`/journey/${entryPhase.slug}/`} class="btn-secondary">
               Start at Phase {entryPhase.id}: {entryPhase.title}
             </a>
           </div>
@@ -76,7 +76,7 @@ const breadcrumbSchema = {
             {
               focusPhases.map((p) => (
                 <li>
-                  <a href={`/journey/${p.slug}`} class="group flex items-center gap-3">
+                  <a href={`/journey/${p.slug}/`} class="group flex items-center gap-3">
                     <span class="font-mono text-label text-bronze-700">{p.id}</span>
                     <span class="text-small text-graphite-800 group-hover:text-ink transition-colors">
                       {p.title}
@@ -145,7 +145,7 @@ const breadcrumbSchema = {
         {
           phases.map((p) => (
             <a
-              href={`/journey/${p.slug}`}
+              href={`/journey/${p.slug}/`}
               class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
             >
               <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none mb-2">
@@ -169,7 +169,7 @@ const breadcrumbSchema = {
         <div class="max-w-prose-wide">
           <div class="phase-label text-bronze-700 mb-3">When you want help</div>
           <a
-            href={`/services/${topRelatedService.slug}`}
+            href={`/services/${topRelatedService.slug}/`}
             class="block p-6 rounded-soft border border-ink/8 hover:border-ink/25 hover:bg-paper-200/60 transition-colors group"
           >
             <div class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700 mb-2">
