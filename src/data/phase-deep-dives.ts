@@ -7,6 +7,8 @@ import type { PhaseId } from "./phases";
 export interface DeepDiveSection {
   heading: string;
   body: string; // markdown-light: paragraphs separated by blank lines
+  pullQuote?: string; // optional editorial pull quote to break visual rhythm
+  numericCallout?: { label: string; value: string; sub?: string }; // optional inline stat
 }
 
 export interface PhaseDeepDive {
@@ -74,6 +76,12 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
           "Credentialing is the process payers use to verify that you are who you say you are: licensed, trained, board-certified (or in the process), insured, and clear of fraud history. It is separate from enrollment, but the two run together and the industry uses the words interchangeably.\n\nThe payer verifies your credentials. The payer then enrolls you in their network and assigns you an effective date. Before that effective date, you can see the payer's members — but you bill out-of-network, and most plans pay you very little (or nothing). After the effective date, you bill in-network at contracted rates.\n\nEvery payer does this independently. There is no centralized credentialing in the United States. The closest thing is CAQH — a free service most commercial payers use to pull your application data — but Medicare, Medicaid, and many regional plans still want their own forms.",
       },
       {
+        heading: "",
+        body: "",
+        pullQuote:
+          "There is no centralized credentialing in the United States. Every payer runs its own clock, and the clocks don't sync.",
+      },
+      {
         heading: "The realistic timeline.",
         body:
           "Plan for 90 to 180 days from a complete application to an effective date. Some payers are faster. Some are slower. None are predictable enough to plan around their best case.\n\nMedicare runs 45 to 90 days from a clean CMS-855 submission. Medicaid varies wildly by state — 60 to 120 days is typical. Commercial payers (Blue Cross, UnitedHealth, Aetna, Cigna) run 90 to 180 days, and a few — Tricare, certain state Medicaid plans — can stretch beyond 180.\n\nThe biggest variable isn't the payer. It's whether your application is complete on first submission. Incomplete applications get queued behind complete ones, and a missing document can cost you 30 to 60 days that don't come back.",
@@ -82,6 +90,7 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
         heading: "When to start.",
         body:
           "Start 180 days before your target open date. Not 90. Not 60. One hundred and eighty.\n\nThis seems aggressive. It is not. By T-180 you should have CAQH fully attested, your medical license verified in your state of practice, your NPI active for the correct entity, and your malpractice insurance confirmed. By T-150 your Medicare and Medicaid applications should be submitted. By T-120 your commercial applications should be submitted. By T-60 you should be following up with every payer biweekly to verify effective dates.\n\nIf you cannot start credentialing 180 days before launch — because you can't give notice yet, or you don't have a practice address, or your entity isn't formed — then your launch date has to move. Credentialing does not negotiate.",
+        numericCallout: { label: "Start prep at", value: "T−180", sub: "days before target open date" },
       },
       {
         heading: "Who pays during the gap.",

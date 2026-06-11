@@ -81,10 +81,11 @@ export default {
       },
       fontSize: {
         // Editorial scale — generous, content-friendly
-        "display-xl": ["clamp(2.75rem, 5vw + 1rem, 5rem)", { lineHeight: "1.0", letterSpacing: "-0.03em" }],
-        "display-lg": ["clamp(2.25rem, 4vw + 0.75rem, 3.75rem)", { lineHeight: "1.03", letterSpacing: "-0.025em" }],
-        "display-md": ["clamp(1.75rem, 3vw + 0.5rem, 2.75rem)", { lineHeight: "1.08", letterSpacing: "-0.02em" }],
-        "display-sm": ["clamp(1.5rem, 2vw + 0.5rem, 2.125rem)", { lineHeight: "1.12", letterSpacing: "-0.015em" }],
+        // Mobile clamp floors tightened down for better hero stacking on 390px viewports
+        "display-xl": ["clamp(2.375rem, 4.5vw + 1rem, 5rem)", { lineHeight: "1.02", letterSpacing: "-0.03em" }],
+        "display-lg": ["clamp(2rem, 3.5vw + 0.75rem, 3.75rem)", { lineHeight: "1.05", letterSpacing: "-0.025em" }],
+        "display-md": ["clamp(1.625rem, 2.5vw + 0.5rem, 2.75rem)", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+        "display-sm": ["clamp(1.4rem, 1.75vw + 0.5rem, 2.125rem)", { lineHeight: "1.14", letterSpacing: "-0.015em" }],
         "lede": ["1.1875rem", { lineHeight: "1.6", letterSpacing: "-0.005em" }],
         "body": ["1.0625rem", { lineHeight: "1.7" }],
         "small": ["0.9375rem", { lineHeight: "1.6" }],

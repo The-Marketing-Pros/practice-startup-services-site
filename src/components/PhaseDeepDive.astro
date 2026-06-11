@@ -30,16 +30,43 @@ const dd = getDeepDive(phaseId);
             {dd.intro}
           </p>
 
-          {dd.sections.map((s) => (
-            <div class="mb-10">
-              <h2 class="font-display text-display-md font-medium text-ink mb-4 text-balance">
-                {s.heading}
-              </h2>
-              {s.body.split(/\n\n+/).map((p) => (
-                <p class="text-body text-graphite-800 leading-relaxed mb-4 text-pretty">{p}</p>
-              ))}
-            </div>
-          ))}
+          {dd.sections.map((s) => {
+            // Pure pull-quote section (no heading or body) renders an editorial break
+            if (s.pullQuote && !s.heading && !s.body) {
+              return (
+                <figure class="my-14 pl-6 border-l-2 border-bronze">
+                  <blockquote class="font-display text-display-md font-medium text-ink leading-tight text-balance">
+                    “{s.pullQuote}”
+                  </blockquote>
+                </figure>
+              );
+            }
+            return (
+              <div class="mb-10">
+                <h2 class="font-display text-display-md font-medium text-ink mb-4 text-balance">
+                  {s.heading}
+                </h2>
+                {s.body.split(/\n\n+/).map((p) => (
+                  <p class="text-body text-graphite-800 leading-relaxed mb-4 text-pretty">{p}</p>
+                ))}
+                {s.numericCallout && (
+                  <div class="mt-6 inline-flex items-center gap-4 border border-bronze/40 bg-bronze/[0.08] rounded-sharp px-5 py-3">
+                    <div class="font-mono">
+                      <div class="text-label uppercase tracking-[0.18em] text-bronze-700">
+                        {s.numericCallout.label}
+                      </div>
+                      <div class="text-display-md text-ink font-medium leading-none mt-1">
+                        {s.numericCallout.value}
+                      </div>
+                    </div>
+                    {s.numericCallout.sub && (
+                      <div class="text-small text-graphite-700 max-w-[14ch]">{s.numericCallout.sub}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {dd.faq && dd.faq.length > 0 && (
             <div class="mt-16 pt-10 border-t border-ink/8">
