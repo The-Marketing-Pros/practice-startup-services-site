@@ -2,8 +2,10 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import FinalCta from "@components/FinalCta.astro";
 import PhaseStrip from "@components/PhaseStrip.astro";
+import RelatedRoutes from "@components/RelatedRoutes.astro";
 import { segments } from "@data/segments";
 import { phases, phaseById } from "@data/phases";
+import { services } from "@data/services";
 import { SITE } from "@data/site";
 
 export function getStaticPaths() {
@@ -13,6 +15,10 @@ export function getStaticPaths() {
 const { segment } = Astro.props;
 const focusPhases = segment.phasesOfFocus.map((id) => phaseById[id]);
 const entryPhase = phaseById[segment.preferredEntryPhase];
+
+// Surface the most relevant service for this segment based on its phases of focus
+const topRelatedService =
+  services.find((s) => segment.phasesOfFocus.includes(s.primaryPhase)) || services[0];
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",
@@ -118,5 +124,71 @@ const breadcrumbSchema = {
     </div>
   </section>
 
-  <FinalCta />
+  <!-- All 7 phases at a glance — same depth as state/specialty pages -->
+  <section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
+    <div class="container-site">
+      <div class="max-w-3xl mb-10">
+        <div class="phase-label text-bronze-700 mb-3">The blueprint for {segment.shortLabel.toLowerCase()}</div>
+        <h2 class="font-display text-display-lg font-medium text-ink mb-4 text-balance">
+          The 7 phases apply. The details shift.
+        </h2>
+        <p class="text-body text-graphite-700 max-w-prose-wide text-pretty">
+          The launch journey applies regardless of provider type, but the specifics in each phase
+          shift depending on {segment.shortLabel.toLowerCase()}-specific scope of practice, payer
+          dynamics, and credentialing tracks. Use the phase guides below for the foundation; layer
+          the {segment.shortLabel.toLowerCase()}-specific watchouts above onto your build sequence.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {
+          phases.map((p) => (
+            <a
+              href={`/journey/${p.slug}`}
+              class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+            >
+              <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none mb-2">
+                {p.id}
+              </div>
+              <div class="font-display text-base font-medium text-ink mb-1">
+                {p.verb} · {p.title}
+              </div>
+              <p class="text-small text-graphite-700 text-pretty">{p.subtitle}</p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Contextual cross-link: best-fit service for this segment -->
+  {topRelatedService && (
+    <section class="border-b border-ink/8 py-12 lg:py-16">
+      <div class="container-site">
+        <div class="max-w-prose-wide">
+          <div class="phase-label text-bronze-700 mb-3">When you want help</div>
+          <a
+            href={`/services/${topRelatedService.slug}`}
+            class="block p-6 rounded-soft border border-ink/8 hover:border-ink/25 hover:bg-paper-200/60 transition-colors group"
+          >
+            <div class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700 mb-2">
+              {topRelatedService.crewLabel}
+            </div>
+            <div class="font-display text-display-sm font-medium text-ink group-hover:text-bronze-700 transition-colors mb-2">
+              {topRelatedService.name}
+            </div>
+            <p class="text-body text-graphite-700 leading-relaxed">
+              {topRelatedService.outcomeSub}
+            </p>
+            <div class="mt-4 pt-4 border-t border-ink/8 text-small font-medium text-ink group-hover:text-bronze-700 transition-colors">
+              See the crew →
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <RelatedRoutes />
+  <FinalCta variant="specialty" />
 </BaseLayout>
