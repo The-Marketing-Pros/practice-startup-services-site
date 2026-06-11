@@ -84,7 +84,7 @@
 
   /* Watchout list items get visible dividers + breathable spacing on mobile */
   .do-not-skip ul > li:not(:first-child) {
-    @apply pt-3 sm:pt-2.5 mt-3 sm:mt-2.5 border-t border-warn/20 sm:border-t-0;
+    @apply pt-3 sm:pt-2.5 mt-3 sm:mt-2.5 border-t border-warn/15 sm:border-t-0;
   }
 
   /* CTA button — bronze fill, ink text. The only colored button on the site. */
