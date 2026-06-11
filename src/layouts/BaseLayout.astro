@@ -18,6 +18,16 @@ const pageTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
 const pageDescription = description ?? SITE.promise;
 const canonical = new URL(Astro.url.pathname, SITE.url).toString();
 
+// Pick OG image: explicit prop > inferred from path > default home card
+function pickOgImage(path: string, override?: string): string {
+  if (override) return new URL(override, SITE.url).toString();
+  if (path.startsWith("/journey/credentialing-enrollment")) return new URL("/og/og-credentialing.jpg", SITE.url).toString();
+  if (path.startsWith("/journey")) return new URL("/og/og-journey.jpg", SITE.url).toString();
+  if (path.startsWith("/scan")) return new URL("/og/og-journey.jpg", SITE.url).toString();
+  return new URL("/og/og-home.jpg", SITE.url).toString();
+}
+const ogImageUrl = pickOgImage(Astro.url.pathname, ogImage);
+
 const orgSchema = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
@@ -66,8 +76,14 @@ const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : 
     <meta property="og:description" content={pageDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.name} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
 
     <!-- Theme color (blueprint navy) -->
     <meta name="theme-color" content="#0E1F36" />
