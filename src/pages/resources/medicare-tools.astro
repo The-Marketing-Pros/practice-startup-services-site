@@ -30,6 +30,15 @@ const tools = [
 <BaseLayout
   title="Free Medicare Tools for New Practices"
   description="Two free Medicare tools every new practice should bookmark — fee schedule lookup and revalidation status checker."
+  schema={{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+      { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
+      { "@type": "ListItem", position: 3, name: "Medicare Tools", item: "https://practicestartupservices.com/resources/medicare-tools/" },
+    ],
+  }}
 >
   <!-- Control Room hero -->
   <section class="bg-ink text-paper-100 py-16 lg:py-24 relative overflow-hidden border-b border-paper-200/10">

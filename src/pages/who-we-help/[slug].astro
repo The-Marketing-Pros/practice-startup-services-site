@@ -13,9 +13,19 @@ export function getStaticPaths() {
 const { segment } = Astro.props;
 const focusPhases = segment.phasesOfFocus.map((id) => phaseById[id]);
 const entryPhase = phaseById[segment.preferredEntryPhase];
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+    { "@type": "ListItem", position: 2, name: "Who We Help", item: "https://practicestartupservices.com/who-we-help/" },
+    { "@type": "ListItem", position: 3, name: segment.name, item: `https://practicestartupservices.com/who-we-help/${segment.slug}/` },
+  ],
+};
 ---
 
-<BaseLayout title={`For ${segment.name}`} description={segment.sub}>
+<BaseLayout title={`For ${segment.name}`} description={segment.sub} schema={breadcrumbSchema}>
   <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
     <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

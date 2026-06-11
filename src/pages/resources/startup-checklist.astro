@@ -8,6 +8,15 @@ import { SITE } from "@data/site";
 <BaseLayout
   title="The Practice Launch Checklist"
   description="Phase-ordered, opinionated, and free. The exact tasks for each of the 7 phases — with the watchouts most checklists skip."
+  schema={{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+      { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
+      { "@type": "ListItem", position: 3, name: "Practice Launch Checklist", item: "https://practicestartupservices.com/resources/startup-checklist/" },
+    ],
+  }}
 >
   <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
     <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">

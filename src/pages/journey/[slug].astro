@@ -22,6 +22,17 @@ const relatedServices = services.filter(
 );
 
 const deepDive = getDeepDive(phase.id);
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+    { "@type": "ListItem", position: 2, name: "The Launch Journey", item: "https://practicestartupservices.com/journey/" },
+    { "@type": "ListItem", position: 3, name: `Phase ${phase.id} · ${phase.title}`, item: `https://practicestartupservices.com/journey/${phase.slug}/` },
+  ],
+};
+
 const faqSchema = deepDive?.faq && deepDive.faq.length > 0 ? {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -32,11 +43,14 @@ const faqSchema = deepDive?.faq && deepDive.faq.length > 0 ? {
   })),
 } : undefined;
 
+const schemas: Record<string, unknown>[] = [breadcrumbSchema];
+if (faqSchema) schemas.push(faqSchema);
+
 const title = `Phase ${phase.id} · ${phase.title}`;
 const description = `${phase.subtitle} ${phase.question}`;
 ---
 
-<BaseLayout title={title} description={description} schema={faqSchema}>
+<BaseLayout title={title} description={description} schema={schemas}>
   <PhaseHero phase={phase} />
   <PhaseStrip current={phase.id} />
   <BuildSequence phase={phase} />

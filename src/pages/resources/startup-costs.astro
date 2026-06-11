@@ -53,6 +53,15 @@ const costCategories = [
 <BaseLayout
   title="Practice Startup Cost Guide"
   description="Honest cost ranges for launching a private medical practice — capital expenses, monthly burn, professional fees, and working capital."
+  schema={{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+      { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
+      { "@type": "ListItem", position: 3, name: "Startup Cost Guide", item: "https://practicestartupservices.com/resources/startup-costs/" },
+    ],
+  }}
 >
   <section class="border-b border-ink/8 py-14 lg:py-20">
     <div class="container-site">

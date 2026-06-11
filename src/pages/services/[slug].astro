@@ -15,9 +15,39 @@ const primaryPhase = phaseById[service.primaryPhase];
 const secondaryPhases = service.secondaryPhases.map((id) => phaseById[id]);
 
 const description = `${service.outcomeHeadline} ${service.outcomeSub}`;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+    { "@type": "ListItem", position: 2, name: "Services", item: "https://practicestartupservices.com/services/" },
+    { "@type": "ListItem", position: 3, name: service.name, item: `https://practicestartupservices.com/services/${service.slug}/` },
+  ],
+};
+
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: service.name,
+  description: service.outcomeSub,
+  serviceType: service.crewLabel,
+  provider: {
+    "@type": "ProfessionalService",
+    name: "Practice Startup Services",
+    url: "https://practicestartupservices.com",
+  },
+  areaServed: { "@type": "Country", name: "United States" },
+  audience: {
+    "@type": "Audience",
+    audienceType: "Independent medical practice owners (physicians, NPs, PAs, behavioral health providers, and specialty practices)",
+  },
+};
+
+const schemas = [breadcrumbSchema, serviceSchema];
 ---
 
-<BaseLayout title={service.name} description={description}>
+<BaseLayout title={service.name} description={description} schema={schemas}>
   <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
     <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
