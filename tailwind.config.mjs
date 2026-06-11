@@ -86,9 +86,9 @@ export default {
         "display-lg": ["clamp(2rem, 3.5vw + 0.75rem, 3.75rem)", { lineHeight: "1.05", letterSpacing: "-0.025em" }],
         "display-md": ["clamp(1.625rem, 2.5vw + 0.5rem, 2.75rem)", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
         "display-sm": ["clamp(1.4rem, 1.75vw + 0.5rem, 2.125rem)", { lineHeight: "1.14", letterSpacing: "-0.015em" }],
-        "lede": ["1.1875rem", { lineHeight: "1.6", letterSpacing: "-0.005em" }],
-        "body": ["1.0625rem", { lineHeight: "1.7" }],
-        "small": ["0.9375rem", { lineHeight: "1.6" }],
+        "lede": ["clamp(1.0625rem, 1vw + 0.5rem, 1.1875rem)", { lineHeight: "1.65", letterSpacing: "-0.005em" }],
+        "body": ["clamp(1rem, 0.5vw + 0.75rem, 1.0625rem)", { lineHeight: "1.75" }],
+        "small": ["clamp(0.875rem, 0.25vw + 0.75rem, 0.9375rem)", { lineHeight: "1.65" }],
         "label": ["0.8125rem", { lineHeight: "1.4", letterSpacing: "0.08em" }],
       },
       maxWidth: {

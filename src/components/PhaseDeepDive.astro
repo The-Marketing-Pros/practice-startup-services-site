@@ -102,12 +102,18 @@ const dd = getDeepDive(phaseId);
               </h2>
               <dl class="divide-y divide-ink/12 border-t-2 border-b-2 border-ink/15">
                 {dd.faq.map((item, idx) => (
-                  <div class="py-8 grid grid-cols-12 gap-6">
+                  <div class="py-6 md:py-8 grid grid-cols-12 gap-3 md:gap-6">
                     <div class="col-span-12 md:col-span-2">
-                      <div class="font-mono text-display-md text-bronze-700 font-medium leading-none">
+                      <!-- Mobile: small inline counter (Q#) so the question dominates. Desktop: large display numeral -->
+                      <div class="hidden md:block font-mono text-display-md text-bronze-700 font-medium leading-none">
                         {String(idx + 1).padStart(2, "0")}
                       </div>
-                      <div class="phase-label text-graphite-500 mt-2">Question</div>
+                      <div class="hidden md:block phase-label text-graphite-500 mt-2">Question</div>
+                      <div class="md:hidden flex items-baseline gap-2">
+                        <span class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700">
+                          Q{String(idx + 1).padStart(2, "0")}
+                        </span>
+                      </div>
                     </div>
                     <div class="col-span-12 md:col-span-10">
                       <dt class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
