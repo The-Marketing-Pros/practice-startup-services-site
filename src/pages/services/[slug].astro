@@ -65,26 +65,26 @@ const schemas = [breadcrumbSchema, serviceSchema];
       <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-4">
         <a href="/services" class="hover:text-ink transition-colors">Services</a>
         <span aria-hidden="true">/</span>
-        <span class="text-bronze-700">{service.crewLabel}</span>
+        <span class="text-bronze-700">{service.name}</span>
       </div>
 
       <div class="flex flex-wrap items-center gap-3 mb-6">
         {service.scopeBadge === "end-to-end" && (
-          <span class="inline-flex items-center gap-2 bg-ink text-paper-100 px-3 py-1.5 rounded-sharp font-mono text-label uppercase tracking-[0.18em]">
-            <span class="inline-flex h-1.5 w-1.5 rounded-full bg-bronze"></span>
+          <span class="inline-flex items-center gap-2 bg-ink text-paper-100 px-4 py-2 rounded-sharp font-mono text-label uppercase tracking-[0.18em] shadow-elevated">
+            <span class="inline-flex h-2 w-2 rounded-full bg-bronze"></span>
             END-TO-END · ALL 7 PHASES
           </span>
         )}
         {service.scopeBadge === "single-phase" && (
-          <span class="inline-flex items-center gap-2 border border-bronze/40 bg-bronze/[0.08] text-bronze-900 px-3 py-1.5 rounded-sharp font-mono text-label uppercase tracking-[0.18em]">
+          <span class="inline-flex items-center gap-2 bg-paper-200/70 text-graphite-800 px-3 py-1.5 rounded-sharp font-mono text-label uppercase tracking-[0.18em]">
             <span class="inline-flex h-1.5 w-1.5 rounded-full bg-bronze"></span>
-            SINGLE-PHASE BUILD CREW
+            Single-phase build crew
           </span>
         )}
         {service.scopeBadge === "ongoing" && (
-          <span class="inline-flex items-center gap-2 border border-signal/40 bg-signal/[0.08] text-signal-900 px-3 py-1.5 rounded-sharp font-mono text-label uppercase tracking-[0.18em]">
+          <span class="inline-flex items-center gap-2 bg-signal/10 border border-signal/30 text-signal-900 px-3 py-1.5 rounded-sharp font-mono text-label uppercase tracking-[0.18em]">
             <span class="inline-flex h-1.5 w-1.5 rounded-full bg-signal animate-pulse"></span>
-            ONGOING PROGRAM
+            Ongoing program
           </span>
         )}
       </div>
@@ -117,35 +117,54 @@ const schemas = [breadcrumbSchema, serviceSchema];
         </div>
 
         <aside class="lg:col-span-4 card-blueprint">
-          <div class="phase-label text-graphite-500 mb-2">Primary phase</div>
-          <a href={`/journey/${primaryPhase.slug}`} class="group block mb-4">
-            <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">
-              {primaryPhase.id}
-            </div>
-            <div class="font-display text-display-sm font-medium text-ink mt-1 group-hover:text-bronze-700 transition-colors">
-              {primaryPhase.title}
-            </div>
-          </a>
-          {
-            secondaryPhases.length > 0 && (
-              <div class="pt-4 border-t border-ink/8">
-                <div class="phase-label text-graphite-500 mb-2">Also supports</div>
-                <ul class="space-y-1.5">
-                  {secondaryPhases.map((p) => (
-                    <li>
-                      <a
-                        href={`/journey/${p.slug}`}
-                        class="text-small text-graphite-700 hover:text-ink transition-colors flex items-center gap-2"
-                      >
-                        <span class="font-mono text-label text-bronze-700">{p.id}</span>
-                        {p.title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+          {service.scopeBadge === "end-to-end" ? (
+            <>
+              <div class="phase-label text-graphite-500 mb-3">Phases covered</div>
+              <div class="font-display text-display-sm font-medium text-ink mb-3">
+                All seven — in order.
               </div>
-            )
-          }
+              <div class="grid grid-cols-7 gap-1.5 mb-3">
+                {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                  <div class="aspect-square flex items-center justify-center rounded-sharp bg-bronze/15 border border-bronze/30 font-mono text-small text-bronze-900 font-medium">
+                    {String(n).padStart(2, "0")}
+                  </div>
+                ))}
+              </div>
+              <p class="text-small text-graphite-700">
+                We lead the build sequence and stay coordinated with any other crews you bring on.
+              </p>
+            </>
+          ) : (
+            <>
+              <div class="phase-label text-graphite-500 mb-2">Primary phase</div>
+              <a href={`/journey/${primaryPhase.slug}`} class="group block mb-4">
+                <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">
+                  {primaryPhase.id}
+                </div>
+                <div class="font-display text-display-sm font-medium text-ink mt-1 group-hover:text-bronze-700 transition-colors">
+                  {primaryPhase.title}
+                </div>
+              </a>
+              {secondaryPhases.length > 0 && (
+                <div class="pt-4 border-t border-ink/8">
+                  <div class="phase-label text-graphite-500 mb-2">Also supports</div>
+                  <ul class="space-y-1.5">
+                    {secondaryPhases.map((p) => (
+                      <li>
+                        <a
+                          href={`/journey/${p.slug}`}
+                          class="text-small text-graphite-700 hover:text-ink transition-colors flex items-center gap-2"
+                        >
+                          <span class="font-mono text-label text-bronze-700">{p.id}</span>
+                          {p.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
         </aside>
       </div>
     </div>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import FinalCta from "@components/FinalCta.astro";
+import RelatedRoutes from "@components/RelatedRoutes.astro";
 import { specialties } from "@data/specialties";
 import { phases, phaseById } from "@data/phases";
 import { SITE } from "@data/site";
@@ -204,5 +205,6 @@ const breadcrumbSchema = {
     </div>
   </section>
 
+  <RelatedRoutes />
   <FinalCta />
 </BaseLayout>
