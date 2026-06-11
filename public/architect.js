@@ -1,13 +1,14 @@
 // The Architect — client-side chat controller.
 // Vanilla JS, no framework. Loaded sitewide via <script src="/architect.js" defer>.
+// The gate routes visitors straight to the TMP CRM scheduling form — CRM owns the lead.
 
 (function () {
   "use strict";
 
   const SESSION_COOKIE = "psse_arch_sid";
+  const BOOKED_KEY = "psse_arch_booked";
   const SESSION_DAYS = 30;
   const ENDPOINT_CHAT = "/api/architect/chat";
-  const ENDPOINT_IDENTIFY = "/api/architect/identify";
 
   // --- session helpers ---
   function getOrCreateSessionId() {
@@ -19,18 +20,16 @@
       SESSION_COOKIE + "=" + encodeURIComponent(id) + "; expires=" + exp + "; path=/; SameSite=Lax";
     return id;
   }
-
-  function getVisitor() {
+  function hasBooked() {
     try {
-      const raw = localStorage.getItem("psse_arch_visitor");
-      return raw ? JSON.parse(raw) : null;
+      return localStorage.getItem(BOOKED_KEY) === "1";
     } catch {
-      return null;
+      return false;
     }
   }
-  function setVisitor(v) {
+  function markBooked() {
     try {
-      localStorage.setItem("psse_arch_visitor", JSON.stringify(v));
+      localStorage.setItem(BOOKED_KEY, "1");
     } catch {
       /* noop */
     }
@@ -46,16 +45,18 @@
   const input = document.getElementById("architect-input");
   const sendBtn = document.getElementById("architect-send");
   const gate = document.getElementById("architect-gate");
-  const gateForm = document.getElementById("architect-gate-form");
+  const gateLabel = document.getElementById("architect-gate-label");
+  const gateCopy = document.getElementById("architect-gate-copy");
+  const gateCta = document.getElementById("architect-gate-cta");
   const gateDismiss = document.getElementById("architect-gate-dismiss");
 
-  if (!launcher || !drawer || !thread || !composer || !input) return;
+  if (!launcher || !drawer || !thread || !composer || !input || !gateCta) return;
 
   const sessionId = getOrCreateSessionId();
   const messages = []; // {role, content}
-  let visitor = getVisitor();
   let waiting = false;
   let softGateDismissed = false;
+  let booked = hasBooked();
 
   // --- ui helpers ---
   function openDrawer() {
@@ -134,13 +135,69 @@
   function linkify(html) {
     return html.replace(
       /(\/(?:journey|services|resources|who-we-help)\/[a-z0-9-]+\/?|https?:\/\/[^\s<]+)/g,
-      (m) => '<a href="' + m + '" class="underline text-signal-400 hover:text-signal" target="_self">' + m + "</a>"
+      (m) =>
+        '<a href="' +
+        m +
+        '" class="underline text-signal-400 hover:text-signal" target="_self">' +
+        m +
+        "</a>"
     );
   }
 
+  // --- gate: route to CRM scheduling form with intent context ---
+  function deriveIntentTags() {
+    const allUser = messages
+      .filter((m) => m.role === "user")
+      .map((m) => m.content.toLowerCase())
+      .join(" ");
+    const hits = [];
+    if (/credential|cms|855|caqh|payer|in.network/.test(allUser)) hits.push("credentialing");
+    if (/cost|budget|capital|loan|financ|expensive|price/.test(allUser)) hits.push("costs");
+    if (/np|nurse practitioner|pa\b|physician assistant/.test(allUser)) hits.push("non-physician");
+    if (/behavioral|therap|psych/.test(allUser)) hits.push("behavioral-health");
+    if (/start|launch|new practice|open/.test(allUser)) hits.push("phase-01-02");
+    if (/website|seo|marketing|patients|grow/.test(allUser)) hits.push("phase-06");
+    if (/ehr|emr|billing|hipaa|infrastructure/.test(allUser)) hits.push("phase-05");
+    return hits.join(",") || "general-inquiry";
+  }
+
+  function buildCrmUrl() {
+    const base = gateCta.dataset.baseUrl || gateCta.getAttribute("href") || "/";
+    // If the base is still the template token, just send to /#architect — no useful CRM yet.
+    if (base.indexOf("{{") === 0 || base.indexOf("{{") >= 0) {
+      return base;
+    }
+    try {
+      const u = new URL(base, location.origin);
+      u.searchParams.set("source", "architect-companion");
+      u.searchParams.set("session_id", sessionId);
+      u.searchParams.set("intent", deriveIntentTags());
+      u.searchParams.set("page", location.pathname);
+      return u.toString();
+    } catch {
+      return base;
+    }
+  }
+
   function showGate(kind) {
+    if (booked) return; // visitor has already booked — never re-gate
+    if (kind === "hard") {
+      gateLabel.textContent = "Time to talk to a human";
+      gateCopy.textContent =
+        "This is where talking to a human will get you further than I can. Schedule a free consultation — the team will pick up exactly where we left off.";
+      gateDismiss.classList.add("hidden");
+    } else {
+      gateLabel.textContent = "Want to keep going?";
+      gateCopy.textContent =
+        "We can keep chatting, or — if you're ready for a real plan — schedule a free consultation. The team will pick up exactly where we left off.";
+      gateDismiss.classList.remove("hidden");
+    }
+    // Capture the base URL once so we don't double-mutate it
+    if (!gateCta.dataset.baseUrl) {
+      gateCta.dataset.baseUrl = gateCta.getAttribute("href") || "";
+    }
+    gateCta.setAttribute("href", buildCrmUrl());
     gate.classList.remove("hidden");
-    gate.dataset.kind = kind;
     thread.scrollTop = thread.scrollHeight;
   }
   function hideGate() {
@@ -167,8 +224,7 @@
         body: JSON.stringify({
           sessionId: sessionId,
           messages: messages,
-          visitorName: visitor && visitor.name,
-          visitorEmail: visitor && visitor.email,
+          hasBookedConsultation: booked,
         }),
       });
 
@@ -185,7 +241,6 @@
       const data = await r.json();
 
       if (data.gate === "hard") {
-        // hard gate — show gate, do NOT add assistant message
         appendAssistantMessage(data.message);
         showGate("hard");
         return;
@@ -196,7 +251,7 @@
         appendAssistantMessage(data.message);
       }
 
-      if (data.gate === "soft" && !visitor && !softGateDismissed) {
+      if (data.gate === "soft" && !booked && !softGateDismissed) {
         showGate("soft");
       }
     } catch (e) {
@@ -206,36 +261,6 @@
       waiting = false;
       sendBtn.disabled = false;
       input.focus();
-    }
-  }
-
-  async function submitGate(name, email) {
-    try {
-      const r = await fetch(ENDPOINT_IDENTIFY, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: sessionId,
-          name: name,
-          email: email,
-          transcript: messages,
-          source: "the-architect-companion-" + location.pathname,
-        }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (r.ok) {
-        visitor = { name: name, email: email };
-        setVisitor(visitor);
-        hideGate();
-        appendAssistantMessage(
-          (data && data.message) ||
-            "Thanks — your conversation is saved. Where were we? Keep going."
-        );
-      } else {
-        appendAssistantMessage((data && data.error) || "Couldn't save that — try again?");
-      }
-    } catch {
-      appendAssistantMessage("Couldn't save that right now. Try again in a moment.");
     }
   }
 
@@ -266,16 +291,16 @@
     if (t) sendMessage(t.dataset.prompt || t.textContent);
   });
 
-  if (gateForm) {
-    gateForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const fd = new FormData(gateForm);
-      const name = (fd.get("name") || "").toString().trim();
-      const email = (fd.get("email") || "").toString().trim();
-      if (!name || !email) return;
-      submitGate(name, email);
-    });
-  }
+  // CRM CTA: when clicked, mark visitor as booked so we don't keep gating them
+  gateCta.addEventListener("click", () => {
+    booked = true;
+    markBooked();
+    // Update the CTA href one more time with current intent context (in case more turns happened)
+    gateCta.setAttribute("href", buildCrmUrl());
+    // Close the gate after they click out
+    setTimeout(() => hideGate(), 200);
+  });
+
   if (gateDismiss) {
     gateDismiss.addEventListener("click", () => {
       softGateDismissed = true;
@@ -284,19 +309,17 @@
     });
   }
 
-  // --- mobile launcher (always visible on mobile via different style) ---
-  // launcher uses "hidden sm:flex" — show on mobile via a smaller variant
+  // --- mobile launcher ---
   const mobileLauncher = document.createElement("button");
   mobileLauncher.type = "button";
   mobileLauncher.setAttribute("aria-label", "Ask The Architect");
   mobileLauncher.className =
     "fixed bottom-4 right-4 z-40 sm:hidden inline-flex items-center justify-center h-14 w-14 rounded-full bg-ink hover:bg-ink-700 text-paper-100 shadow-elevated transition-colors";
-  mobileLauncher.innerHTML =
-    '<span class="font-display text-lg font-medium text-paper-100">A</span>';
+  mobileLauncher.innerHTML = '<span class="font-display text-lg font-medium text-paper-100">A</span>';
   mobileLauncher.addEventListener("click", openDrawer);
   document.body.appendChild(mobileLauncher);
 
-  // Optional: deep-link via #architect to auto-open on page load
+  // Deep-link via #architect to auto-open on page load
   if (location.hash === "#architect") {
     setTimeout(openDrawer, 200);
   }

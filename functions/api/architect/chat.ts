@@ -4,8 +4,6 @@
 
 interface Env {
   ANTHROPIC_API_KEY: string;
-  ARCHITECT_LEADS?: KVNamespace; // optional KV binding for lead/conversation storage
-  CRM_LEAD_WEBHOOK?: string; // POST endpoint for TMP CRM
 }
 
 interface ChatMessage {
@@ -16,8 +14,7 @@ interface ChatMessage {
 interface ChatRequest {
   sessionId: string;
   messages: ChatMessage[];
-  visitorName?: string;
-  visitorEmail?: string;
+  hasBookedConsultation?: boolean; // set by client when visitor has clicked through to the CRM form
 }
 
 const SOFT_GATE_AFTER_USER_TURNS = 3;
@@ -131,27 +128,26 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const userTurns = body.messages.filter((m) => m.role === "user").length;
-  const hasIdentified = !!(body.visitorName && body.visitorEmail);
+  const hasBooked = !!body.hasBookedConsultation;
 
-  // Hard gate
-  if (userTurns >= HARD_GATE_AFTER_USER_TURNS && !hasIdentified) {
+  // Hard gate — visitor must book a consultation through the CRM form to continue
+  if (userTurns >= HARD_GATE_AFTER_USER_TURNS && !hasBooked) {
     return new Response(
       JSON.stringify({
         gate: "hard",
         message:
-          "To keep going, I'll need your name and email. I'll save this conversation so you can come back to it, and the team can follow up if you want to talk to a human about your launch.",
+          "This is the point where talking to a human will get you further than I can. Schedule a free consultation — the team will pick up exactly where we left off. The conversation we've had so far goes with you.",
       }),
       { headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
     );
   }
 
-  // Build Anthropic request
-  const visitorTag = hasIdentified ? `\n\n[Visitor identified: ${body.visitorName} <${body.visitorEmail}>]` : "";
+  const bookedTag = hasBooked ? "\n\n[Visitor has booked a consultation. Speak with familiarity; reference that the team will follow up.]" : "";
 
   const anthropicReq = {
     model: "claude-haiku-4-5",
     max_tokens: 768,
-    system: SYSTEM_PROMPT + visitorTag,
+    system: SYSTEM_PROMPT + bookedTag,
     messages: body.messages.map((m) => ({
       role: m.role,
       content: m.content,
@@ -183,29 +179,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return jsonError("The Architect is briefly offline. Try again.", 502);
   }
 
-  // Soft gate (one turn before hard gate)
+  // Soft gate — surfaces the consultation CTA inline
   const gate =
-    !hasIdentified && userTurns >= SOFT_GATE_AFTER_USER_TURNS ? "soft" : "none";
-
-  // Optionally persist to KV (best-effort, fire-and-forget)
-  if (env.ARCHITECT_LEADS) {
-    try {
-      const updated = [...body.messages, { role: "assistant", content: assistantText }];
-      await env.ARCHITECT_LEADS.put(
-        `conv:${body.sessionId}`,
-        JSON.stringify({
-          sessionId: body.sessionId,
-          visitorName: body.visitorName || null,
-          visitorEmail: body.visitorEmail || null,
-          messages: updated,
-          updatedAt: new Date().toISOString(),
-        }),
-        { expirationTtl: 60 * 60 * 24 * 90 }
-      );
-    } catch (e) {
-      console.warn("KV write failed", e);
-    }
-  }
+    !hasBooked && userTurns >= SOFT_GATE_AFTER_USER_TURNS ? "soft" : "none";
 
   return new Response(
     JSON.stringify({
