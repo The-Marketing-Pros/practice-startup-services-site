@@ -74,15 +74,22 @@ const dd = getDeepDive(phaseId);
               <h2 class="font-display text-display-md font-medium text-ink mb-8 text-balance">
                 What people ask most.
               </h2>
-              <dl class="space-y-7">
-                {dd.faq.map((item) => (
-                  <div>
-                    <dt class="font-display text-display-sm font-medium text-ink mb-2 text-balance">
-                      {item.q}
-                    </dt>
-                    <dd class="text-body text-graphite-800 leading-relaxed text-pretty">
-                      {item.a}
-                    </dd>
+              <dl class="divide-y divide-ink/8 border-t border-b border-ink/8">
+                {dd.faq.map((item, idx) => (
+                  <div class="py-6 grid grid-cols-12 gap-4">
+                    <div class="col-span-12 md:col-span-1">
+                      <span class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <div class="col-span-12 md:col-span-11">
+                      <dt class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+                        {item.q}
+                      </dt>
+                      <dd class="text-body text-graphite-800 leading-relaxed text-pretty max-w-prose">
+                        {item.a}
+                      </dd>
+                    </div>
                   </div>
                 ))}
               </dl>
