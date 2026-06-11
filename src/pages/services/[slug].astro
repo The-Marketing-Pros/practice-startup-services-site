@@ -15,7 +15,18 @@ const { service } = Astro.props;
 const primaryPhase = phaseById[service.primaryPhase];
 const secondaryPhases = service.secondaryPhases.map((id) => phaseById[id]);
 
-const description = `${service.outcomeHeadline} ${service.outcomeSub}`;
+// Meta description: ~155 char target. Prefer outcomeHeadline alone if short enough,
+// otherwise fall back to outcomeSub truncated.
+function buildMetaDescription(headline: string, sub: string): string {
+  const cap = 158;
+  if (headline.length <= cap - 3) {
+    const combined = `${headline} ${sub}`;
+    if (combined.length <= cap) return combined;
+    return headline;
+  }
+  return headline.length <= cap ? headline : headline.slice(0, cap - 1).replace(/\s+\S*$/, "") + "…";
+}
+const description = buildMetaDescription(service.outcomeHeadline, service.outcomeSub);
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",
