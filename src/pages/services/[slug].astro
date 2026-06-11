@@ -2,6 +2,7 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import FinalCta from "@components/FinalCta.astro";
 import PhaseStrip from "@components/PhaseStrip.astro";
+import RelatedRoutes from "@components/RelatedRoutes.astro";
 import { services } from "@data/services";
 import { phaseById } from "@data/phases";
 import { SITE } from "@data/site";
@@ -175,5 +176,6 @@ const schemas = [breadcrumbSchema, serviceSchema];
     </div>
   </section>
 
+  <RelatedRoutes />
   <FinalCta />
 </BaseLayout>

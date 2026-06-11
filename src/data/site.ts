@@ -38,7 +38,7 @@ export const ARCHITECT = {
 
 export const NAV = [
   {
-    label: "The Launch Journey",
+    label: "The Blueprint",
     href: "/journey",
     children: [
       { label: "Phase 1 — Decide", href: "/journey/is-this-right-for-me" },
@@ -62,12 +62,43 @@ export const NAV = [
     ],
   },
   {
+    label: "By Specialty",
+    href: "/specialty",
+    children: [
+      { label: "Primary Care", href: "/specialty/primary-care" },
+      { label: "Orthopedics", href: "/specialty/orthopedics" },
+      { label: "Dermatology", href: "/specialty/dermatology" },
+      { label: "Psychiatry", href: "/specialty/psychiatry" },
+      { label: "Behavioral Health", href: "/specialty/behavioral-health" },
+      { label: "Cardiology", href: "/specialty/cardiology" },
+      { label: "OB/GYN", href: "/specialty/obgyn" },
+      { label: "Family Medicine", href: "/specialty/family-medicine" },
+    ],
+  },
+  {
+    label: "By State",
+    href: "/states",
+    children: [
+      { label: "Florida", href: "/states/florida" },
+      { label: "Texas", href: "/states/texas" },
+      { label: "California", href: "/states/california" },
+      { label: "New York", href: "/states/new-york" },
+      { label: "Pennsylvania", href: "/states/pennsylvania" },
+      { label: "Illinois", href: "/states/illinois" },
+      { label: "Ohio", href: "/states/ohio" },
+      { label: "Georgia", href: "/states/georgia" },
+      { label: "North Carolina", href: "/states/north-carolina" },
+      { label: "Arizona", href: "/states/arizona" },
+    ],
+  },
+  {
     label: "Free Resources",
     href: "/resources",
     children: [
       { label: "Startup Checklist", href: "/resources/startup-checklist" },
       { label: "Medicare Tools", href: "/resources/medicare-tools" },
       { label: "Startup Cost Guide", href: "/resources/startup-costs" },
+      { label: "Launch Readiness Scan", href: "/scan" },
     ],
   },
   {

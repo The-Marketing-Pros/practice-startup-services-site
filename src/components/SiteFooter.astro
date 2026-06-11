@@ -1,13 +1,20 @@
 ---
 import { NAV, SITE } from "@data/site";
 const year = new Date().getFullYear();
+
+// Pick which NAV groups become footer columns. Promote Specialty + States
+// because the rest of the site discoverability hinges on them.
+const FOOTER_COLUMN_LABELS = ["The Blueprint", "Services", "By Specialty", "By State", "Free Resources"];
+const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
+  NAV.find((item) => item.label === label)
+).filter(Boolean) as typeof NAV;
 ---
 
 <footer class="bg-ink text-paper-200 mt-24">
   <div class="container-site py-16">
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-10">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-10 mb-12">
       <div class="col-span-2">
-        <div class="font-display text-display-sm font-medium text-paper-100 mb-3">
+        <div class="font-display text-display-sm font-medium text-paper-100 mb-3 text-balance">
           {SITE.tagline}
         </div>
         <p class="text-small text-paper-200/80 max-w-narrow mb-6">
@@ -19,24 +26,80 @@ const year = new Date().getFullYear();
       </div>
 
       {
-        NAV.slice(0, 3).map((col) => (
+        footerColumns.map((col) => (
           <div>
             <div class="phase-label text-paper-200/60 mb-3">{col.label}</div>
             <ul class="space-y-2">
-              {(col.children?.length ? col.children : [{ label: col.label, href: col.href }]).map((c) => (
-                <li>
-                  <a href={c.href} class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">
-                    {c.label}
-                  </a>
-                </li>
-              ))}
+              {col.children?.length
+                ? col.children.slice(0, 8).map((c) => (
+                    <li>
+                      <a
+                        href={c.href}
+                        class="text-small text-paper-200/85 hover:text-paper-100 transition-colors"
+                      >
+                        {c.label}
+                      </a>
+                    </li>
+                  ))
+                : (
+                    <li>
+                      <a
+                        href={col.href}
+                        class="text-small text-paper-200/85 hover:text-paper-100 transition-colors"
+                      >
+                        {col.label}
+                      </a>
+                    </li>
+                  )}
             </ul>
           </div>
         ))
       }
     </div>
 
-    <div class="blueprint-rule my-12"></div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-4 mb-12 pt-12 border-t border-paper-200/15">
+      <div>
+        <div class="phase-label text-paper-200/60 mb-2">Who we help</div>
+        <ul class="space-y-1.5">
+          <li><a href="/who-we-help/physicians" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Physicians</a></li>
+          <li><a href="/who-we-help/nurse-practitioners" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">NPs</a></li>
+          <li><a href="/who-we-help/physician-assistants" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">PAs</a></li>
+          <li><a href="/who-we-help/behavioral-health" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Behavioral Health</a></li>
+          <li><a href="/who-we-help/specialty" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Specialty Practices</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="phase-label text-paper-200/60 mb-2">Tools</div>
+        <ul class="space-y-1.5">
+          <li><a href="/scan" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Launch Readiness Scan</a></li>
+          <li><a href="/resources/medicare-tools" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Medicare Tools</a></li>
+          <li><a href="/resources/startup-checklist" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Practice Launch Checklist</a></li>
+          <li><a href="/resources/startup-costs" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Startup Cost Guide</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="phase-label text-paper-200/60 mb-2">About</div>
+        <ul class="space-y-1.5">
+          <li><a href="/about" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Who we are</a></li>
+          <li><a href={SITE.scheduleUrl} class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Schedule a consultation</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="phase-label text-paper-200/60 mb-2">Partner tools</div>
+        <ul class="space-y-1.5">
+          <li>
+            <a href={SITE.metoliusToolsUrl} class="text-small text-paper-200/80 hover:text-paper-100 transition-colors" target="_blank" rel="noopener">
+              Metolius Medicare Tools ↗
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="blueprint-rule mb-8"></div>
 
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-small text-paper-200/70">
       <div>
