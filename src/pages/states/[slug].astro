@@ -1,0 +1,193 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import FinalCta from "@components/FinalCta.astro";
+import { states } from "@data/states";
+import { phases } from "@data/phases";
+import { SITE } from "@data/site";
+
+export function getStaticPaths() {
+  return states.map((s) => ({ params: { slug: s.slug }, props: { state: s } }));
+}
+
+const { state } = Astro.props;
+
+const npLabel = {
+  full: "Full practice authority",
+  reduced: "Reduced practice",
+  restricted: "Restricted practice",
+}[state.npAuthority];
+
+const title = `Starting a Medical Practice in ${state.name}`;
+const description = `Practice startup guidance specific to ${state.name} — credentialing timing, payer landscape, state-specific watchouts, and where to focus first.`;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+    { "@type": "ListItem", position: 2, name: "States", item: "https://practicestartupservices.com/states/" },
+    { "@type": "ListItem", position: 3, name: state.name, item: `https://practicestartupservices.com/states/${state.slug}/` },
+  ],
+};
+---
+
+<BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+  <!-- Hero -->
+  <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id={`bp-grid-${state.slug}`} x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#bp-grid-${state.slug})`} />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="flex flex-wrap items-center gap-3 phase-label text-graphite-600 mb-6">
+        <a href="/states" class="hover:text-ink transition-colors">States</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-bronze-700 font-medium">{state.abbr} · {state.name}</span>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-10 items-start">
+        <div class="lg:col-span-8">
+          <h1 class="font-display font-medium text-display-xl text-balance text-ink mb-5">
+            Starting a medical practice in {state.name}.
+          </h1>
+          <p class="text-lede text-graphite-700 max-w-prose-wide mb-7 text-pretty">
+            The 7-phase launch blueprint applies to every state. But credentialing timing, payer mix,
+            entity rules, and scope-of-practice all shift state to state. Here's what changes when
+            you're launching in {state.name}.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href={SITE.scheduleUrl} class="btn-primary">
+              {SITE.primaryCta}
+            </a>
+            <a href="/journey" class="btn-secondary">
+              See the 7-phase journey
+            </a>
+          </div>
+        </div>
+
+        <aside class="lg:col-span-4 card-blueprint">
+          <div class="phase-label text-graphite-500 mb-3">{state.name} at a glance</div>
+          <dl class="space-y-3 text-small">
+            <div>
+              <dt class="phase-label text-graphite-500">Major metros</dt>
+              <dd class="text-ink mt-0.5">{state.major.join(", ")}</dd>
+            </div>
+            <div>
+              <dt class="phase-label text-graphite-500">Medicaid program</dt>
+              <dd class="text-ink mt-0.5">{state.medicaidName}</dd>
+            </div>
+            <div>
+              <dt class="phase-label text-graphite-500">Medicaid enrollment timing</dt>
+              <dd class="text-ink mt-0.5 font-mono">{state.medicaidTimingDays}</dd>
+            </div>
+            <div>
+              <dt class="phase-label text-graphite-500">NP scope</dt>
+              <dd class="text-ink mt-0.5">{npLabel}</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Watchouts -->
+  <section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
+    <div class="container-site">
+      <div class="grid lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-7 max-w-prose-wide">
+          <div class="phase-label text-bronze-700 mb-3">Why {state.abbr} is different</div>
+          <h2 class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+            Payer landscape.
+          </h2>
+          <p class="text-body text-graphite-800 leading-relaxed mb-6 text-pretty">
+            {state.payerLandscapeNote}
+          </p>
+
+          <h2 class="font-display text-display-md font-medium text-ink mb-3 text-balance">
+            Cost context.
+          </h2>
+          <p class="text-body text-graphite-800 leading-relaxed mb-6 text-pretty">
+            {state.costNote}
+          </p>
+
+          <h2 class="font-display text-display-md font-medium text-ink mb-3 text-balance">
+            On NPs and PAs.
+          </h2>
+          <p class="text-body text-graphite-800 leading-relaxed mb-3 text-pretty">
+            <strong class="font-medium">Nurse Practitioners:</strong> {npLabel}.
+          </p>
+          <p class="text-body text-graphite-800 leading-relaxed mb-6 text-pretty">
+            <strong class="font-medium">Physician Assistants:</strong> {state.paAuthorityNote}
+          </p>
+
+          <h2 class="font-display text-display-md font-medium text-ink mb-3 text-balance">
+            Why local counsel matters.
+          </h2>
+          <p class="text-body text-graphite-800 leading-relaxed text-pretty">
+            {state.attorneyNote}
+          </p>
+        </div>
+
+        <aside class="lg:col-span-5">
+          <div class="do-not-skip">
+            <div class="do-not-skip-label">{state.abbr}-specific watchouts</div>
+            <ul class="space-y-2.5 mt-3">
+              {
+                state.specificWatchouts.map((w) => (
+                  <li class="flex gap-3 text-body text-graphite-900 leading-relaxed">
+                    <span class="text-warn font-mono mt-1">!</span>
+                    <span>{w}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Phases for this state -->
+  <section class="border-b border-ink/8 py-16 lg:py-20">
+    <div class="container-site">
+      <div class="max-w-3xl mb-10">
+        <div class="phase-label text-bronze-700 mb-3">The blueprint, in {state.name}</div>
+        <h2 class="font-display text-display-lg font-medium text-ink mb-3 text-balance">
+          The 7 phases apply. The details shift.
+        </h2>
+        <p class="text-body text-graphite-700 max-w-prose-wide text-pretty">
+          Start with the phase that matches where you are, then layer the {state.name}-specific
+          watchouts above onto your build sequence.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {
+          phases.map((p) => (
+            <a
+              href={`/journey/${p.slug}`}
+              class="card-blueprint hover:border-ink/25 transition-colors group flex flex-col"
+            >
+              <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none mb-2">
+                {p.id}
+              </div>
+              <div class="font-display text-base font-medium text-ink mb-1">
+                {p.verb} · {p.title}
+              </div>
+              <p class="text-small text-graphite-700 text-pretty">{p.subtitle}</p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</BaseLayout>
