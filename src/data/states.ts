@@ -15,6 +15,7 @@ export interface StateInfo {
   costNote: string; // 1-sentence regional cost context
   specificWatchouts: string[]; // 2-4 state-specific watchouts
   attorneyNote: string; // why local healthcare attorney matters here
+  region: "southeast" | "northeast" | "midwest" | "southwest" | "west" | "south"; // for contextual neighbors
 }
 
 export const states: StateInfo[] = [
@@ -37,6 +38,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Florida's healthcare regulations include specific entity rules for physician practices and CON (Certificate of Need) requirements for certain services. Work with a Florida-licensed healthcare attorney.",
+    region: "southeast",
   },
   {
     slug: "texas",
@@ -57,6 +59,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Texas corporate practice of medicine doctrine is strict — the wrong entity or ownership structure can invalidate your liability protection. Use a Texas-licensed healthcare attorney.",
+    region: "south",
   },
   {
     slug: "california",
@@ -77,6 +80,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "California healthcare regulation is the most complex in the country — corporate practice rules, peer review, and patient privacy laws all have state-specific requirements. Local healthcare attorney is essential.",
+    region: "west",
   },
   {
     slug: "new-york",
@@ -97,6 +101,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "New York's Article 28 facility licensure rules and CPM doctrine make local counsel non-negotiable. Use a healthcare attorney with NYC and state DOH experience.",
+    region: "northeast",
   },
   {
     slug: "pennsylvania",
@@ -117,6 +122,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Pennsylvania's CPM doctrine and entity rules are state-specific; the Highmark/UPMC regional dynamics also affect launch timing. Local healthcare counsel is worth the spend.",
+    region: "northeast",
   },
   {
     slug: "illinois",
@@ -137,6 +143,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Illinois entity and worker classification rules require state-specific counsel; Chicago adds additional municipal complexity.",
+    region: "midwest",
   },
   {
     slug: "ohio",
@@ -157,6 +164,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Ohio's state-run workers comp and Pharmacy Board rules add steps most generic startup guides miss. Local counsel matters.",
+    region: "midwest",
   },
   {
     slug: "georgia",
@@ -177,6 +185,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Georgia non-compete rules and entity disclosure requirements warrant local counsel before you sign anything.",
+    region: "southeast",
   },
   {
     slug: "north-carolina",
@@ -197,6 +206,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "NC's CON requirements and ongoing scope-of-practice reforms make local healthcare counsel important, especially for specialty practices.",
+    region: "southeast",
   },
   {
     slug: "washington",
@@ -220,6 +230,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Washington's MHMDA, Kaiser dynamics, and B&O tax structure all warrant in-state healthcare counsel.",
+    region: "west",
   },
   {
     slug: "new-jersey",
@@ -243,6 +254,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "NJ CPM rules and the Horizon dynamic both warrant in-state healthcare counsel.",
+    region: "northeast",
   },
   {
     slug: "virginia",
@@ -266,6 +278,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "VA's regional payer dynamics (Sentara in Tidewater, federal payers in NoVA) and non-compete variability warrant in-state counsel.",
+    region: "southeast",
   },
   {
     slug: "massachusetts",
@@ -289,6 +302,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Massachusetts DPH licensure, cost-growth benchmark rules, and hospital system dynamics all warrant in-state healthcare counsel.",
+    region: "northeast",
   },
   {
     slug: "tennessee",
@@ -312,6 +326,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "Tennessee CON requirements and BCBS-TN dominance warrant in-state counsel.",
+    region: "southeast",
   },
   {
     slug: "arizona",
@@ -332,6 +347,7 @@ export const states: StateInfo[] = [
     ],
     attorneyNote:
       "AHCCCS managed care credentialing adds steps. Local counsel familiar with Arizona's entity rules and the AHCCCS system is worth the spend.",
+    region: "southwest",
   },
 ];
 
