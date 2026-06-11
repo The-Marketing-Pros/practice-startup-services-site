@@ -75,11 +75,16 @@
 
   /* "Do Not Skip This" warning callout — from 03a Direction 3, kept */
   .do-not-skip {
-    @apply border-l-4 border-warn bg-warn-subtle px-5 py-4 my-6 text-ink rounded-r-soft;
+    @apply border-l-4 border-warn bg-warn-subtle px-5 py-5 my-6 text-ink rounded-r-soft;
   }
 
   .do-not-skip-label {
-    @apply font-mono text-label uppercase tracking-[0.18em] text-warn font-medium mb-1.5;
+    @apply font-mono text-label uppercase tracking-[0.18em] text-warn font-medium mb-3;
+  }
+
+  /* Watchout list items get visible dividers + breathable spacing on mobile */
+  .do-not-skip ul > li:not(:first-child) {
+    @apply pt-3 sm:pt-2.5 mt-3 sm:mt-2.5 border-t border-warn/20 sm:border-t-0;
   }
 
   /* CTA button — bronze fill, ink text. The only colored button on the site. */
