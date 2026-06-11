@@ -82,9 +82,9 @@
     @apply font-mono text-label uppercase tracking-[0.18em] text-warn font-medium mb-1.5;
   }
 
-  /* CTA button — bronze fill, navy text. The only colored button on the site. */
+  /* CTA button — bronze fill, ink text. The only colored button on the site. */
   .btn-primary {
-    @apply inline-flex items-center gap-2 bg-bronze hover:bg-bronze-700 text-ink font-medium px-5 py-3 rounded-soft transition-colors duration-200 shadow-blueprint;
+    @apply inline-flex items-center gap-2 bg-bronze hover:bg-bronze-700 text-ink font-medium px-5 py-[0.6875rem] rounded-soft transition-all duration-200 shadow-blueprint hover:shadow-elevated hover:-translate-y-px;
   }
 
   .btn-primary:focus-visible {
@@ -93,7 +93,7 @@
 
   /* Secondary button — outlined, paper bg, ink text */
   .btn-secondary {
-    @apply inline-flex items-center gap-2 border border-ink/15 hover:border-ink/40 text-ink font-medium px-5 py-3 rounded-soft transition-colors duration-200 bg-paper-100/0 hover:bg-paper-200/50;
+    @apply inline-flex items-center gap-2 border border-ink/15 hover:border-ink/40 text-ink font-medium px-5 py-[0.6875rem] rounded-soft transition-colors duration-200 bg-paper-100/0 hover:bg-paper-200/60;
   }
 
   /* Editorial container — generous reading width */
@@ -118,6 +118,14 @@
   /* Blueprint card — content blocks throughout the site */
   .card-blueprint {
     @apply bg-paper-50 border border-ink/8 rounded-card p-6 shadow-blueprint;
+  }
+
+  /* Section spacing scale — use these on <section> for consistent rhythm */
+  .section-y {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+  .section-y-tight {
+    @apply py-12 sm:py-16 lg:py-20;
   }
 }
 

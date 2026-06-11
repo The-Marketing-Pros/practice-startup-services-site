@@ -47,14 +47,14 @@ const stageGroups = [
           <li>
             <a
               href={`/journey/${p.slug}`}
-              class="block group bg-paper-50 hover:bg-paper-200/60 border border-ink/8 hover:border-ink/20 rounded-card transition-colors"
+              class="block group bg-paper-50 hover:bg-paper-200/70 border border-ink/8 hover:border-ink/25 rounded-card transition-all duration-200 hover:shadow-blueprint"
             >
               <div class="grid grid-cols-12 gap-6 p-6 lg:p-7 items-center">
                 <div class="col-span-2 lg:col-span-1">
-                  <div class="font-mono text-display-sm text-bronze-700 font-medium leading-none">
+                  <div class="font-mono text-display-sm text-bronze-700 group-hover:text-bronze-900 font-medium leading-none transition-colors">
                     {p.id}
                   </div>
-                  <div class="phase-label text-graphite-500 mt-2">{p.verb}</div>
+                  <div class="phase-label text-graphite-500 group-hover:text-graphite-700 mt-2 transition-colors">{p.verb}</div>
                 </div>
 
                 <div class="col-span-10 lg:col-span-5">
@@ -81,7 +81,7 @@ const stageGroups = [
                 </div>
 
                 <div class="col-span-12 lg:col-span-1 flex lg:justify-end">
-                  <span class="inline-flex items-center justify-center h-9 w-9 rounded-sharp border border-ink/15 text-graphite-600 group-hover:bg-ink group-hover:text-paper-100 group-hover:border-ink transition-colors">
+                  <span class="inline-flex items-center justify-center h-9 w-9 rounded-sharp border border-ink/15 text-graphite-600 group-hover:bg-ink group-hover:text-paper-100 group-hover:border-ink group-hover:translate-x-0.5 transition-all duration-200">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                       <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>

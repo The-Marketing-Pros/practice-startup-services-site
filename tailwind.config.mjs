@@ -81,14 +81,14 @@ export default {
       },
       fontSize: {
         // Editorial scale — generous, content-friendly
-        "display-xl": ["clamp(2.75rem, 5vw + 1rem, 5rem)", { lineHeight: "1.02", letterSpacing: "-0.025em" }],
-        "display-lg": ["clamp(2.25rem, 4vw + 0.75rem, 4rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
-        "display-md": ["clamp(1.75rem, 3vw + 0.5rem, 3rem)", { lineHeight: "1.1", letterSpacing: "-0.015em" }],
-        "display-sm": ["clamp(1.5rem, 2vw + 0.5rem, 2.25rem)", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
-        "lede": ["1.25rem", { lineHeight: "1.6", letterSpacing: "-0.005em" }],
+        "display-xl": ["clamp(2.75rem, 5vw + 1rem, 5rem)", { lineHeight: "1.0", letterSpacing: "-0.03em" }],
+        "display-lg": ["clamp(2.25rem, 4vw + 0.75rem, 3.75rem)", { lineHeight: "1.03", letterSpacing: "-0.025em" }],
+        "display-md": ["clamp(1.75rem, 3vw + 0.5rem, 2.75rem)", { lineHeight: "1.08", letterSpacing: "-0.02em" }],
+        "display-sm": ["clamp(1.5rem, 2vw + 0.5rem, 2.125rem)", { lineHeight: "1.12", letterSpacing: "-0.015em" }],
+        "lede": ["1.1875rem", { lineHeight: "1.6", letterSpacing: "-0.005em" }],
         "body": ["1.0625rem", { lineHeight: "1.7" }],
         "small": ["0.9375rem", { lineHeight: "1.6" }],
-        "label": ["0.8125rem", { lineHeight: "1.4", letterSpacing: "0.06em" }],
+        "label": ["0.8125rem", { lineHeight: "1.4", letterSpacing: "0.08em" }],
       },
       maxWidth: {
         "prose-wide": "72ch",
