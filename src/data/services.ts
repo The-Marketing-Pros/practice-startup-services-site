@@ -7,6 +7,7 @@ export interface Service {
   slug: string;
   name: string;
   crewLabel: string; // "Build crew for ..."
+  scopeBadge: "end-to-end" | "single-phase" | "ongoing"; // visual differentiation between service types
   outcomeHeadline: string;
   outcomeSub: string;
   primaryPhase: PhaseId;
@@ -21,6 +22,7 @@ export const services: Service[] = [
     slug: "practice-startup-consulting",
     name: "Practice Startup Consulting",
     crewLabel: "Build crew for end-to-end practice launch",
+    scopeBadge: "end-to-end",
     outcomeHeadline: "From decision to first patient — without the expensive mistakes.",
     outcomeSub:
       "End-to-end advisory through the full 7-phase launch. We've done this before. You'll get the order of operations right the first time.",
@@ -41,6 +43,7 @@ export const services: Service[] = [
     slug: "medical-credentialing",
     name: "Medical Credentialing",
     crewLabel: "Build crew for Phase 4",
+    scopeBadge: "single-phase",
     outcomeHeadline: "In-network with the payers that matter — on the timeline you need.",
     outcomeSub:
       "Credentialing is the single most expensive thing to get wrong at launch. Our team manages the entire process so you don't lose 90–180 days of revenue.",
@@ -61,6 +64,7 @@ export const services: Service[] = [
     slug: "revenue-cycle-management",
     name: "Revenue Cycle Management",
     crewLabel: "Build crew for Phase 7",
+    scopeBadge: "ongoing",
     outcomeHeadline: "Get paid faster, with fewer denials, and clear visibility into what's working.",
     outcomeSub:
       "Full-service billing from charge entry through collections. Built for new practices that need the operational lift and the strategic view.",
@@ -81,6 +85,7 @@ export const services: Service[] = [
     slug: "website-design",
     name: "Website Design for Medical Practices",
     crewLabel: "Build crew for Phase 6",
+    scopeBadge: "single-phase",
     outcomeHeadline: "A website that ranks, converts, and doesn't look like every other doctor's website.",
     outcomeSub:
       "Custom medical practice websites built for SEO, accessibility, and patient acquisition. Not Wix. Not a template. Real design, real performance.",
@@ -101,6 +106,7 @@ export const services: Service[] = [
     slug: "practice-infrastructure",
     name: "Practice Infrastructure Support",
     crewLabel: "Build crew for Phase 5",
+    scopeBadge: "single-phase",
     outcomeHeadline: "EHR, HIPAA, staffing, telephony — the operational systems, set up right.",
     outcomeSub:
       "The unglamorous pieces that determine whether your practice runs. We help you pick the right systems, configure them, and train your team.",
