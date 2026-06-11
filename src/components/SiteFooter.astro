@@ -11,8 +11,9 @@ const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
 ---
 
 <footer class="bg-ink text-paper-200 mt-24">
-  <div class="container-site py-16">
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-10 mb-12">
+  <div class="container-site py-12 md:py-16">
+    <!-- Desktop+ wide footer; collapses to brand-only on small screens to reduce scroll tax -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-10 mb-8 md:mb-12">
       <div class="col-span-2">
         <div class="font-display text-display-sm font-medium text-paper-100 mb-3 text-balance">
           {SITE.tagline}
@@ -27,7 +28,7 @@ const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
 
       {
         footerColumns.map((col) => (
-          <div>
+          <div class="hidden md:block">
             <div class="phase-label text-paper-200/60 mb-3">{col.label}</div>
             <ul class="space-y-2">
               {col.children?.length
@@ -57,7 +58,8 @@ const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
       }
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-4 mb-12 pt-12 border-t border-paper-200/15">
+    <!-- Secondary nav columns — desktop only; mobile gets a condensed sitemap below -->
+    <div class="hidden md:grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-4 mb-12 pt-12 border-t border-paper-200/15">
       <div>
         <div class="phase-label text-paper-200/60 mb-2">Who we help</div>
         <ul class="space-y-1.5">
@@ -96,6 +98,21 @@ const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
             </a>
           </li>
         </ul>
+      </div>
+    </div>
+
+    <!-- Mobile-only condensed sitemap (hub links + key resources, no enumeration) -->
+    <div class="md:hidden mb-8 pt-8 border-t border-paper-200/15">
+      <div class="phase-label text-paper-200/60 mb-3">Sitemap</div>
+      <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+        <a href="/journey" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">The Blueprint</a>
+        <a href="/services" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Services</a>
+        <a href="/specialty" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">By Specialty</a>
+        <a href="/states" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">By State</a>
+        <a href="/resources" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Free Resources</a>
+        <a href="/who-we-help" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Who We Help</a>
+        <a href="/scan" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Launch Scan</a>
+        <a href="/about" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">About</a>
       </div>
     </div>
 
