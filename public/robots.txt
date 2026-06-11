@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://practicestartupservices.com/sitemap-index.xml
