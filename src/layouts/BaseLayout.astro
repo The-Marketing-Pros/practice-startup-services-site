@@ -2,6 +2,7 @@
 import "@/styles/global.css";
 import SiteHeader from "@components/SiteHeader.astro";
 import SiteFooter from "@components/SiteFooter.astro";
+import Architect from "@components/Architect.astro";
 import { SITE } from "@data/site";
 
 interface Props {
@@ -96,5 +97,7 @@ const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : 
     </main>
 
     <SiteFooter />
+
+    <Architect />
   </body>
 </html>
