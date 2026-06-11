@@ -16,12 +16,14 @@ export interface Specialty {
   payerMixNote: string; // commercial vs. Medicare vs. Medicaid vs. cash dynamics
   watchouts: string[]; // 3-5 specialty-specific watchouts
   ancillaryRevenue: string | null; // common ancillary revenue plays for this specialty
+  relatedSlugs?: string[]; // contextually related specialties (similar economics, payer dynamics)
 }
 
 export const specialties: Specialty[] = [
   {
     slug: "primary-care",
     name: "Primary Care",
+    relatedSlugs: ["family-medicine", "pediatrics", "behavioral-health"],
     shortLabel: "Primary Care",
     headline: "For primary care physicians launching independent practices.",
     sub: "Family medicine, internal medicine, and general primary care launches — solo, group, DPC, or hybrid.",
@@ -52,6 +54,7 @@ export const specialties: Specialty[] = [
   {
     slug: "orthopedics",
     name: "Orthopedics",
+    relatedSlugs: ["cardiology", "urology", "gastroenterology"],
     shortLabel: "Ortho",
     headline: "For orthopedic surgeons launching independent or group practices.",
     sub: "Orthopedic practice launches — solo, group, and integrated ortho/PT models.",
@@ -83,6 +86,7 @@ export const specialties: Specialty[] = [
   {
     slug: "dermatology",
     name: "Dermatology",
+    relatedSlugs: ["obgyn", "primary-care", "family-medicine"],
     shortLabel: "Derm",
     headline: "For dermatologists launching independent or boutique practices.",
     sub: "Dermatology launches — medical, surgical, cosmetic, or mixed practice models.",
@@ -113,6 +117,7 @@ export const specialties: Specialty[] = [
   {
     slug: "psychiatry",
     name: "Psychiatry",
+    relatedSlugs: ["behavioral-health", "neurology", "primary-care"],
     shortLabel: "Psych",
     headline: "For psychiatrists launching independent practices.",
     sub: "Psychiatry launches — solo, group, telehealth-first, and integrated mental health models.",
@@ -143,6 +148,7 @@ export const specialties: Specialty[] = [
   {
     slug: "behavioral-health",
     name: "Behavioral Health",
+    relatedSlugs: ["psychiatry", "primary-care", "pediatrics"],
     shortLabel: "Behavioral Health",
     headline: "For licensed therapists, psychologists, and counselors launching independent practices.",
     sub: "Behavioral health practice launches — solo, group, and telehealth-first models for licensed mental health professionals.",
@@ -174,6 +180,7 @@ export const specialties: Specialty[] = [
   {
     slug: "cardiology",
     name: "Cardiology",
+    relatedSlugs: ["gastroenterology", "neurology", "urology"],
     shortLabel: "Cardiology",
     headline: "For cardiologists launching independent practices.",
     sub: "Cardiology launches — non-invasive, interventional, and integrated practice models.",
@@ -202,6 +209,7 @@ export const specialties: Specialty[] = [
   {
     slug: "obgyn",
     name: "OB/GYN",
+    relatedSlugs: ["dermatology", "primary-care", "family-medicine"],
     shortLabel: "OB/GYN",
     headline: "For OB/GYNs launching independent practices.",
     sub: "OB/GYN launches — solo, group, GYN-only, and integrated women's health models.",
@@ -232,6 +240,7 @@ export const specialties: Specialty[] = [
   {
     slug: "anesthesiology",
     name: "Anesthesiology",
+    relatedSlugs: ["gastroenterology", "orthopedics", "cardiology"],
     shortLabel: "Anesthesia",
     headline: "For anesthesiologists launching independent or group practices.",
     sub: "Anesthesia practice launches — hospital-employed transitions, ambulatory surgery center contracts, pain management, and independent group models.",
@@ -262,6 +271,7 @@ export const specialties: Specialty[] = [
   {
     slug: "pediatrics",
     name: "Pediatrics",
+    relatedSlugs: ["family-medicine", "primary-care", "behavioral-health"],
     shortLabel: "Peds",
     headline: "For pediatricians launching independent practices.",
     sub: "Pediatric practice launches — solo, group, concierge peds, and integrated developmental-behavioral models.",
@@ -292,6 +302,7 @@ export const specialties: Specialty[] = [
   {
     slug: "gastroenterology",
     name: "Gastroenterology",
+    relatedSlugs: ["cardiology", "urology", "anesthesiology"],
     shortLabel: "GI",
     headline: "For gastroenterologists launching independent or group practices.",
     sub: "GI practice launches — solo, group, and integrated endoscopy/ASC models.",
@@ -322,6 +333,7 @@ export const specialties: Specialty[] = [
   {
     slug: "neurology",
     name: "Neurology",
+    relatedSlugs: ["psychiatry", "cardiology", "orthopedics"],
     shortLabel: "Neuro",
     headline: "For neurologists launching independent practices.",
     sub: "Neurology practice launches — general neurology, subspecialty (epilepsy, MS, headache, movement disorders), and integrated neuroscience models.",
@@ -352,6 +364,7 @@ export const specialties: Specialty[] = [
   {
     slug: "urology",
     name: "Urology",
+    relatedSlugs: ["orthopedics", "gastroenterology", "cardiology"],
     shortLabel: "Uro",
     headline: "For urologists launching independent or group practices.",
     sub: "Urology practice launches — solo, group, and integrated urologic surgery/oncology models.",
@@ -382,6 +395,7 @@ export const specialties: Specialty[] = [
   {
     slug: "family-medicine",
     name: "Family Medicine",
+    relatedSlugs: ["primary-care", "pediatrics", "behavioral-health"],
     shortLabel: "Family Med",
     headline: "For family medicine physicians launching independent practices.",
     sub: "Family medicine launches — solo, group, DPC, concierge, and integrated full-spectrum models.",
