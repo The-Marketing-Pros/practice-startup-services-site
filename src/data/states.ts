@@ -199,6 +199,121 @@ export const states: StateInfo[] = [
       "NC's CON requirements and ongoing scope-of-practice reforms make local healthcare counsel important, especially for specialty practices.",
   },
   {
+    slug: "washington",
+    abbr: "WA",
+    name: "Washington",
+    major: ["Seattle", "Tacoma", "Spokane", "Bellevue"],
+    medicaidName: "Washington Apple Health (Medicaid)",
+    medicaidTimingDays: "60–120 days",
+    npAuthority: "full",
+    paAuthorityNote:
+      "Washington PAs practice under a written supervision agreement with broad delegated authority; specifics vary by setting.",
+    payerLandscapeNote:
+      "Premera Blue Cross, Regence BlueShield, Kaiser Permanente Washington, UnitedHealthcare, and Aetna lead; Kaiser's closed system materially affects open-market access.",
+    costNote:
+      "Seattle and Bellevue have very high commercial rent and labor costs; smaller markets and eastern Washington are dramatically lower-cost.",
+    specificWatchouts: [
+      "Washington has specific patient privacy rules (My Health My Data Act) that go beyond federal HIPAA",
+      "Kaiser's closed system means a meaningful share of Seattle-area patients are out of reach for non-Kaiser practices",
+      "State business and occupation (B&O) tax structure is unusual — model accurately",
+      "Apple Health (Medicaid) managed care has multiple plans — enrollment is per-plan",
+    ],
+    attorneyNote:
+      "Washington's MHMDA, Kaiser dynamics, and B&O tax structure all warrant in-state healthcare counsel.",
+  },
+  {
+    slug: "new-jersey",
+    abbr: "NJ",
+    name: "New Jersey",
+    major: ["Newark", "Jersey City", "Paterson", "Princeton corridor"],
+    medicaidName: "NJ FamilyCare (Medicaid)",
+    medicaidTimingDays: "60–120 days",
+    npAuthority: "reduced",
+    paAuthorityNote:
+      "New Jersey PAs practice under a written delegation agreement with a supervising physician; specific protocols apply.",
+    payerLandscapeNote:
+      "Horizon Blue Cross Blue Shield of New Jersey, AmeriHealth, UnitedHealthcare, Aetna, and Cigna lead; Horizon dominates the commercial market.",
+    costNote:
+      "North Jersey (Bergen, Essex, Hudson) and Princeton corridor have high commercial rent; southern New Jersey is moderate.",
+    specificWatchouts: [
+      "Horizon BCBS dominance shapes credentialing strategy — their timing is the gate",
+      "NJ has strict corporate practice of medicine rules — entity structure matters",
+      "State malpractice insurance market has limited carriers; verify before assuming national rates",
+      "NJ FamilyCare is managed care — enrollment is per-plan",
+    ],
+    attorneyNote:
+      "NJ CPM rules and the Horizon dynamic both warrant in-state healthcare counsel.",
+  },
+  {
+    slug: "virginia",
+    abbr: "VA",
+    name: "Virginia",
+    major: ["Northern Virginia (DC metro)", "Richmond", "Virginia Beach", "Roanoke"],
+    medicaidName: "Virginia Medicaid (Cardinal Care)",
+    medicaidTimingDays: "60–120 days",
+    npAuthority: "reduced",
+    paAuthorityNote:
+      "Virginia PAs practice under a practice agreement with a supervising physician; scope varies by specialty and setting.",
+    payerLandscapeNote:
+      "Anthem Blue Cross Blue Shield, Sentara Health Plans, UnitedHealthcare, Aetna, and Cigna lead; Sentara is a strong regional player in eastern Virginia.",
+    costNote:
+      "Northern Virginia is high-cost (DC metro labor + rent); Richmond and Virginia Beach moderate; rural Virginia low.",
+    specificWatchouts: [
+      "Federal payer mix in Northern Virginia (Tricare, FEHB plans) is unusually significant",
+      "Sentara's regional dominance in Hampton Roads affects credentialing strategy",
+      "Cardinal Care managed care has multiple MCOs — enrollment is per-MCO",
+      "Virginia non-compete enforcement varies; verify with local counsel before signing employment exits",
+    ],
+    attorneyNote:
+      "VA's regional payer dynamics (Sentara in Tidewater, federal payers in NoVA) and non-compete variability warrant in-state counsel.",
+  },
+  {
+    slug: "massachusetts",
+    abbr: "MA",
+    name: "Massachusetts",
+    major: ["Boston", "Worcester", "Springfield", "Cambridge"],
+    medicaidName: "MassHealth",
+    medicaidTimingDays: "60–120 days",
+    npAuthority: "full",
+    paAuthorityNote:
+      "Massachusetts PAs practice under a supervising physician with a written agreement; recent reforms have expanded scope.",
+    payerLandscapeNote:
+      "Blue Cross Blue Shield of Massachusetts, Harvard Pilgrim, Tufts Health Plan, UnitedHealthcare, and Aetna lead; the state has unusually concentrated regional health systems.",
+    costNote:
+      "Boston metro is among the highest-cost markets in the country; central and western Massachusetts are dramatically more affordable.",
+    specificWatchouts: [
+      "Massachusetts has one of the most regulated healthcare markets — DPH licensure and DRG rules add steps",
+      "Strong hospital system networks (Mass General Brigham, Beth Israel Lahey) shape referral patterns more than most states",
+      "State has aggressive cost-growth benchmark enforcement — large rate increases get pushback",
+      "MassHealth managed care has multiple ACO and MCO options — enrollment is multi-step",
+    ],
+    attorneyNote:
+      "Massachusetts DPH licensure, cost-growth benchmark rules, and hospital system dynamics all warrant in-state healthcare counsel.",
+  },
+  {
+    slug: "tennessee",
+    abbr: "TN",
+    name: "Tennessee",
+    major: ["Nashville", "Memphis", "Knoxville", "Chattanooga"],
+    medicaidName: "TennCare (Medicaid)",
+    medicaidTimingDays: "60–120 days",
+    npAuthority: "restricted",
+    paAuthorityNote:
+      "Tennessee PAs practice under a supervising physician with a written agreement; scope is generally broad in primary care settings.",
+    payerLandscapeNote:
+      "BlueCross BlueShield of Tennessee, Cigna, UnitedHealthcare, Aetna, and Humana lead; BCBS-TN is unusually dominant.",
+    costNote:
+      "Nashville commercial rent has risen rapidly; Memphis, Knoxville, and Chattanooga remain affordable; rural Tennessee very low-cost.",
+    specificWatchouts: [
+      "BCBS-TN dominance means commercial credentialing strategy revolves around their timing",
+      "TennCare is fully managed care via three MCOs — enrollment is per-MCO",
+      "Tennessee has a Certificate of Need (CON) program for certain services — verify before equipment purchase",
+      "Nashville's healthcare investment community changes ownership patterns; understand the M&A landscape",
+    ],
+    attorneyNote:
+      "Tennessee CON requirements and BCBS-TN dominance warrant in-state counsel.",
+  },
+  {
     slug: "arizona",
     abbr: "AZ",
     name: "Arizona",

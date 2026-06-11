@@ -89,6 +89,11 @@ export const NAV = [
       { label: "Georgia", href: "/states/georgia" },
       { label: "North Carolina", href: "/states/north-carolina" },
       { label: "Arizona", href: "/states/arizona" },
+      { label: "Washington", href: "/states/washington" },
+      { label: "New Jersey", href: "/states/new-jersey" },
+      { label: "Virginia", href: "/states/virginia" },
+      { label: "Massachusetts", href: "/states/massachusetts" },
+      { label: "Tennessee", href: "/states/tennessee" },
     ],
   },
   {
