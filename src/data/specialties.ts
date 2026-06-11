@@ -230,6 +230,156 @@ export const specialties: Specialty[] = [
       "Office-based ultrasound, cosmetic GYN services, hormone optimization programs, in-office procedures.",
   },
   {
+    slug: "anesthesiology",
+    name: "Anesthesiology",
+    shortLabel: "Anesthesia",
+    headline: "For anesthesiologists launching independent or group practices.",
+    sub: "Anesthesia practice launches — hospital-employed transitions, ambulatory surgery center contracts, pain management, and independent group models.",
+    whatChanges:
+      "Anesthesia is almost entirely site-dependent. Hospital contracts and ambulatory surgery center (ASC) relationships drive nearly all revenue. Credentialing timing and hospital privileges are tightly coupled. The 'office' is borrowed from the surgical setting; pure outpatient anesthesia practices are rare.",
+    phaseHighlights: {
+      "01":
+        "Hospital-employed vs. independent contractor vs. group practice is the central Phase 01 decision. Many independent anesthesia 'practices' are essentially contract operations.",
+      "02":
+        "Pro forma is dominated by the hospital or ASC contract structure and stipend/subsidy dynamics — not standard practice startup math.",
+      "04":
+        "Hospital privileging is the gate. Credentialing with the payers your facility contracts with is usually a follow-on, not parallel work.",
+      "07":
+        "Adding pain management or chronic pain services opens a separate outpatient practice with its own startup sequence.",
+    },
+    capitalRange: "$25,000–$150,000 for a contract-only independent launch; $100,000–$500,000+ for a pain practice add-on",
+    payerMixNote:
+      "Anesthesia payer mix mirrors the facility's mix — you don't pick your patients. Commercial is typically 40–60%, Medicare 25–40%, Medicaid 10–20%.",
+    watchouts: [
+      "Negotiating the hospital or ASC contract is far more important than typical credentialing-first thinking",
+      "Anesthesia stipend / subsidy economics vary widely and shape practice viability",
+      "Adding pain management triggers a separate set of credentialing, equipment, and compliance requirements",
+      "DEA registration and Schedule II prescribing protocols matter especially for pain practice",
+    ],
+    ancillaryRevenue:
+      "Pain management programs, regional anesthesia procedures (interventional pain), chronic care management, surgical center co-ownership.",
+  },
+  {
+    slug: "pediatrics",
+    name: "Pediatrics",
+    shortLabel: "Peds",
+    headline: "For pediatricians launching independent practices.",
+    sub: "Pediatric practice launches — solo, group, concierge peds, and integrated developmental-behavioral models.",
+    whatChanges:
+      "Pediatric economics depend heavily on payer mix — specifically the Medicaid share. State Medicaid reimbursement rates for pediatrics vary dramatically and drive whether a market is viable for independent practice. Patient volume per FTE is higher than most specialties.",
+    phaseHighlights: {
+      "02":
+        "State Medicaid pediatric rates are the single biggest economic input — model with your state's actual fee schedule, not averages.",
+      "04":
+        "Vaccines for Children (VFC) enrollment is a separate process from standard credentialing and required for most peds practices.",
+      "05":
+        "Pediatric-specific EHR templates, vaccine inventory management, and well-visit workflow design matter more than for adult medicine.",
+      "07":
+        "Adding developmental, behavioral, or asthma management programs is the most common ancillary play.",
+    },
+    capitalRange: "$80,000–$200,000 for solo; $40,000–$120,000 for concierge or membership-model peds",
+    payerMixNote:
+      "Pediatric mix typically 30–60% Medicaid (state-dependent), 30–55% commercial, 0% Medicare. State Medicaid rate is the biggest variable.",
+    watchouts: [
+      "Vaccines for Children (VFC) enrollment, inventory, and reporting are non-trivial operational requirements",
+      "Vaccine inventory ties up working capital and has spoilage risk — manage actively",
+      "Well-visit volume drives revenue — pediatric-friendly scheduling and intake matter more than most specialties",
+      "State Medicaid pediatric rates can make some markets economically unviable for independent practice",
+    ],
+    ancillaryRevenue:
+      "Developmental-behavioral programs, asthma management, lactation services, sports physicals, integrated mental health.",
+  },
+  {
+    slug: "gastroenterology",
+    name: "Gastroenterology",
+    shortLabel: "GI",
+    headline: "For gastroenterologists launching independent or group practices.",
+    sub: "GI practice launches — solo, group, and integrated endoscopy/ASC models.",
+    whatChanges:
+      "GI economics are dominated by endoscopy revenue, which means ambulatory surgery center (ASC) strategy is central. Capital requirements are high. Hospital privileges for inpatient consults are typically necessary.",
+    phaseHighlights: {
+      "02":
+        "ASC ownership strategy (own, partner, or contract) is the central Phase 02 decision and drives capital planning.",
+      "04":
+        "Hospital privileges (for inpatient consults) + ASC credentialing + standard payer credentialing are three parallel tracks.",
+      "05":
+        "Endoscopy suite design, scope and tower acquisition, and CRE/ infection control protocols are major Phase 05 work.",
+      "07":
+        "Recurring colonoscopy volume drives long-term economics; building the screening pipeline is a Phase 07 long-game.",
+    },
+    capitalRange: "$300,000–$1,000,000+ depending on ASC strategy and equipment",
+    payerMixNote:
+      "GI mix typically 40–60% commercial, 30–45% Medicare, 5–15% Medicaid. Screening colonoscopy demographics skew older.",
+    watchouts: [
+      "ASC strategy materially affects both capital requirements and 5-year revenue — don't defer this decision",
+      "Endoscopy equipment financing terms shape cash flow — model carefully",
+      "Infection control and reprocessing protocols are heavily scrutinized — budget appropriately",
+      "Screening colonoscopy reimbursement rules (preventive vs. diagnostic billing) have specific coding requirements",
+    ],
+    ancillaryRevenue:
+      "ASC ownership, hepatology programs, motility testing, inflammatory bowel disease specialty programs, hospital co-management arrangements.",
+  },
+  {
+    slug: "neurology",
+    name: "Neurology",
+    shortLabel: "Neuro",
+    headline: "For neurologists launching independent practices.",
+    sub: "Neurology practice launches — general neurology, subspecialty (epilepsy, MS, headache, movement disorders), and integrated neuroscience models.",
+    whatChanges:
+      "Neurology economics are subspecialty-dependent. General neurology with EEG/EMG ancillary is one model; subspecialty practice (headache, MS, epilepsy) is another with different patient acquisition patterns and equipment needs. Telehealth integration is increasingly important.",
+    phaseHighlights: {
+      "01":
+        "General vs. subspecialty focus is the central Phase 01 decision — they're functionally different businesses.",
+      "02":
+        "EEG, EMG, and nerve conduction studies are common ancillary revenue — capital planning depends on which you'll offer.",
+      "04":
+        "Telehealth-capable practice expands geographic reach but requires multistate licensure planning.",
+      "06":
+        "Referral relationships with PCPs and specialists drive most neurology practice growth.",
+    },
+    capitalRange: "$150,000–$400,000 for general neurology; $100,000–$250,000 for subspecialty-focused",
+    payerMixNote:
+      "Neurology mix typically 40–55% Medicare, 35–50% commercial, 5–15% Medicaid. Subspecialty practices have different distributions.",
+    watchouts: [
+      "Reimbursement for neurology cognitive services has historically lagged — model carefully",
+      "In-office testing (EEG/EMG) has specific accreditation and billing requirements",
+      "Subspecialty practices may have limited credentialing options with some commercial payers",
+      "Telehealth integration requires deliberate state-by-state licensure planning if seeing patients across borders",
+    ],
+    ancillaryRevenue:
+      "EEG, EMG, nerve conduction studies, infusion therapy (MS, migraine), clinical trials, neuropsychological testing.",
+  },
+  {
+    slug: "urology",
+    name: "Urology",
+    shortLabel: "Uro",
+    headline: "For urologists launching independent or group practices.",
+    sub: "Urology practice launches — solo, group, and integrated urologic surgery/oncology models.",
+    whatChanges:
+      "Urology economics depend on procedure mix. In-office procedures, imaging, and ancillary services (in-office labs, cystoscopy) drive a meaningful share of revenue. Demographics skew older, so Medicare exposure is high.",
+    phaseHighlights: {
+      "02":
+        "In-office procedure capability drives capital planning — cystoscopy, lithotripsy access, vasectomy infrastructure all shape the build.",
+      "04":
+        "Hospital privileging is typically necessary for inpatient consults and major procedures.",
+      "05":
+        "Procedure room design and equipment financing shape long-term economics.",
+      "07":
+        "Adding men's health, fertility, or oncology programs is the most common ancillary expansion play.",
+    },
+    capitalRange: "$200,000–$600,000 depending on in-office procedure strategy and equipment",
+    payerMixNote:
+      "Urology mix typically 50–65% Medicare, 25–40% commercial, 5–15% Medicaid. Patient demographics skew older.",
+    watchouts: [
+      "In-office cystoscopy, ultrasound, and lab testing require specific accreditation and billing setup",
+      "Lithotripsy and prostate procedure access shape competitive positioning",
+      "Medicare audit risk on urology procedures is higher than average — documentation must be tight",
+      "Men's health and fertility ancillary lines have different regulatory profiles than core urology",
+    ],
+    ancillaryRevenue:
+      "Men's health programs (testosterone replacement, ED, vasectomy), fertility services, in-office labs and imaging, oncology programs, robotic surgery partnerships.",
+  },
+  {
     slug: "family-medicine",
     name: "Family Medicine",
     shortLabel: "Family Med",
