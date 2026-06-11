@@ -16,6 +16,26 @@ export const SITE = {
   secondaryCta: "Get the Startup Checklist",
 };
 
+/**
+ * The Architect — AI companion configuration.
+ *
+ * The widget loads from the prompt-platform's `/embed/chat.js` route (PR #261).
+ * Agent is configured in the CRM (see 06a-the-architect-system-prompt.md in the
+ * campaign folder). The widget is *not visible* on the site until enabled === true
+ * and all three values below are real (not template tokens).
+ */
+export const ARCHITECT = {
+  enabled: false, // flip to true once appUrl + publicKey + turnstileSitekey are real
+  appUrl: "{{PROMPT_PLATFORM_APP_URL}}", // e.g. https://crm.themarketingpros.com
+  agentSlug: "the-architect-pss",
+  publicKey: "{{ARCHITECT_PUBLIC_KEY}}",
+  turnstileSitekey: "{{TURNSTILE_SITEKEY}}",
+  accent: "#B68546", // bronze — matches PSS brand
+  title: "Ask The Architect",
+  greeting:
+    "I'm the AI companion for this site — I know all 7 phases of the launch blueprint and the services that match each one. Ask me anything about starting a private medical practice and I'll point you to the right page, the right resource, or the right next move.",
+};
+
 export const NAV = [
   {
     label: "The Launch Journey",

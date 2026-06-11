@@ -1,155 +1,47 @@
 ---
-// The Architect — AI companion UI
-// Launcher button (corner) + chat drawer (right rail on desktop, full-screen mobile).
-// Gate surfaces the CRM consultation form directly — no custom lead capture.
-// Vanilla TS script lives in /public/architect.js, loaded sitewide via BaseLayout.
-import { SITE } from "@data/site";
+// The Architect — AI companion embed.
+//
+// Replaced 2026-06-11 ~07:00 EDT: the prior custom implementation
+// (Astro drawer + vanilla JS controller + CF Pages Function calling Anthropic Haiku)
+// is gone. We now load the embeddable widget from the prompt-platform CRM
+// (PR #261, /embed/chat.js).
+//
+// Benefits:
+// - CRM owns the agent + system prompt + token budget + Turnstile + origin lock.
+// - A4 chat-to-CRM lead handoff lands automatically when the platform ships it.
+// - One <script> tag instead of ~700 LOC of custom drawer + endpoint code.
+// - No ANTHROPIC_API_KEY secret on this site.
+//
+// Wiring: see src/data/site.ts (ARCHITECT block) and
+// personas/alf/campaigns/2026-Q2/practice-startup-services/06a-the-architect-system-prompt.md.
+import { ARCHITECT } from "@data/site";
+
+const enabled =
+  ARCHITECT.enabled &&
+  ARCHITECT.appUrl &&
+  !ARCHITECT.appUrl.includes("{{") &&
+  ARCHITECT.publicKey &&
+  !ARCHITECT.publicKey.includes("{{");
+
+const embedSrc = enabled ? `${ARCHITECT.appUrl.replace(/\/$/, "")}/embed/chat.js` : null;
+const turnstileSitekey =
+  ARCHITECT.turnstileSitekey && !ARCHITECT.turnstileSitekey.includes("{{")
+    ? ARCHITECT.turnstileSitekey
+    : null;
 ---
 
-<!-- Launcher button — restrained Control Room aesthetic -->
-<button
-  id="architect-launcher"
-  type="button"
-  aria-label="Ask The Architect"
-  aria-haspopup="dialog"
-  aria-expanded="false"
-  class="fixed bottom-6 right-6 z-40 hidden sm:flex items-center gap-2 bg-ink hover:bg-ink-700 text-paper-100 rounded-card px-4 py-3 shadow-elevated transition-colors group"
->
-  <span class="inline-flex items-center justify-center h-7 w-7 rounded-sharp bg-signal/15 text-signal font-display font-medium text-base">
-    A
-  </span>
-  <span class="flex flex-col items-start leading-tight pr-1">
-    <span class="phase-label text-signal">Ask</span>
-    <span class="font-display text-small font-medium text-paper-100">The Architect</span>
-  </span>
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" class="text-paper-200/70 group-hover:text-paper-100 transition-colors">
-    <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-  </svg>
-</button>
-
-<!-- Drawer -->
-<div
-  id="architect-drawer"
-  class="fixed inset-0 z-50 hidden"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="architect-title"
->
-  <!-- Backdrop -->
-  <div id="architect-backdrop" class="absolute inset-0 bg-ink/40 backdrop-blur-sm"></div>
-
-  <!-- Panel -->
-  <aside
-    class="absolute right-0 top-0 bottom-0 w-full sm:w-[480px] bg-ink text-paper-100 shadow-elevated flex flex-col overflow-hidden"
-  >
-    <!-- Header -->
-    <header class="px-5 py-4 border-b border-paper-200/15 flex items-start justify-between gap-3 shrink-0">
-      <div class="flex items-start gap-3">
-        <span class="inline-flex items-center justify-center h-10 w-10 rounded-sharp bg-signal/15 text-signal font-display font-medium text-lg shrink-0">
-          A
-        </span>
-        <div class="flex flex-col leading-tight">
-          <span class="phase-label text-signal">Companion · free</span>
-          <span id="architect-title" class="font-display text-base font-medium text-paper-100">The Architect</span>
-          <span class="text-small text-paper-200/70 mt-0.5">
-            Knows the 7-phase blueprint inside out.
-          </span>
-        </div>
-      </div>
-      <button
-        id="architect-close"
-        type="button"
-        aria-label="Close The Architect"
-        class="text-paper-200/70 hover:text-paper-100 transition-colors -mr-1 p-1"
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
-    </header>
-
-    <!-- Conversation -->
-    <div id="architect-thread" class="flex-1 overflow-y-auto px-5 py-5 space-y-5 scroll-smooth">
-      <!-- Greeting (always present) -->
-      <div class="flex gap-3" data-role="assistant">
-        <span class="inline-flex items-center justify-center h-7 w-7 rounded-sharp bg-signal/15 text-signal font-display text-small font-medium shrink-0 mt-0.5">A</span>
-        <div class="flex-1 min-w-0">
-          <div class="font-mono text-label text-signal mb-1">THE ARCHITECT</div>
-          <div class="text-small text-paper-100 leading-relaxed">
-            Welcome. I'm the AI companion for this site — I know all 7 phases of the launch blueprint
-            and the services that match each one. Ask me anything about starting a private medical
-            practice and I'll point you to the right page, the right resource, or the right next move.
-          </div>
-          <div class="mt-3 flex flex-wrap gap-2">
-            <button class="architect-suggestion phase-label bg-paper-100/[0.06] hover:bg-paper-100/[0.12] text-paper-100 border border-paper-100/15 rounded-sharp px-3 py-1.5 transition-colors" data-prompt="I'm a physician thinking about leaving employment. Where do I start?">
-              I'm thinking about leaving employment
-            </button>
-            <button class="architect-suggestion phase-label bg-paper-100/[0.06] hover:bg-paper-100/[0.12] text-paper-100 border border-paper-100/15 rounded-sharp px-3 py-1.5 transition-colors" data-prompt="How long does credentialing actually take?">
-              How long does credentialing take?
-            </button>
-            <button class="architect-suggestion phase-label bg-paper-100/[0.06] hover:bg-paper-100/[0.12] text-paper-100 border border-paper-100/15 rounded-sharp px-3 py-1.5 transition-colors" data-prompt="What should I budget for a solo practice startup?">
-              What should I budget?
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Consultation gate (shown by JS when conversation crosses soft or hard threshold).
-         Routes visitors straight to the TMP CRM scheduling form — the CRM owns the lead. -->
-    <div id="architect-gate" class="hidden border-t border-bronze/40 bg-bronze/[0.08] px-5 py-4 shrink-0">
-      <div class="phase-label text-bronze-300 mb-2" id="architect-gate-label">Talk to a human</div>
-      <p class="text-small text-paper-200/90 mb-3" id="architect-gate-copy">
-        This is where talking to a human will get you further than I can. Schedule a free consultation —
-        the team will pick up exactly where we left off.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-2">
-        <a
-          id="architect-gate-cta"
-          href={SITE.scheduleUrl}
-          target="_blank"
-          rel="noopener"
-          class="btn-primary text-small flex-1 justify-center"
-        >
-          Schedule a consultation
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M3 11l8-8M4 3h7v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </a>
-        <button
-          type="button"
-          id="architect-gate-dismiss"
-          class="text-small text-paper-200/70 hover:text-paper-100 px-3 py-2 transition-colors"
-        >
-          Keep asking The Architect
-        </button>
-      </div>
-      <p class="text-label font-mono tracking-[0.18em] uppercase text-paper-200/50 mt-3">
-        Your conversation goes with you.
-      </p>
-    </div>
-
-    <!-- Composer -->
-    <form id="architect-composer" class="border-t border-paper-200/15 px-5 py-4 flex items-end gap-2 shrink-0 bg-ink-700/30">
-      <label class="sr-only" for="architect-input">Ask The Architect</label>
-      <textarea
-        id="architect-input"
-        rows="1"
-        placeholder="Ask The Architect…"
-        class="flex-1 resize-none bg-paper-100/[0.06] text-paper-100 placeholder:text-paper-200/50 border border-paper-100/15 rounded-soft px-3 py-2 text-small focus:border-signal focus:outline-none max-h-32"
-      ></textarea>
-      <button
-        type="submit"
-        id="architect-send"
-        aria-label="Send"
-        class="inline-flex items-center justify-center bg-bronze hover:bg-bronze-700 text-ink rounded-soft h-10 w-10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
-    </form>
-  </aside>
-</div>
-
-<script is:inline src="/architect.js" defer></script>
+{
+  enabled && embedSrc && (
+    <script
+      is:inline
+      src={embedSrc}
+      data-agent-slug={ARCHITECT.agentSlug}
+      data-public-key={ARCHITECT.publicKey}
+      data-accent={ARCHITECT.accent}
+      data-title={ARCHITECT.title}
+      data-greeting={ARCHITECT.greeting}
+      data-turnstile-sitekey={turnstileSitekey ?? undefined}
+      async
+    />
+  )
+}

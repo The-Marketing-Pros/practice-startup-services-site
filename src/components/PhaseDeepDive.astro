@@ -3,7 +3,14 @@
 // Renders only when src/data/phase-deep-dives.ts has content for the phase.
 import type { PhaseId } from "@data/phases";
 import { getDeepDive } from "@data/phase-deep-dives";
-import { SITE } from "@data/site";
+import { SITE, ARCHITECT } from "@data/site";
+
+const architectVisible =
+  ARCHITECT.enabled &&
+  ARCHITECT.appUrl &&
+  !ARCHITECT.appUrl.includes("{{") &&
+  ARCHITECT.publicKey &&
+  !ARCHITECT.publicKey.includes("{{");
 
 interface Props {
   phaseId: PhaseId;
@@ -62,9 +69,11 @@ const dd = getDeepDive(phaseId);
                 <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
-            <a href="#architect" class="btn-secondary">
-              Ask The Architect
-            </a>
+            {architectVisible && (
+              <button type="button" data-architect-open class="btn-secondary">
+                Ask The Architect
+              </button>
+            )}
           </div>
         </div>
       </div>
