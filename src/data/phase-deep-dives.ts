@@ -16,6 +16,54 @@ export interface PhaseDeepDive {
 }
 
 export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
+  "01": {
+    intro:
+      "Phase 01 is the decision before the decision. Long before you sign a lease, choose an EHR, or pick a payer mix, you have to decide whether private practice is right for you at all, and if it is, what model you actually want to run. This is the work most physicians skip — and it's the work that prevents the most expensive mistakes later.",
+    sections: [
+      {
+        heading: "The three questions that actually matter.",
+        body:
+          "One: do I want to run a business, or do I just want to see patients with more autonomy? These are not the same thing. Private practice is a small business; running one consumes time, attention, and energy that won't go into clinical work. Some physicians thrive on this. Others find out 18 months in that they wanted the autonomy without the operational burden — by which point they're committed.\n\nTwo: what model fits my life and my finances? Solo fee-for-service, group practice, direct primary care, concierge, hybrid — each has different startup costs, different revenue models, different patient counts, and different lifestyle implications. None is universally better.\n\nThree: do I have the runway? Six to twelve months of personal expenses in cash, plus startup capital, plus working capital reserve. If the answer is no, the right move is usually 'stay employed longer and save,' not 'launch under-capitalized.'",
+      },
+      {
+        heading: "Practice models, briefly.",
+        body:
+          "Solo fee-for-service: the traditional model. Bills insurance, sees patients in volume, requires careful payer mix planning. Highest revenue ceiling for most specialties, highest operational burden.\n\nGroup practice: multiple providers share infrastructure. Lower per-provider operational burden, more complex partnership dynamics, often easier credentialing economics.\n\nDirect primary care (DPC): patients pay a monthly membership fee directly to the practice. No insurance billing for primary care visits. Lower patient volumes, predictable revenue, growing rapidly. Works best for primary care and a few specialties.\n\nConcierge: hybrid that combines insurance billing with a separate retainer fee. Common in primary care and some specialties.\n\nCash-pay specialty: select services billed cash, no insurance involvement. Common for plastic surgery, derm, some psychiatry, integrative medicine.\n\nThere are good reasons to pick each. There is no universal right answer.",
+      },
+      {
+        heading: "Signals that you're ready.",
+        body:
+          "You can articulate the business model in two sentences. You have six to twelve months of personal financial runway. You have at least a rough pro forma. You've talked to at least two physicians who have launched in your specialty in the last three to five years and listened to what they got wrong. Your spouse or partner is informed and on board. You've consulted a healthcare attorney about your current employment contract (non-competes, patient solicitation, intellectual property).",
+      },
+      {
+        heading: "Signals that you're not ready yet.",
+        body:
+          "You're certain that 'it will work' without having modeled it. Your runway is less than six months and you haven't accounted for credentialing lag. You haven't read your current employer's non-compete and patient solicitation clauses. You're framing the decision around frustration with your current job rather than enthusiasm for a specific business you want to build. None of these mean 'don't do it.' They mean 'do more Phase 01 work first.'",
+      },
+    ],
+    faq: [
+      {
+        q: "Should I quit my job before I start planning?",
+        a:
+          "No. Almost everything in Phase 01 and Phase 02 can and should happen while you're still employed. Quitting before you have an entity, a financial plan, and at least the early credentialing work in motion costs you months of preparation time and significant income.",
+      },
+      {
+        q: "How long does Phase 01 take?",
+        a:
+          "It varies. Some physicians take six months of thinking before a 30-day decision. Others have been thinking for years and need 30 days of structured planning to convert thinking into action. The work is not measured in time — it is measured in whether the questions above are honestly answered.",
+      },
+      {
+        q: "What if my non-compete is restrictive?",
+        a:
+          "Most non-competes in healthcare are negotiable, enforceable in only narrow ways, or limited by state law (some states have effectively banned non-competes for physicians). Read it with a healthcare attorney in your state before you give notice. This is one of the most common Phase 01 mistakes.",
+      },
+      {
+        q: "Is DPC right for me?",
+        a:
+          "DPC works very well for some physicians and specialties and very poorly for others. It is best suited for primary care, certain low-volume specialties, and physicians who are comfortable building a member base over 12 to 24 months. It is less suited for high-acuity specialties or physicians who need traditional insurance economics.",
+      },
+    ],
+  },
   "04": {
     intro:
       "Credentialing is the single most expensive thing to get wrong at launch. The clock runs whether you're ready or not, and most physicians lose 90 to 180 days of revenue because they underestimated how long it actually takes — or assumed they could shortcut it. This is what credentialing really looks like in 2026, what the realistic timeline is, and where the traps hide.",
@@ -81,6 +129,64 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
         q: "What is CAQH and do I need it?",
         a:
           "CAQH (Council for Affordable Quality Healthcare) is a free online database most commercial payers use to pull your credentialing data. You complete the CAQH profile once and re-attest every 120 days. Without a current CAQH, commercial payer applications stall. You need it.",
+      },
+    ],
+  },
+  "06": {
+    intro:
+      "Phase 06 is where a quiet practice fills up or stays quiet. Most new practices over-spend on the wrong marketing because they treat patient acquisition as a single problem. It is not. It is at least four problems — a website that ranks, a local presence that's searchable, referral relationships that send patients, and an insurance directory presence that does — and each one has different economics.",
+    sections: [
+      {
+        heading: "A website that actually works.",
+        body:
+          "For most new practices the website is the first impression and the first conversion. Both have to work.\n\nWorks for impression means the site looks like the practice you want to be — not a Wix template, not a generic medical theme. Works for conversion means a clear path from 'I have a problem' to 'I booked an appointment' in three clicks or fewer. Most medical practice websites take seven.\n\nThe technical baseline: under 2-second load on mobile, accessible (real WCAG AA), structured data for medical practice, Google Business Profile linked, real reviews on the home page (not a slider of fake ones), insurance plans accepted listed prominently, and a scheduling path that does not require a phone call as the only option.",
+      },
+      {
+        heading: "Local SEO is not optional.",
+        body:
+          "Most practice visits start with 'doctor near me' or 'specialty near me' or '[insurance plan] doctor [city]'. If your Google Business Profile is unclaimed, your hours are wrong, or your address geocodes to the wrong block, you lose patients before they ever see your website.\n\nThe local SEO baseline: Google Business Profile fully claimed and complete; Bing Places set up; NAP (name, address, phone) consistent across the top 30 directories; review acquisition program from day one; and locally relevant content (we treat X in Y city) on the site itself.\n\nThis is not glamorous work. It is also one of the highest-ROI things a new practice can do, because the cost is mostly time and the upside compounds for years.",
+      },
+      {
+        heading: "Referral relationships matter more than ads.",
+        body:
+          "For specialty practices especially, referral relationships will out-perform paid advertising for the first two years. PCPs send their patients to specialists they know and trust. The work is showing up: in-person introductions, easy referral pathways, clear communication back to the referring provider, and reliability.\n\nA new specialty practice that builds three solid PCP relationships in its first 90 days will outperform one that spends $5,000 a month on Google Ads with no referral strategy.",
+      },
+      {
+        heading: "Insurance directory listings (the boring lever).",
+        body:
+          "Every commercial payer maintains a 'find a doctor' directory. Most patients use these. Most new practices have incorrect, outdated, or missing entries in them for the first six months.\n\nThe playbook: as soon as each credentialing effective date lands, verify your directory listing for that payer. Check name, address, phone, accepting new patients status, specialty taxonomy, and the photo (if your photo is wrong or missing, fix it). Repeat quarterly for the first year.\n\nThis is the lowest-glamour, highest-leverage marketing work a new practice can do. It costs nothing and it directly determines whether patients with that payer can find you.",
+      },
+      {
+        heading: "When paid advertising makes sense.",
+        body:
+          "Not at launch. Paid ads before in-network confirmation is one of the most common ways to burn cash early. The lifecycle is: confirm credentialing effective dates → build organic local foundation → generate first 50 to 100 patients through organic + referrals + directories → then layer paid acquisition for the specific service lines that warrant it.\n\nFor most primary care and specialty practices, paid advertising is a Phase 07 (Grow) lever, not a Phase 06 (Launch) lever. The exception is cash-pay or concierge models where the economics are different from day one.",
+      },
+      {
+        heading: "What to do in the first 90 days post-launch.",
+        body:
+          "Week 1-2: Google Business Profile verified and fully complete; directory listings audited and fixed; review acquisition workflow live (ask every patient).\n\nWeek 3-6: First 30 reviews collected; at least three referral relationships established with regular communication cadence; insurance directory listings re-verified for each payer effective date.\n\nWeek 7-12: Local SEO content live on the site (locally relevant pages, FAQ, your specialty's most-searched questions); track which channels are sending patients; measure cost per patient by channel before scaling anything.",
+      },
+    ],
+    faq: [
+      {
+        q: "Should I hire an agency for marketing?",
+        a:
+          "For most new practices, the answer at launch is 'partly.' Local SEO and website are high-leverage and worth professional help. Paid advertising is usually a year-two decision, not a launch decision. Hiring an agency to run all of it at launch usually burns money on the wrong levers.",
+      },
+      {
+        q: "How long until my website starts ranking?",
+        a:
+          "For local 'near me' queries, well-built medical practice websites can rank within 60-90 days with active local SEO. National or condition-specific queries take 6-12 months. Both are normal. Plan around them.",
+      },
+      {
+        q: "Do I need a blog?",
+        a:
+          "Useful, not required. The reason to publish content is to rank for the actual questions your potential patients ask. If you can publish two or three deeply useful articles a month, do it. If you can't, focus on the local SEO baseline and skip the blog — a half-published blog hurts more than no blog.",
+      },
+      {
+        q: "What does a real medical practice website cost?",
+        a:
+          "For a custom, well-designed practice website with real local SEO setup, expect $8,000 to $25,000 for the project depending on scope, plus an ongoing content + SEO program if you want continued ranking growth. Sub-$5,000 'custom' websites usually mean templates with light editing — fine for some practices, limiting for others.",
       },
     ],
   },
