@@ -69,7 +69,7 @@ import { phases } from "@data/phases";
                         <p class="text-small text-graphite-700 leading-snug mt-0.5">{p.subtitle}</p>
                       </div>
                       <div class="col-span-12 lg:col-span-2 text-small text-graphite-600 lg:text-right">
-                        {p.duration.split(",")[0]}
+                        {p.duration.split(/[,(]/)[0].trim()}
                       </div>
                     </div>
                   </a>
