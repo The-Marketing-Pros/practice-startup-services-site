@@ -1,0 +1,136 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+const lastUpdated = "June 11, 2026";
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="How Practice Startup Services collects, uses, and protects your information."
+  noIndex={false}
+>
+  <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid-priv" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bp-grid-priv)" />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="max-w-prose mx-auto">
+        <div class="phase-label text-bronze-700 mb-5">Legal</div>
+        <h1 class="font-display text-display-xl font-medium text-ink mb-3 text-balance">
+          Privacy Policy.
+        </h1>
+        <p class="font-mono text-label text-graphite-600 tracking-[0.18em] uppercase">
+          Last updated: {lastUpdated}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 lg:py-20">
+    <div class="container-site">
+      <div class="prose-editorial">
+        <p class="text-lede text-graphite-800 leading-relaxed mb-8 text-pretty">
+          Practice Startup Services ("we," "us") respects your privacy. This policy explains what
+          information we collect when you use practicestartupservices.com, how we use it, and the
+          choices you have. We keep this short and honest.
+        </p>
+
+        <h2>What we collect.</h2>
+        <p>
+          <strong>Information you give us.</strong> When you schedule a consultation, fill out a
+          form, or contact us by email, we collect the information you provide — typically your
+          name, email address, phone number, professional role, target launch timing, and a short
+          description of what you're working on. We use this to respond to you and to prepare for
+          the consultation.
+        </p>
+        <p>
+          <strong>Information we collect automatically.</strong> Like most websites, we collect
+          basic technical information when you visit — browser type, device, referring URL, pages
+          viewed, time spent. We use this to understand what's working and to improve the site.
+          We do not sell or share this information.
+        </p>
+        <p>
+          <strong>Information from The Architect AI companion.</strong> If you interact with The
+          Architect (our AI companion on this site), your conversation is stored in our CRM under
+          your visitor session. If you choose to share your name and email, those are stored
+          alongside the conversation so we can follow up. You can ask us to delete this at any
+          time by emailing the address below.
+        </p>
+
+        <h2>What we don't collect.</h2>
+        <p>
+          We do not collect or store any protected health information (PHI). This site is for
+          practice operators, not patients. If you accidentally include PHI in a form or
+          conversation, we ask you to redact it and we will delete it.
+        </p>
+
+        <h2>How we use what we collect.</h2>
+        <p>
+          We use your information to respond to your inquiry, schedule and prepare for your
+          consultation, send follow-up communications if you opt in, and improve the site and our
+          services. We do not sell your information to third parties.
+        </p>
+        <p>
+          We use a small number of service providers to operate the site (hosting, email delivery,
+          CRM, analytics). Each provider has access only to the information they need to do their
+          job and is bound by their own confidentiality terms.
+        </p>
+
+        <h2>How we protect what we collect.</h2>
+        <p>
+          We use industry-standard security practices including encryption in transit (TLS),
+          encryption at rest where applicable, access controls, and routine audits. No system is
+          perfectly secure, and we cannot guarantee absolute security. We will notify you
+          promptly if a breach affects your information.
+        </p>
+
+        <h2>Your choices.</h2>
+        <p>
+          You can ask us to:
+        </p>
+        <ul class="list-disc pl-6 text-body text-graphite-800 leading-relaxed space-y-1 mb-5">
+          <li>Tell you what information we have about you</li>
+          <li>Correct inaccurate information</li>
+          <li>Delete your information from our records</li>
+          <li>Stop sending you marketing communications</li>
+        </ul>
+        <p>
+          Email <a href="mailto:hello@practicestartupservices.com" class="underline text-ink hover:text-bronze-700">hello@practicestartupservices.com</a> with any of these requests.
+          We respond within 30 days.
+        </p>
+
+        <h2>Cookies.</h2>
+        <p>
+          We use a small number of cookies — one to maintain your visitor session on the site,
+          and a small set used by our hosting provider (Cloudflare) for performance and security.
+          We do not use third-party advertising cookies.
+        </p>
+
+        <h2>Children.</h2>
+        <p>
+          This site is intended for medical professionals planning a practice. It is not directed
+          at children under 13, and we do not knowingly collect information from children.
+        </p>
+
+        <h2>Changes to this policy.</h2>
+        <p>
+          We may update this policy as our practices evolve. The "Last updated" date at the top
+          reflects the most recent version. Material changes will be noted on the home page or
+          via email if you've shared one with us.
+        </p>
+
+        <h2>Contact.</h2>
+        <p>
+          Questions about this policy: <a href="mailto:hello@practicestartupservices.com" class="underline text-ink hover:text-bronze-700">hello@practicestartupservices.com</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

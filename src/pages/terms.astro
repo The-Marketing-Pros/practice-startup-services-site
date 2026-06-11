@@ -1,0 +1,132 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+const lastUpdated = "June 11, 2026";
+---
+
+<BaseLayout
+  title="Terms of Use"
+  description="The terms under which you can use the practicestartupservices.com website and the content it provides."
+  noIndex={false}
+>
+  <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid-terms" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bp-grid-terms)" />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="max-w-prose mx-auto">
+        <div class="phase-label text-bronze-700 mb-5">Legal</div>
+        <h1 class="font-display text-display-xl font-medium text-ink mb-3 text-balance">
+          Terms of Use.
+        </h1>
+        <p class="font-mono text-label text-graphite-600 tracking-[0.18em] uppercase">
+          Last updated: {lastUpdated}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 lg:py-20">
+    <div class="container-site">
+      <div class="prose-editorial">
+        <p class="text-lede text-graphite-800 leading-relaxed mb-8 text-pretty">
+          These terms apply to your use of practicestartupservices.com and the content we publish.
+          By using the site, you agree to these terms.
+        </p>
+
+        <h2>What this site is.</h2>
+        <p>
+          PracticeStartupServices.com is a content + services website for medical professionals
+          planning or operating an independent practice. Content is published for general
+          information; it is not legal, tax, medical, or financial advice for your specific
+          situation. For advice you can rely on, talk to a qualified professional — including, if
+          you'd like, our team via a consultation.
+        </p>
+
+        <h2>Not professional advice.</h2>
+        <p>
+          The content on this site — including all phase guides, state pages, specialty pages,
+          checklists, cost guides, and AI-companion responses — is general information based on
+          common practice scenarios. State laws vary, payer rules change, and every practice has
+          its own specifics. Do not rely on this site alone for decisions that materially affect
+          your business, your patients, or your legal exposure.
+        </p>
+
+        <h2>The Architect AI companion.</h2>
+        <p>
+          The Architect is an AI tool trained to surface relevant phase guidance and route you to
+          appropriate resources. It is not a substitute for professional advice. It may produce
+          incorrect or incomplete answers. Verify anything material before acting on it. If you
+          want a real plan for your situation, schedule a consultation with our team.
+        </p>
+
+        <h2>Third-party links and tools.</h2>
+        <p>
+          We link to third-party sites including Metolius's Medicare lookup tools and external
+          professional resources. We do not control these sites and are not responsible for their
+          content, accuracy, or availability. Their privacy policies and terms apply to your use
+          of them.
+        </p>
+
+        <h2>Your use of the site.</h2>
+        <p>
+          You agree not to use the site to harm others, attempt unauthorized access, scrape at
+          rates that affect performance, or copy substantial portions of our content for
+          republication without permission. Linking to our pages and quoting reasonable excerpts
+          with attribution is welcome.
+        </p>
+
+        <h2>Intellectual property.</h2>
+        <p>
+          The content, design, brand marks, and original materials on this site are the property
+          of Practice Startup Services unless otherwise noted. Specific medical terminology,
+          regulatory references, and government tools (Medicare fee schedules, CMS forms, state
+          program names) are referenced in their original context.
+        </p>
+
+        <h2>Disclaimers.</h2>
+        <p>
+          The site is provided "as is" and "as available." We make no warranties about
+          uninterrupted operation, error-free content, or fitness for any particular purpose. We
+          may update or remove content at any time without notice.
+        </p>
+
+        <h2>Limitation of liability.</h2>
+        <p>
+          To the maximum extent allowed by law, Practice Startup Services is not liable for any
+          indirect, incidental, consequential, or special damages arising from your use of the
+          site or reliance on its content. If you have a claim, the maximum total liability is
+          limited to fees you have paid us in the twelve months preceding the claim, or $100,
+          whichever is greater.
+        </p>
+
+        <h2>Governing law.</h2>
+        <p>
+          These terms are governed by the laws of the state where Practice Startup Services
+          maintains its principal place of business, without regard to conflicts-of-law
+          principles. Disputes will be resolved in the courts located in that jurisdiction.
+        </p>
+
+        <h2>Changes to these terms.</h2>
+        <p>
+          We may update these terms as our practices evolve. The "Last updated" date at the top
+          reflects the most recent version. Continued use of the site after changes constitutes
+          acceptance of the updated terms.
+        </p>
+
+        <h2>Contact.</h2>
+        <p>
+          Questions about these terms:
+          <a href="mailto:hello@practicestartupservices.com" class="underline text-ink hover:text-bronze-700">hello@practicestartupservices.com</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
