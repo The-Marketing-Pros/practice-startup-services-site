@@ -4,9 +4,11 @@ import PhaseHero from "@components/PhaseHero.astro";
 import PhaseStrip from "@components/PhaseStrip.astro";
 import BuildSequence from "@components/BuildSequence.astro";
 import CredentialingClock from "@components/CredentialingClock.astro";
+import PhaseDeepDive from "@components/PhaseDeepDive.astro";
 import FinalCta from "@components/FinalCta.astro";
 import { phases } from "@data/phases";
 import { services } from "@data/services";
+import { getDeepDive } from "@data/phase-deep-dives";
 
 export function getStaticPaths() {
   return phases.map((p) => ({ params: { slug: p.slug }, props: { phase: p } }));
@@ -19,16 +21,28 @@ const relatedServices = services.filter(
   (s) => s.primaryPhase === phase.id || s.secondaryPhases.includes(phase.id)
 );
 
+const deepDive = getDeepDive(phase.id);
+const faqSchema = deepDive?.faq && deepDive.faq.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: deepDive.faq.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+} : undefined;
+
 const title = `Phase ${phase.id} · ${phase.title}`;
 const description = `${phase.subtitle} ${phase.question}`;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} schema={faqSchema}>
   <PhaseHero phase={phase} />
   <PhaseStrip current={phase.id} />
   <BuildSequence phase={phase} />
 
   {phase.controlRoom && <CredentialingClock />}
+  <PhaseDeepDive phaseId={phase.id} />
 
   {
     relatedServices.length > 0 && (

@@ -1,0 +1,73 @@
+---
+// Long-form editorial deep-dive for select phases.
+// Renders only when src/data/phase-deep-dives.ts has content for the phase.
+import type { PhaseId } from "@data/phases";
+import { getDeepDive } from "@data/phase-deep-dives";
+import { SITE } from "@data/site";
+
+interface Props {
+  phaseId: PhaseId;
+}
+
+const { phaseId } = Astro.props;
+const dd = getDeepDive(phaseId);
+---
+
+{
+  dd && (
+    <section class="border-b border-ink/8 py-16 lg:py-24 bg-paper-100">
+      <div class="container-site">
+        <div class="max-w-prose mx-auto">
+          <div class="phase-label text-bronze-700 mb-4">Editorial · the deep dive</div>
+          <p class="text-lede text-graphite-800 leading-relaxed mb-10 text-pretty">
+            {dd.intro}
+          </p>
+
+          {dd.sections.map((s) => (
+            <div class="mb-10">
+              <h2 class="font-display text-display-md font-medium text-ink mb-4 text-balance">
+                {s.heading}
+              </h2>
+              {s.body.split(/\n\n+/).map((p) => (
+                <p class="text-body text-graphite-800 leading-relaxed mb-4 text-pretty">{p}</p>
+              ))}
+            </div>
+          ))}
+
+          {dd.faq && dd.faq.length > 0 && (
+            <div class="mt-16 pt-10 border-t border-ink/8">
+              <div class="phase-label text-bronze-700 mb-4">Common questions</div>
+              <h2 class="font-display text-display-md font-medium text-ink mb-8 text-balance">
+                What people ask most.
+              </h2>
+              <dl class="space-y-7">
+                {dd.faq.map((item) => (
+                  <div>
+                    <dt class="font-display text-display-sm font-medium text-ink mb-2 text-balance">
+                      {item.q}
+                    </dt>
+                    <dd class="text-body text-graphite-800 leading-relaxed text-pretty">
+                      {item.a}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+
+          <div class="mt-14 pt-10 border-t border-ink/8 flex flex-wrap gap-3">
+            <a href={SITE.scheduleUrl} class="btn-primary">
+              {SITE.primaryCta}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+            <a href="#architect" class="btn-secondary">
+              Ask The Architect
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
