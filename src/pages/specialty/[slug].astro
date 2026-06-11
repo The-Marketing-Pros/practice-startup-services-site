@@ -16,7 +16,17 @@ const highlightedPhases = Object.entries(specialty.phaseHighlights) as Array<[
   string
 ]>;
 
-const title = `Starting a ${specialty.name} Practice`;
+// Pick 'a' vs 'an' based on initial vowel sound. Special-case some specialties
+// where 'a' doesn't read naturally (Orthopedics, OB/GYN treated as initialism).
+function articleFor(name: string): string {
+  const lower = name.toLowerCase();
+  const startsWithVowel = /^[aeiou]/.test(lower);
+  // OB/GYN reads as 'oh-bee-gee-why-en' → 'an'
+  if (lower.startsWith("ob/gyn") || lower.startsWith("obgyn")) return "an";
+  return startsWithVowel ? "an" : "a";
+}
+const article = articleFor(specialty.name);
+const title = `Starting ${article === "a" ? "a" : "an"} ${specialty.name} Practice`;
 const description = `Practice startup guidance specific to ${specialty.name} — payer mix, capital requirements, and the watchouts that change the launch sequence for this specialty.`;
 
 const breadcrumbSchema = {
