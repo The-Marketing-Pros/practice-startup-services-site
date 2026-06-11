@@ -26,6 +26,13 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
         heading: "The three questions that actually matter.",
         body:
           "One: do I want to run a business, or do I just want to see patients with more autonomy? These are not the same thing. Private practice is a small business; running one consumes time, attention, and energy that won't go into clinical work. Some physicians thrive on this. Others find out 18 months in that they wanted the autonomy without the operational burden — by which point they're committed.\n\nTwo: what model fits my life and my finances? Solo fee-for-service, group practice, direct primary care, concierge, hybrid — each has different startup costs, different revenue models, different patient counts, and different lifestyle implications. None is universally better.\n\nThree: do I have the runway? Six to twelve months of personal expenses in cash, plus startup capital, plus working capital reserve. If the answer is no, the right move is usually 'stay employed longer and save,' not 'launch under-capitalized.'",
+        numericCallout: { label: "Personal runway", value: "6–12", sub: "months of expenses in cash" },
+      },
+      {
+        heading: "",
+        body: "",
+        pullQuote:
+          "Some physicians want to run a business. Some want autonomy without the operational burden. Find out which you are before you sign anything.",
       },
       {
         heading: "Practice models, briefly.",
@@ -149,6 +156,13 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
         heading: "A website that actually works.",
         body:
           "For most new practices the website is the first impression and the first conversion. Both have to work.\n\nWorks for impression means the site looks like the practice you want to be — not a Wix template, not a generic medical theme. Works for conversion means a clear path from 'I have a problem' to 'I booked an appointment' in three clicks or fewer. Most medical practice websites take seven.\n\nThe technical baseline: under 2-second load on mobile, accessible (real WCAG AA), structured data for medical practice, Google Business Profile linked, real reviews on the home page (not a slider of fake ones), insurance plans accepted listed prominently, and a scheduling path that does not require a phone call as the only option.",
+        numericCallout: { label: "From problem to booking", value: "≤3", sub: "clicks (most medical sites need 7)" },
+      },
+      {
+        heading: "",
+        body: "",
+        pullQuote:
+          "For specialty practices, three solid PCP relationships in the first 90 days will outperform $5,000 a month on Google Ads with no referral strategy.",
       },
       {
         heading: "Local SEO is not optional.",
@@ -285,6 +299,13 @@ export const deepDives: Partial<Record<PhaseId, PhaseDeepDive>> = {
         heading: "What an honest pro forma includes.",
         body:
           "Twenty-four months of monthly projections, not a single-year summary. Two distinct phases inside the model: pre-revenue (the 6 to 12 months you're spending without billing) and post-launch (where revenue ramps unevenly).\n\nRevenue assumptions: target patient volume by month, average revenue per visit by payer mix, and an explicit assumption about the credentialing lag (how many months until each payer pays you). Most pro formas assume payers pay on time. They don't.\n\nExpenses: rent, EHR and billing software, telephony, insurance, staff (start light — owner plus one front-desk for most specialties), supplies, marketing. Add 15% to whatever number you land on for surprises.",
+        numericCallout: { label: "Pro forma horizon", value: "24", sub: "months of monthly projections, minimum" },
+      },
+      {
+        heading: "",
+        body: "",
+        pullQuote:
+          "A delayed launch is cheap. A failed launch is not. If the math doesn't work, adjust the plan — don't adjust the math.",
       },
       {
         heading: "Specialty and market drive almost everything.",
