@@ -9,7 +9,7 @@ export const SITE = {
   promise:
     "The complete platform for launching a private medical practice — free guides, expert services, and the tools to make it real.",
   // 03b Decision #7 — TMP CRM scheduling form. Token replaced when Andrew provides URL.
-  scheduleUrl: "{{SCHEDULE_URL}}",
+  scheduleUrl: "https://prompt-platform-bay.vercel.app/book/meet-metolius",
   metoliusToolsUrl: "https://mymetolius.com/tools",
   ppsInspiration: "https://physicianpracticespecialists.com",
   primaryCta: "Schedule a Consultation",
