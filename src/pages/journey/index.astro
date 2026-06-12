@@ -2,18 +2,34 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import BlueprintJourney from "@components/BlueprintJourney.astro";
 import FinalCta from "@components/FinalCta.astro";
+import { phases } from "@data/phases";
+
+const itemListSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "The 7-phase medical practice launch journey",
+  itemListOrder: "https://schema.org/ItemListOrderAscending",
+  numberOfItems: phases.length,
+  itemListElement: phases.map((p, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: `Phase ${p.id} — ${p.title}`,
+    url: `https://practicestartupservices.com/journey/${p.slug}/`,
+  })),
+};
 ---
 
 <BaseLayout
   title="The Launch Journey"
   description="The 7-phase blueprint for launching an independent medical practice. Foundation, structure, systems, launch, growth — in order, with real watchouts."
+  schema={itemListSchema}
 >
   <section class="border-b border-ink/8 py-16 lg:py-24 relative overflow-hidden">
     <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="bp-grid-journey" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="hsl(var(--ink-800))" stroke-width="1" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#bp-grid-journey)" />
@@ -39,6 +55,22 @@ import FinalCta from "@components/FinalCta.astro";
           This is the order of operations. Use it for free. Hire us when you want the build crew.
         </p>
         </div>
+      </div>
+
+      <div class="mt-12 max-w-prose-wide card-blueprint reveal">
+        <h2 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+          How long does it take to open a private practice?
+        </h2>
+        <p class="text-body text-graphite-800 leading-relaxed mb-3">
+          Most physicians should plan on roughly <strong class="text-ink">6–12 months from committed
+          decision to seeing patients</strong>. The long pole is credentialing: 90–180 days, started
+          4–6 months before your target open date. Planning (4–8 weeks), entity setup (2–4 weeks), and
+          infrastructure build-out (60–120 days) overlap around that clock — the sequence below shows
+          what runs in parallel and what can't.
+        </p>
+        <p class="text-small text-graphite-700">
+          Each phase guide lists honest durations, what must happen first, and what commonly causes delays.
+        </p>
       </div>
     </div>
   </section>

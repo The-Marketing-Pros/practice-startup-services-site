@@ -100,9 +100,9 @@ const dd = getDeepDive(phaseId);
               <h2 class="font-display text-display-md font-medium text-ink mb-8 text-balance">
                 What people ask most.
               </h2>
-              <dl class="divide-y divide-ink/12 border-t-2 border-b-2 border-ink/15">
+              <ol class="divide-y divide-ink/12 border-t-2 border-b-2 border-ink/15 list-none" role="list">
                 {dd.faq.map((item, idx) => (
-                  <div class="py-6 md:py-8 grid grid-cols-12 gap-3 md:gap-6">
+                  <li class="py-6 md:py-8 grid grid-cols-12 gap-3 md:gap-6">
                     <div class="col-span-12 md:col-span-2">
                       <!-- Mobile: small inline counter (Q#) so the question dominates. Desktop: large display numeral -->
                       <div class="hidden md:block font-mono text-display-md text-bronze-700 font-medium leading-none">
@@ -116,16 +116,16 @@ const dd = getDeepDive(phaseId);
                       </div>
                     </div>
                     <div class="col-span-12 md:col-span-10">
-                      <dt class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+                      <h3 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
                         {item.q}
-                      </dt>
-                      <dd class="text-body text-graphite-800 leading-relaxed text-pretty max-w-prose">
+                      </h3>
+                      <p class="text-body text-graphite-800 leading-relaxed text-pretty max-w-prose">
                         {item.a}
-                      </dd>
+                      </p>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </dl>
+              </ol>
             </div>
           )}
 

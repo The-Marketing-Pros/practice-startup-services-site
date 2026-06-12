@@ -11,8 +11,8 @@ The premium blueprint for launching an independent medical practice. Editorial +
 ## Stack
 
 - **SSG:** Astro 5
-- **Styling:** Tailwind CSS 3
-- **Fonts:** Fraunces (display), Inter Variable (body), JetBrains Mono (accents) — via `@fontsource`
+- **Styling:** Tailwind CSS 3 (palette resolves through HSL design tokens in `src/styles/global.css`)
+- **Fonts:** Fraunces Variable (display, opsz axis), Archivo Variable (body/UI), JetBrains Mono (accents) — via `@fontsource`, display face preloaded
 - **Deploy:** Cloudflare Pages (git-connected at project creation, per 2026-06-10 hard rule)
 
 ## Local dev
@@ -34,11 +34,16 @@ npm run check  # astro type check
 
 ## Design system at a glance
 
-- **Blueprint navy** `#0E1F36` — primary brand
-- **Warm paper** `#F7F4EE` — background (NOT clinical white)
-- **Bronze** `#B68546` — CTAs, phase highlights
-- **Signal teal** `#2BC4B4` — restrained, three Control Room moments only
-- **Fraunces** display + **Inter Variable** body + **JetBrains Mono** accents
+2026-06 refresh: "Architectural Digest meets a16z" — drafting-table editorial.
+All colors live as HSL tokens in `src/styles/global.css` (single source of truth);
+Tailwind class names are unchanged.
+
+- **Drafting ink** `hsl(26 20% 10%)` (≈`#1F1914`) — deep warm charcoal, primary brand
+- **Warm cream paper** `hsl(40 36% 95%)` (≈`#F7F4EE`) — background (NOT clinical white)
+- **Brass** `hsl(36 45% 49%)` (≈`#B58845`) — CTAs, phase numerals, annotations (text-grade brass is `bronze-700`, AA-verified on every paper surface)
+- **Signal teal** — restrained, three Control Room moments only
+- **Fraunces Variable** display (opsz 144) + **Archivo Variable** body + **JetBrains Mono** accents
+- **Motion:** one system — inverted scroll reveal (`.reveal` / `.rule-draw`, default-visible, JS opts into hiding) with full `prefers-reduced-motion` support
 
 ## Outstanding blockers
 
