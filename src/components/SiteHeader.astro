@@ -11,15 +11,20 @@ const HEADER_NAV_LABELS = new Set([
   "About",
 ]);
 const headerNav = NAV.filter((item) => HEADER_NAV_LABELS.has(item.label));
+
+// Mobile menu shows every top-level hub (including Specialty + State hubs that
+// the desktop header offloads to the footer).
+const mobileNav = NAV.map((item) => ({ label: item.label, href: item.href }));
 ---
 
 <header class="sticky top-0 z-30 bg-paper-100/95 backdrop-blur-lg border-b border-ink/8 shadow-sm">
   <div class="container-site flex items-center justify-between h-16 lg:h-20">
-    <a href="/" class="flex items-center gap-3 group" aria-label={`${SITE.name} home`}>
-      <!-- Blueprint mark — minimal navy + bronze rule -->
-      <span class="inline-flex h-9 w-9 items-center justify-center rounded-sharp bg-ink text-paper-100 font-display text-lg font-medium">
+    <a href="/" class="flex items-center gap-3 group">
+      <!-- Blueprint mark — ink + brass -->
+      <span aria-hidden="true" class="inline-flex h-9 w-9 items-center justify-center rounded-sharp bg-ink text-paper-100 font-display text-lg font-medium">
         P
       </span>
+      <span class="sr-only sm:hidden">{SITE.name} — home</span>
       <span class="hidden sm:flex flex-col leading-tight">
         <span class="font-display text-base lg:text-lg font-medium text-ink">Practice Startup Services</span>
         <span class="phase-label text-graphite-600">The Independent Practice Blueprint</span>
@@ -39,17 +44,81 @@ const headerNav = NAV.filter((item) => HEADER_NAV_LABELS.has(item.label));
       }
     </nav>
 
-    <div class="flex items-center gap-3">
-      <a href="/journey/" class="hidden md:inline-flex lg:hidden text-small font-medium text-graphite-800 hover:text-ink transition-colors">
-        The Blueprint
-      </a>
-      <a href={SITE.scheduleUrl} class="btn-primary text-small whitespace-nowrap">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href={SITE.scheduleUrl} class="btn-secondary text-small whitespace-nowrap">
         <span class="hidden sm:inline">{SITE.primaryCta}</span>
         <span class="sm:hidden">Schedule</span>
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </a>
+
+      <!-- Mobile menu — native disclosure, works without JS -->
+      <details class="lg:hidden relative" id="mobile-menu">
+        <summary
+          class="list-none [&::-webkit-details-marker]:hidden inline-flex h-11 w-11 items-center justify-center rounded-soft border border-ink/15 text-ink cursor-pointer hover:bg-paper-200/60 transition-colors"
+          aria-label="Site menu"
+        >
+          <svg class="menu-open-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M2 4.5h14M2 9h14M2 13.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          <svg class="menu-close-icon hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </summary>
+
+        <nav
+          class="absolute right-0 top-[calc(100%+0.75rem)] w-72 max-w-[calc(100vw-2rem)] max-h-[70vh] overflow-y-auto bg-paper-50 border border-ink/12 rounded-card shadow-elevated p-2"
+          aria-label="Mobile"
+        >
+          <ul class="divide-y divide-ink/8">
+            {
+              mobileNav.map((item, i) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="flex items-center justify-between gap-3 px-4 py-3 min-h-[44px] text-body font-medium text-ink hover:bg-paper-200/60 rounded-soft transition-colors"
+                  >
+                    {item.label}
+                    <span class="font-mono text-label text-bronze-700">{String(i + 1).padStart(2, "0")}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <div class="p-3 pt-4 border-t border-ink/8 mt-1">
+            <a href={SITE.scheduleUrl} class="btn-primary text-small w-full justify-center">
+              {SITE.primaryCta}
+            </a>
+          </div>
+        </nav>
+      </details>
     </div>
   </div>
 </header>
+
+<style>
+  details[open] .menu-open-icon { display: none; }
+  details[open] .menu-close-icon { display: block; }
+</style>
+
+<script is:inline>
+  // Progressive enhancement only — the <details> menu is fully usable without
+  // this. Close on outside click / Escape so it behaves like a real menu.
+  (function () {
+    var menu = document.getElementById("mobile-menu");
+    if (!menu) return;
+    document.addEventListener("click", function (e) {
+      if (menu.hasAttribute("open") && !menu.contains(e.target)) {
+        menu.removeAttribute("open");
+      }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && menu.hasAttribute("open")) {
+        menu.removeAttribute("open");
+        var summary = menu.querySelector("summary");
+        if (summary) summary.focus();
+      }
+    });
+  })();
+</script>

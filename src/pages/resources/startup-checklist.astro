@@ -8,22 +8,38 @@ import { SITE } from "@data/site";
 <BaseLayout
   title="The Practice Launch Checklist"
   description="Phase-ordered, opinionated, and free. The exact tasks for each of the 7 phases — with the watchouts most checklists skip."
-  schema={{
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
-      { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
-      { "@type": "ListItem", position: 3, name: "Practice Launch Checklist", item: "https://practicestartupservices.com/resources/startup-checklist/" },
-    ],
-  }}
+  schema={[
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+        { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
+        { "@type": "ListItem", position: 3, name: "Practice Launch Checklist", item: "https://practicestartupservices.com/resources/startup-checklist/" },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: "How to start a medical practice: the 7-phase launch checklist",
+      description:
+        "The phase-ordered checklist for launching an independent medical practice — what must happen first, what can run in parallel, and the watchouts that commonly delay each phase.",
+      step: phases.map((p, i) => ({
+        "@type": "HowToStep",
+        position: i + 1,
+        name: `Phase ${p.id} — ${p.title}`,
+        text: p.whatHappensFirst,
+        url: `https://practicestartupservices.com/resources/startup-checklist/#phase-${p.id}`,
+      })),
+    },
+  ]}
 >
   <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
     <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="bp-grid-check" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0E1F36" stroke-width="1" />
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="hsl(var(--ink-800))" stroke-width="1" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#bp-grid-check)" />
@@ -57,7 +73,7 @@ import { SITE } from "@data/site";
       <ol class="space-y-12 max-w-prose-wide mx-auto">
         {
           phases.map((p) => (
-            <li>
+            <li id={`phase-${p.id}`}>
               <div class="flex items-start gap-5">
                 <div class="font-mono text-display-md text-bronze-700 font-medium leading-none">
                   {p.id}

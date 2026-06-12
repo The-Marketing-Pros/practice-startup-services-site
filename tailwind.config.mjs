@@ -1,6 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 // PracticeStartupServices.com — Blueprint visual system
 // See: personas/alf/campaigns/2026-Q2/practice-startup-services/03b-recommended-direction.md §2
+// 2026-06 refresh: palette moved to HSL design tokens defined in src/styles/global.css
+// (deep warm-charcoal ink + warm cream paper + brass accent). Class names are
+// unchanged; values resolve through `hsl(var(--token) / <alpha-value>)` so the
+// palette has exactly one source of truth and opacity modifiers keep working.
+
+const token = (name) => `hsl(var(--${name}) / <alpha-value>)`;
 
 export default {
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
@@ -18,66 +24,67 @@ export default {
         85: "0.85",
       },
       colors: {
-        // Blueprint palette (03b §2 — locked)
+        // Drafting ink — deep warm charcoal, near-black. Primary brand.
         ink: {
-          DEFAULT: "#0E1F36", // blueprint navy — primary brand
-          900: "#0A1626",
-          800: "#0E1F36",
-          700: "#1A2D48",
-          600: "#26395A",
+          DEFAULT: token("ink-800"),
+          900: token("ink-900"),
+          800: token("ink-800"),
+          700: token("ink-700"),
+          600: token("ink-600"),
         },
+        // Warm cream paper, NOT clinical white
         paper: {
-          DEFAULT: "#F7F4EE", // warm paper, NOT clinical white
-          50: "#FCFAF6",
-          100: "#F7F4EE",
-          200: "#EDE7DB",
-          300: "#DDD3BF",
+          DEFAULT: token("paper-100"),
+          50: token("paper-50"),
+          100: token("paper-100"),
+          200: token("paper-200"),
+          300: token("paper-300"),
         },
         graphite: {
-          DEFAULT: "#2C2E33",
-          900: "#1B1C20",
-          800: "#2C2E33",
-          700: "#404249",
-          600: "#5B5E68",
-          500: "#7A7D87",
-          400: "#A4A6AE",
-          300: "#C9CAD0",
-          200: "#E2E3E6",
-          100: "#F0F1F3",
+          DEFAULT: token("graphite-800"),
+          900: token("graphite-900"),
+          800: token("graphite-800"),
+          700: token("graphite-700"),
+          600: token("graphite-600"),
+          500: token("graphite-500"),
+          400: token("graphite-400"),
+          300: token("graphite-300"),
+          200: token("graphite-200"),
+          100: token("graphite-100"),
         },
-        // Accent — used sparingly on CTAs, phase highlights, warnings
+        // Brass accent — used sparingly on CTAs, phase highlights, annotations
         bronze: {
-          DEFAULT: "#B68546",
-          900: "#7A582D",
-          800: "#92693A",
-          700: "#A67740",
-          600: "#B68546",
-          500: "#C49A63",
-          400: "#D2B286",
-          300: "#E0CAA9",
+          DEFAULT: token("bronze-600"),
+          900: token("bronze-900"),
+          800: token("bronze-800"),
+          700: token("bronze-700"),
+          600: token("bronze-600"),
+          500: token("bronze-500"),
+          400: token("bronze-400"),
+          300: token("bronze-300"),
         },
         // Restrained Control Room accent — ONLY in three places (homepage scan, medicare-tools, phase-4 credentialing)
         // See 03b §1 Layer 3
         signal: {
-          DEFAULT: "#2BC4B4", // electric teal
-          900: "#176A62",
-          800: "#1F8A7E",
-          700: "#26A89A",
-          600: "#2BC4B4",
-          500: "#52D2C5",
-          400: "#7DDDD2",
+          DEFAULT: token("signal-600"),
+          900: token("signal-900"),
+          800: token("signal-800"),
+          700: token("signal-700"),
+          600: token("signal-600"),
+          500: token("signal-500"),
+          400: token("signal-400"),
         },
         // Warning — for "Do Not Skip This" blocks (03a §3 Direction 3 element, kept)
         warn: {
-          DEFAULT: "#B85C2A",
-          subtle: "#F4E4D8",
+          DEFAULT: token("warn"),
+          subtle: token("warn-subtle"),
         },
       },
       fontFamily: {
-        // 03b §2 Typography — three faces total
-        display: ['"Fraunces"', "Georgia", "serif"], // editorial display serif
-        sans: ['"Inter Variable"', "Inter", "system-ui", "sans-serif"], // humanist body
-        mono: ['"JetBrains Mono"', "ui-monospace", "monospace"], // technical accents
+        // Three faces total — Fraunces (display, optical-size axis), Archivo (text/UI), JetBrains Mono (annotations)
+        display: ['"Fraunces Variable"', "Georgia", "serif"],
+        sans: ['"Archivo Variable"', "Archivo", "system-ui", "sans-serif"],
+        mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
       fontSize: {
         // Editorial scale — generous, content-friendly
@@ -102,8 +109,8 @@ export default {
         card: "6px",
       },
       boxShadow: {
-        blueprint: "0 1px 0 rgba(14, 31, 54, 0.06), 0 12px 28px -16px rgba(14, 31, 54, 0.18)",
-        elevated: "0 2px 0 rgba(14, 31, 54, 0.04), 0 24px 48px -20px rgba(14, 31, 54, 0.24)",
+        blueprint: "0 1px 0 hsl(var(--ink-800) / 0.06), 0 12px 28px -16px hsl(var(--ink-800) / 0.18)",
+        elevated: "0 2px 0 hsl(var(--ink-800) / 0.04), 0 24px 48px -20px hsl(var(--ink-800) / 0.24)",
       },
       animation: {
         "draw-in": "draw-in 0.8s ease-out forwards",

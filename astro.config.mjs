@@ -2,6 +2,25 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import sitemap from "@astrojs/sitemap";
+import { execSync } from "node:child_process";
+
+// Sitemap <lastmod>: the last commit that touched site content. When git
+// history isn't available (e.g. a tarball build) we omit lastmod entirely
+// rather than stamping build time — a fake "everything changed" signal is
+// worse than no signal.
+function contentLastmod() {
+  try {
+    const out = execSync("git log -1 --format=%cI -- src/ public/", {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    if (out) return out;
+  } catch {
+    /* no git */
+  }
+  return null;
+}
+const LASTMOD = contentLastmod();
 
 // PracticeStartupServices.com
 // Blueprint + Map + restrained Control Room
@@ -23,6 +42,7 @@ export default defineConfig({
     }),
     sitemap({
       filter: (page) => !page.includes("/scan/results"),
+      serialize: (item) => (LASTMOD ? { ...item, lastmod: LASTMOD } : item),
     }),
   ],
 });

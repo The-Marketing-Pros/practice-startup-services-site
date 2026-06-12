@@ -5,15 +5,37 @@ import LaunchReadinessScan from "@components/LaunchReadinessScan.astro";
 import BlueprintJourney from "@components/BlueprintJourney.astro";
 import BuildCrews from "@components/BuildCrews.astro";
 import FreeResources from "@components/FreeResources.astro";
+import Testimonials from "@components/Testimonials.astro";
+import HomeFaq from "@components/HomeFaq.astro";
 import FinalCta from "@components/FinalCta.astro";
 import { SITE } from "@data/site";
+import { homeFaq } from "@data/home-faq";
+
+// FAQPage JSON-LD built from the exact data HomeFaq renders — markup and
+// schema cannot drift apart.
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: homeFaq.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 ---
 
-<BaseLayout title="Start a Medical Practice — Launch Services + Free Guides" titleAsIs={true} description={SITE.promise}>
+<BaseLayout
+  title="Start a Medical Practice — Launch Services + Free Guides"
+  titleAsIs={true}
+  description={SITE.promise}
+  schema={faqSchema}
+>
   <Hero />
   <LaunchReadinessScan />
   <BlueprintJourney />
   <BuildCrews />
   <FreeResources />
+  <Testimonials />
+  <HomeFaq />
   <FinalCta />
 </BaseLayout>

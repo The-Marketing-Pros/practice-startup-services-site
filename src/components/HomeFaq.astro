@@ -1,0 +1,55 @@
+---
+// Homepage FAQ — answer-first editorial Q&A. The matching FAQPage JSON-LD is
+// emitted by src/pages/index.astro from the same data source (home-faq.ts).
+import { homeFaq } from "@data/home-faq";
+---
+
+<section class="border-b border-ink/8 py-20 lg:py-28 bg-paper-200/40" aria-labelledby="home-faq-heading">
+  <div class="container-site">
+    <div class="max-w-3xl mb-12 reveal">
+      <div class="phase-label text-bronze-700 mb-4">Straight answers</div>
+      <h2 id="home-faq-heading" class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+        The questions every founder asks first.
+      </h2>
+      <p class="text-lede text-graphite-700 text-pretty">
+        Direct answers up front, the deeper guide one click away. If your question isn't here,
+        it's probably answered inside one of the seven phase guides.
+      </p>
+    </div>
+
+    <ol class="max-w-prose-wide divide-y divide-ink/12 border-t-2 border-b-2 border-ink/15 list-none" role="list">
+      {
+        homeFaq.map((item, idx) => (
+          <li class="py-6 md:py-8 grid grid-cols-12 gap-3 md:gap-6 reveal">
+            <div class="col-span-12 md:col-span-2">
+              <div class="hidden md:block font-mono text-display-md text-bronze-700 font-medium leading-none">
+                {String(idx + 1).padStart(2, "0")}
+              </div>
+              <div class="md:hidden">
+                <span class="font-mono text-label uppercase tracking-[0.18em] text-bronze-700">
+                  Q{String(idx + 1).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-10">
+              <h3 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
+                {item.q}
+              </h3>
+              <div class="text-body text-graphite-800 leading-relaxed text-pretty max-w-prose">
+                {item.a}
+                {item.href && item.hrefLabel && (
+                  <a
+                    href={item.href}
+                    class="block mt-3 text-small font-medium text-bronze-700 hover:text-ink transition-colors"
+                  >
+                    {item.hrefLabel} →
+                  </a>
+                )}
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

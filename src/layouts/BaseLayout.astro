@@ -4,6 +4,9 @@ import SiteHeader from "@components/SiteHeader.astro";
 import SiteFooter from "@components/SiteFooter.astro";
 import Architect from "@components/Architect.astro";
 import { SITE } from "@data/site";
+// Preload the display face (latin, opsz axis) — it renders every headline and
+// is the largest text paint on each page. Vite resolves the hashed URL.
+import frauncesWoff2 from "@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url";
 
 interface Props {
   title: string;
@@ -14,9 +17,22 @@ interface Props {
   // When true, the title is used as-is without ' · Practice Startup Services' suffix
   // (used on the homepage where we want a head-term-loaded title without brand padding)
   titleAsIs?: boolean;
+  // Optional ISO dates for article-like pages. When set, emitted on the WebPage
+  // schema node (and pages may also render a visible <time> themselves).
+  datePublished?: string;
+  dateModified?: string;
 }
 
-const { title, description, ogImage, noIndex = false, schema, titleAsIs = false } = Astro.props;
+const {
+  title,
+  description,
+  ogImage,
+  noIndex = false,
+  schema,
+  titleAsIs = false,
+  datePublished,
+  dateModified,
+} = Astro.props;
 const pageTitle = (titleAsIs || title === SITE.name) ? title : `${title} · ${SITE.name}`;
 const pageDescription = description ?? SITE.promise;
 const canonical = new URL(Astro.url.pathname, SITE.url).toString();
@@ -31,33 +47,66 @@ function pickOgImage(path: string, override?: string): string {
 }
 const ogImageUrl = pickOgImage(Astro.url.pathname, ogImage);
 
+// Entity graph: one Organization node + one WebSite node, both with stable @id
+// anchors, referenced from every page's WebPage node. Keeps crawlers and answer
+// engines from re-deriving the org on every URL.
+const ORG_ID = `${SITE.url}/#organization`;
+const WEBSITE_ID = `${SITE.url}/#website`;
+
 const orgSchema = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
+  "@id": ORG_ID,
   name: SITE.name,
   url: SITE.url,
+  logo: new URL("/favicon-512.png", SITE.url).toString(),
+  image: new URL("/og/og-home.jpg", SITE.url).toString(),
   description: SITE.promise,
   slogan: SITE.tagline,
   areaServed: { "@type": "Country", name: "United States" },
+  knowsAbout: [
+    "Medical practice startup",
+    "Medical credentialing and payer enrollment",
+    "Revenue cycle management",
+    "Medical practice websites and local SEO",
+    "Practice technology and AI implementation",
+    "HIPAA compliance programs",
+  ],
   serviceType: [
     "Practice Startup Consulting",
     "Medical Credentialing",
     "Revenue Cycle Management",
     "Medical Practice Website Design",
+    "Technology + AI Implementation",
     "Practice Infrastructure Support",
   ],
 };
 
-const webPageSchema = {
+const webSiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": WEBSITE_ID,
+  name: SITE.name,
+  url: SITE.url,
+  description: SITE.promise,
+  inLanguage: "en-US",
+  publisher: { "@id": ORG_ID },
+};
+
+const webPageSchema: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   name: pageTitle,
   description: pageDescription,
   url: canonical,
-  isPartOf: { "@type": "WebSite", name: SITE.name, url: SITE.url },
+  inLanguage: "en-US",
+  isPartOf: { "@id": WEBSITE_ID },
+  about: { "@id": ORG_ID },
 };
+if (datePublished) webPageSchema.datePublished = datePublished;
+if (dateModified) webPageSchema.dateModified = dateModified;
 
-const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : schema ? [schema] : [])];
+const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(schema) ? schema : schema ? [schema] : [])];
 ---
 
 <!doctype html>
@@ -72,6 +121,9 @@ const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : 
     <link rel="canonical" href={canonical} />
 
     {noIndex && <meta name="robots" content="noindex,nofollow" />}
+
+    <!-- Display font preload — largest text paint on every page -->
+    <link rel="preload" as="font" type="font/woff2" href={frauncesWoff2} crossorigin />
 
     <!-- OG / Twitter -->
     <meta property="og:type" content="website" />
@@ -88,8 +140,8 @@ const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : 
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={pageDescription} />
 
-    <!-- Theme color (blueprint navy) -->
-    <meta name="theme-color" content="#0E1F36" />
+    <!-- Theme color (drafting ink) -->
+    <meta name="theme-color" content="#1F1914" />
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
@@ -123,5 +175,37 @@ const schemas = [orgSchema, webPageSchema, ...(Array.isArray(schema) ? schema : 
     <SiteFooter />
 
     <Architect />
+
+    <!-- Scroll reveal — inverted pattern (locked agency standard).
+         The hidden state only exists once this script runs, in the same tick
+         that the observer attaches. No JS → everything stays visible. -->
+    <script is:inline>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        document.documentElement.classList.add("js-revealable-init");
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                e.target.classList.add("is-in");
+                io.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+        );
+        var foldLine = window.innerHeight * 0.92;
+        document.querySelectorAll(".reveal, .rule-draw").forEach(function (el) {
+          // Elements already in the first viewport stay visible — adding
+          // is-in in the same tick as js-revealable-init means they never
+          // paint hidden (no above-the-fold flash on slow devices).
+          if (el.getBoundingClientRect().top < foldLine) {
+            el.classList.add("is-in");
+            return;
+          }
+          io.observe(el);
+        });
+      })();
+    </script>
   </body>
 </html>

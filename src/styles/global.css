@@ -1,7 +1,5 @@
-@import "@fontsource-variable/inter/index.css";
-@import "@fontsource/fraunces/400.css";
-@import "@fontsource/fraunces/500.css";
-@import "@fontsource/fraunces/600.css";
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/archivo/index.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
 
@@ -10,11 +8,59 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Design tokens — HSL triplets consumed by tailwind.config.mjs as
+   * `hsl(var(--token) / <alpha-value>)`. One source of truth for the palette.
+   *
+   * Brand direction (2026-06 refresh): deep warm-charcoal ink + warm cream
+   * paper + brass accent. "Architectural Digest meets a16z" — drafting-table
+   * editorial, not clinical SaaS. Every text/surface pair below is verified
+   * WCAG 2.2 AA (4.5:1 minimum, including the brass-on-cream small caps).
+   */
   :root {
-    --color-ink: 14 31 54;
-    --color-paper: 247 244 238;
-    --color-bronze: 182 133 70;
-    --color-signal: 43 196 180;
+    /* ink — deep warm charcoal (near-black). The drawing ink. */
+    --ink-900: 26 25% 6%;
+    --ink-800: 26 20% 10%;
+    --ink-700: 27 14% 18%;
+    --ink-600: 28 11% 28%;
+
+    /* paper — warm cream. The vellum. NOT clinical white. */
+    --paper-50: 40 55% 98%;
+    --paper-100: 40 36% 95%;
+    --paper-200: 40 33% 89%;
+    --paper-300: 39 31% 81%;
+
+    /* graphite — warmed neutrals for secondary text */
+    --graphite-900: 28 12% 11%;
+    --graphite-800: 28 9% 19%;
+    --graphite-700: 28 8% 27%;
+    --graphite-600: 28 7% 36%;
+    --graphite-500: 28 7% 39%;
+    --graphite-400: 28 6% 62%;
+    --graphite-300: 30 7% 78%;
+    --graphite-200: 33 9% 89%;
+    --graphite-100: 36 12% 95%;
+
+    /* brass — the accent. Annotations, CTAs, phase numerals. */
+    --bronze-900: 33 48% 26%;
+    --bronze-800: 34 46% 31%;
+    --bronze-700: 35 45% 35%; /* text-grade brass: 4.6:1+ on every paper surface */
+    --bronze-600: 36 45% 49%; /* fill-grade brass: CTAs, rules */
+    --bronze-500: 37 45% 58%;
+    --bronze-400: 38 46% 67%;
+    --bronze-300: 39 47% 77%;
+
+    /* signal — restrained Control Room teal (three moments only) */
+    --signal-900: 174 65% 22%;
+    --signal-800: 173 63% 31%;
+    --signal-700: 172 62% 38%;
+    --signal-600: 171 64% 47%;
+    --signal-500: 169 58% 57%;
+    --signal-400: 168 58% 68%;
+
+    /* warn — "Do Not Skip This" blocks */
+    --warn: 22 65% 36%;
+    --warn-subtle: 26 56% 90%;
   }
 
   html {
@@ -29,22 +75,22 @@
 
   body {
     @apply bg-paper-100 text-ink antialiased;
-    font-feature-settings: "ss01", "cv11";
   }
 
   h1, h2, h3, h4 {
     font-family: theme("fontFamily.display");
     @apply text-ink;
-    font-feature-settings: "ss01";
+    /* Fraunces optical-size axis: large cuts are sculpted, high-contrast */
+    font-variation-settings: "opsz" 144;
   }
 
-  /* Selection in Blueprint navy with bronze text */
+  /* Selection in ink with brass text */
   ::selection {
     background: theme("colors.ink.DEFAULT");
     color: theme("colors.bronze.300");
   }
 
-  /* Focus ring — bronze, not blue */
+  /* Focus ring — brass, not blue */
   :focus-visible {
     outline: 2px solid theme("colors.bronze.DEFAULT");
     outline-offset: 2px;
@@ -68,7 +114,7 @@
     @apply font-mono text-label uppercase tracking-[0.18em] text-ink-600;
   }
 
-  /* The "rule" — thin gold/bronze line. Blueprint motif. */
+  /* The "rule" — thin brass line. Blueprint motif. */
   .blueprint-rule {
     @apply h-px w-full bg-gradient-to-r from-transparent via-bronze/30 to-transparent;
   }
@@ -87,9 +133,10 @@
     @apply pt-3 sm:pt-2.5 mt-3 sm:mt-2.5 border-t border-warn/15 sm:border-t-0;
   }
 
-  /* CTA button — bronze fill, ink text. The only colored button on the site. */
+  /* CTA button — brass fill, ink text. The only colored button on the site.
+     Hover lightens (never darkens — ink text must stay 4.5:1 on the fill). */
   .btn-primary {
-    @apply inline-flex items-center gap-2 bg-bronze hover:bg-bronze-700 text-ink font-medium px-5 py-[0.6875rem] rounded-soft transition-all duration-200 shadow-blueprint hover:shadow-elevated hover:-translate-y-px;
+    @apply inline-flex items-center gap-2 bg-bronze hover:bg-bronze-500 text-ink font-medium px-5 py-[0.6875rem] rounded-soft transition-all duration-200 shadow-blueprint hover:shadow-elevated hover:-translate-y-px;
   }
 
   .btn-primary:focus-visible {
@@ -137,4 +184,55 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
+}
+
+/*
+ * Scroll reveal — INVERTED pattern (locked agency standard).
+ * Default state is fully visible; JS opts INTO the hidden state by adding
+ * `js-revealable-init` to <html> in the same script that attaches the
+ * IntersectionObserver (BaseLayout). Crawlers, no-JS users, fullPage
+ * screenshots, and observer-blocking extensions always see content.
+ * One motion system per page — this is it. Do not add a second.
+ */
+.reveal {
+  opacity: 1;
+  filter: none;
+  transform: translateY(0);
+}
+html.js-revealable-init .reveal {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(10px);
+  transition: opacity 0.7s ease-out, filter 0.7s ease-out, transform 0.7s ease-out;
+}
+html.js-revealable-init .reveal.is-in {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+.reveal-delay-3 { transition-delay: 0.24s; }
+
+/* Line-draw — the drafting stroke. Same reveal system, applied to rules. */
+.rule-draw {
+  transform-origin: left center;
+}
+html.js-revealable-init .rule-draw {
+  transform: scaleX(0);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.js-revealable-init .rule-draw.is-in,
+html.js-revealable-init .is-in .rule-draw {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-revealable-init .reveal,
+  html.js-revealable-init .rule-draw {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
 }

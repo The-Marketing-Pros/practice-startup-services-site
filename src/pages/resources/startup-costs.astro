@@ -3,6 +3,15 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import FinalCta from "@components/FinalCta.astro";
 import { SITE } from "@data/site";
 
+// Freshness signals — operator bumps DATE_MODIFIED whenever the ranges are re-reviewed.
+const DATE_PUBLISHED = "2026-06-11";
+const DATE_MODIFIED = "2026-06-12";
+const dateModifiedDisplay = new Date(`${DATE_MODIFIED}T12:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
 const costCategories = [
   {
     category: "Capital expenses",
@@ -53,15 +62,31 @@ const costCategories = [
 <BaseLayout
   title="Practice Startup Cost Guide"
   description="Honest cost ranges for launching a private medical practice — capital expenses, monthly burn, professional fees, and working capital."
-  schema={{
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
-      { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
-      { "@type": "ListItem", position: 3, name: "Startup Cost Guide", item: "https://practicestartupservices.com/resources/startup-costs/" },
-    ],
-  }}
+  datePublished={DATE_PUBLISHED}
+  dateModified={DATE_MODIFIED}
+  schema={[
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
+        { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
+        { "@type": "ListItem", position: 3, name: "Startup Cost Guide", item: "https://practicestartupservices.com/resources/startup-costs/" },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "Practice startup costs — honest ranges, no fake precision",
+      description:
+        "What launching a private medical practice actually costs, broken into the four buckets every pro forma needs: capital expenses, pre-revenue monthly burn, one-time professional fees, and working capital.",
+      datePublished: DATE_PUBLISHED,
+      dateModified: DATE_MODIFIED,
+      author: { "@id": "https://practicestartupservices.com/#organization" },
+      publisher: { "@id": "https://practicestartupservices.com/#organization" },
+      mainEntityOfPage: "https://practicestartupservices.com/resources/startup-costs/",
+    },
+  ]}
 >
   <section class="border-b border-ink/8 py-14 lg:py-20">
     <div class="container-site">
@@ -78,12 +103,27 @@ const costCategories = [
           Ranges are wide on purpose — your specialty, market, and ambition all move the numbers.
           When you want a real number for your specific situation, that's what a consultation is for.
         </p>
+        <p class="phase-label text-graphite-600 mt-6">
+          Last reviewed <time datetime={DATE_MODIFIED}>{dateModifiedDisplay}</time>
+        </p>
       </div>
     </div>
   </section>
 
   <section class="border-b border-ink/8 py-16 lg:py-20 bg-paper-200/40">
     <div class="container-site">
+      <div class="max-w-prose-wide mb-10">
+        <h2 class="font-display text-display-md font-medium text-ink mb-4 text-balance">
+          How much does it cost to start a medical practice?
+        </h2>
+        <p class="text-body text-graphite-800 leading-relaxed text-pretty">
+          <strong class="text-ink">The short answer:</strong> plan for $50k–$250k+ in capital expenses,
+          $5k–$50k in one-time professional fees, and $15k–$40k per month of operating costs before
+          revenue arrives — plus a working-capital reserve of at least six months. A solo behavioral
+          health practice sits at the bottom of every range; a procedure-heavy specialty clinic with
+          imaging sits at the top. The four buckets below are what your pro forma needs to price.
+        </p>
+      </div>
       <div class="grid lg:grid-cols-2 gap-5">
         {
           costCategories.map((c) => (
