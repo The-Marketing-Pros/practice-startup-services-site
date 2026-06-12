@@ -47,7 +47,9 @@ Tailwind class names are unchanged.
 
 ## Outstanding blockers
 
-- **CRM scheduling URL** (`{{SCHEDULE_URL}}`) — Andrew drops at Phase 7. Until then, all booking links route to the token.
+- ~~**CRM scheduling URL** (`{{SCHEDULE_URL}}`)~~ — resolved: production scheduler URL wired in `src/data/site.ts` (`scheduleUrl`).
+- **OG cards + raster favicons** — still rendered in the pre-refresh navy brand; regenerate in the charcoal/brass system (raster tooling required; `favicon.svg` is already updated).
+- **Testimonials** — `src/data/testimonials.ts` is integrity-gated; nothing renders until a real, permissioned quote is set to `status: "published"`.
 
 ## Build phases
 
