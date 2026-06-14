@@ -1,5 +1,11 @@
 // PracticeStartupServices.com — site-level constants
-// CRM scheduling URL is a placeholder — Andrew drops at Phase 7 (one outstanding blocker).
+//
+// The consultation booking URL now lives in ONE place: src/config/site.ts
+// (CONSULT_BOOKING_URL). `scheduleUrl` below re-exports that single source so
+// every existing CTA across the site resolves through the same constant — the
+// operator swaps the temp link in exactly one file. See /PLACEHOLDERS-TO-SWAP.md.
+
+import { CONSULT_BOOKING_URL } from "@config/site";
 
 export const SITE = {
   name: "Practice Startup Services",
@@ -8,8 +14,8 @@ export const SITE = {
   tagline: "The practice launch guide — and the team to make it real.",
   promise:
     "The complete platform for launching a private medical practice — free guides, expert services, and the tools to make it real.",
-  // 03b Decision #7 — TMP CRM scheduling form. Token replaced when Andrew provides URL.
-  scheduleUrl: "https://prompt-platform-bay.vercel.app/book/meet-metolius",
+  // Single source of truth for the booking URL is src/config/site.ts.
+  scheduleUrl: CONSULT_BOOKING_URL,
   metoliusToolsUrl: "https://mymetolius.com/tools",
   ppsInspiration: "https://physicianpracticespecialists.com",
   primaryCta: "Schedule a Consultation",

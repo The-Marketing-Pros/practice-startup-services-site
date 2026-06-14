@@ -1,5 +1,6 @@
 ---
 import { SITE, ARCHITECT } from "@data/site";
+import { CONSULT_BOOKING_URL, CONSULT_CTA_LABEL } from "@config/site";
 import { phases } from "@data/phases";
 
 const architectVisible =
@@ -51,15 +52,24 @@ const architectVisible =
           {SITE.promise}
         </p>
 
-        <div class="flex flex-wrap gap-3">
-          <a href={SITE.scheduleUrl} class="btn-primary">
-            {SITE.primaryCta}
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-5 gap-y-3">
+          <a
+            href={CONSULT_BOOKING_URL}
+            target="_blank"
+            rel="noopener"
+            class="btn-primary"
+          >
+            {CONSULT_CTA_LABEL}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </a>
-          <a href="/resources/startup-checklist/" class="btn-secondary">
-            {SITE.secondaryCta}
+          <a
+            href="/resources/startup-checklist/"
+            class="group inline-flex items-center gap-1.5 text-small font-medium text-graphite-700 hover:text-ink transition-colors underline decoration-ink/20 hover:decoration-bronze decoration-1 underline-offset-4"
+          >
+            Or get the free startup checklist
+            <span aria-hidden="true" class="text-bronze-700 transition-transform group-hover:translate-x-0.5">&rarr;</span>
           </a>
         </div>
 
