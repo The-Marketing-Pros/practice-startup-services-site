@@ -6,6 +6,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
+      "@config/*": ["src/config/*"],
       "@layouts/*": ["src/layouts/*"],
       "@data/*": ["src/data/*"],
       "@styles/*": ["src/styles/*"]

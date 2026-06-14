@@ -1,5 +1,5 @@
 ---
-import { SITE } from "@data/site";
+import { CONSULT_BOOKING_URL, CONSULT_CTA_LABEL } from "@config/site";
 
 interface Props {
   variant?: "default" | "phase" | "service" | "specialty" | "state" | "resource";
@@ -73,8 +73,13 @@ const useBody = body ?? copy.body;
       <p class="text-lede text-paper-200/85 max-w-narrow mx-auto mb-8 text-pretty">
         {useBody}
       </p>
-      <a href={SITE.scheduleUrl} class="btn-primary text-base">
-        {SITE.primaryCta}
+      <a
+        href={CONSULT_BOOKING_URL}
+        target="_blank"
+        rel="noopener"
+        class="btn-primary text-base"
+      >
+        {CONSULT_CTA_LABEL}
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>

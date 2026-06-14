@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import FinalCta from "@components/FinalCta.astro";
-import { SITE } from "@data/site";
+import { CONSULT_BOOKING_URL, CONSULT_CTA_LABEL } from "@config/site";
 ---
 
 <BaseLayout
@@ -88,14 +88,28 @@ import { SITE } from "@data/site";
           to each other.
         </p>
 
+        <h2>Who's behind this.</h2>
+        <p>
+          This blueprint isn't theory. It's built by the team at
+          <strong>Physician Practice Specialists</strong> — the practice-launch group that has started
+          <strong>over 7,000 independent practices across the country.</strong> The order of operations
+          on this site is the same sequence we run for real clients, every month, in every state.
+        </p>
+        <p>
+          Seven thousand launches is a lot of mistakes already made — on someone else's dime, not yours.
+          The watchouts in these phase guides, the timing we flag, the things we tell you not to skip:
+          all of it is the compounded lesson of those builds. That track record is the whole reason to
+          trust the sequence.
+        </p>
+
         <p>
           When you want to talk, the first conversation is free. We will tell you whether you need us —
           and if you don't, we will tell you what to do anyway.
         </p>
 
         <p class="mt-8">
-          <a href={SITE.scheduleUrl} class="btn-primary">
-            {SITE.primaryCta}
+          <a href={CONSULT_BOOKING_URL} target="_blank" rel="noopener" class="btn-primary">
+            {CONSULT_CTA_LABEL}
           </a>
         </p>
       </div>

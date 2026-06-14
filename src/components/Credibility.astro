@@ -1,0 +1,133 @@
+---
+// Credibility / "who's behind the blueprint" — the proof layer.
+//
+// REAL content (operator-confirmed, authoritative): this blueprint is built by
+// the team at Physician Practice Specialists, who have started 7,000+
+// independent practices nationwide. Brand name + the 7,000+ figure are used
+// verbatim per the operator. No individual names/headshots/bios — organizational
+// credibility only.
+//
+// The "7,000+" is the hero stat and the ONLY hard number rendered here on
+// purpose: one true number beats three placeholder ones. The chips below are
+// qualitative service-line descriptors (credentialing, RCM, startup consulting,
+// nationwide) — all true of PPS and mirrored by this site's own build crews —
+// not fabricated counts.
+//
+// Native to the blueprint aesthetic: ink band + drafting grid + brass datum
+// line, big Fraunces numeral, small-caps annotations. Uses the locked inverted
+// .reveal scroll system (no second motion system, content visible without JS).
+// CLS-safe: the numeral sits in a fixed grid cell with clamp() sizing.
+
+const PROOF_POINTS = [
+  "Credentialing",
+  "Revenue cycle",
+  "Startup consulting",
+  "Nationwide",
+];
+---
+
+<section
+  class="relative overflow-hidden bg-ink text-paper-100 py-20 lg:py-28 border-b border-paper-100/10"
+  aria-labelledby="credibility-heading"
+>
+  <!-- Blueprint grid backdrop, matched to the site's drafting motif -->
+  <div class="absolute inset-0 opacity-[0.07] pointer-events-none" aria-hidden="true">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="bp-grid-credibility" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M 48 0 L 0 0 0 48" fill="none" stroke="hsl(var(--paper-100))" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#bp-grid-credibility)" />
+    </svg>
+  </div>
+
+  <!-- Brass datum line — the drafting baseline this proof is measured against -->
+  <div class="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-bronze-500/50 to-transparent" aria-hidden="true"></div>
+
+  <div class="container-site relative">
+    <!-- Sheet annotation strip, mirroring the hero's drafting title -->
+    <div class="hidden md:flex items-center justify-between phase-label text-paper-200/60 mb-12 reveal" aria-hidden="true">
+      <span>Sheet 00 · The team behind the blueprint</span>
+      <span>Track record · drawn from the field</span>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-x-12 gap-y-12 items-center">
+      <!-- Left: the claim -->
+      <div class="lg:col-span-6">
+        <div class="phase-label text-bronze-400 mb-6 flex items-center gap-3 reveal">
+          <span class="inline-block h-px w-8 bg-bronze-500 rule-draw"></span>
+          Who's behind the blueprint
+        </div>
+
+        <h2
+          id="credibility-heading"
+          class="font-display text-display-lg font-medium text-paper-100 mb-6 text-balance reveal reveal-delay-1"
+        >
+          Built by the team that has started
+          <span class="text-bronze-400">7,000+ practices.</span>
+        </h2>
+
+        <p class="text-lede text-paper-200/85 max-w-narrow text-pretty mb-6 reveal reveal-delay-2">
+          This site is built by the practice-launch team at
+          <span class="font-medium text-paper-100">Physician Practice Specialists</span> — the group
+          that has launched over <span class="font-medium text-paper-100">7,000 independent practices
+          across the country.</span> Every phase, every watchout, every "do not skip this" is the
+          compounded lesson of those launches.
+        </p>
+
+        <ul class="flex flex-wrap gap-2.5 reveal reveal-delay-3" aria-label="What the team does">
+          {
+            PROOF_POINTS.map((point) => (
+              <li class="inline-flex items-center gap-2 border border-paper-100/15 rounded-soft px-3 py-1.5">
+                <span class="inline-block h-1 w-1 rounded-full bg-bronze-500" aria-hidden="true" />
+                <span class="phase-label text-paper-200/80">{point}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Right: the hero stat, framed like a drafting callout -->
+      <div class="lg:col-span-6">
+        <div class="relative reveal reveal-delay-1">
+          <!-- Drafting corner ticks, brass — same language as the hero side card -->
+          <span class="absolute -top-px -left-px h-4 w-4 border-t-2 border-l-2 border-bronze-500/70" aria-hidden="true"></span>
+          <span class="absolute -top-px -right-px h-4 w-4 border-t-2 border-r-2 border-bronze-500/70" aria-hidden="true"></span>
+          <span class="absolute -bottom-px -left-px h-4 w-4 border-b-2 border-l-2 border-bronze-500/70" aria-hidden="true"></span>
+          <span class="absolute -bottom-px -right-px h-4 w-4 border-b-2 border-r-2 border-bronze-500/70" aria-hidden="true"></span>
+
+          <div class="border border-paper-100/12 bg-paper-100/[0.03] rounded-card px-7 py-10 sm:px-10 sm:py-12">
+            <div class="phase-label text-paper-200/60 mb-4">Practices launched, to date</div>
+
+            <!-- Big numeral. Fixed grid cell + clamp sizing keeps it CLS-safe;
+                 leading-none + tabular-nums keep the brass glyphs aligned.
+                 The visible glyphs are decorative (aria-hidden) so AT doesn't
+                 drop the "+"; an sr-only span carries the full "Over 7,000". -->
+            <div class="flex items-end gap-3">
+              <span class="sr-only">Over 7,000</span>
+              <span
+                class="font-display font-medium text-bronze-400 leading-none tracking-tight tabular-nums"
+                style="font-size: clamp(4.5rem, 14vw, 8.5rem);"
+                aria-hidden="true"
+              >7,000</span>
+              <span
+                class="font-display font-medium text-bronze-500 leading-none"
+                style="font-size: clamp(2.5rem, 7vw, 4.5rem);"
+                aria-hidden="true"
+              >+</span>
+            </div>
+
+            <div class="mt-5 pt-5 border-t border-paper-100/10">
+              <p class="text-small text-paper-200/80 leading-relaxed">
+                Independent practices started nationwide by
+                <span class="text-paper-100 font-medium">Physician Practice Specialists</span> — the
+                track record this blueprint is drawn from.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
