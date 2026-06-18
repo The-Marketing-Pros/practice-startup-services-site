@@ -157,6 +157,15 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
         <script type="application/ld+json" set:html={JSON.stringify(s)} />
       ))
     }
+
+    <!-- Google Ads tag — consolidated owned-brands account (947-012-2104) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-1007225529" is:inline></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-1007225529');
+    </script>
   </head>
   <body class="min-h-screen flex flex-col">
     <a
@@ -181,6 +190,21 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
          that the observer attaches. No JS → everything stays visible. -->
     <script is:inline>
       (function () {
+        document.addEventListener("click", function (event) {
+          var link = event.target && event.target.closest && event.target.closest('a[href*="prompt-platform-bay.vercel.app/book/meet-metolius"]');
+          if (!link || window.__ppsConsultationClickConversionFired) return;
+          window.__ppsConsultationClickConversionFired = true;
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({ event: "consultation_booking_click", brand: "PPS" });
+          if (typeof gtag === "function") {
+            gtag("event", "conversion", {
+              send_to: "AW-1007225529/BFN7CN-KwcEcELmVpOAD",
+              value: 1.0,
+              currency: "USD"
+            });
+          }
+        });
+
         if (!("IntersectionObserver" in window)) return;
         document.documentElement.classList.add("js-revealable-init");
         var io = new IntersectionObserver(
