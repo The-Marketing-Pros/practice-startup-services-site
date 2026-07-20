@@ -159,13 +159,37 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
     }
 
     <!-- Google Ads tag — consolidated owned-brands account (947-012-2104) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-1007225529" is:inline></script>
     <script is:inline>
+      // dataLayer + gtag shim stays synchronous so any early gtag() call
+      // queues rather than throws. The gtag.js bundle itself is deferred:
+      // configuring two destinations (Ads + GA4) pulls ~320KB of container
+      // JS, which competed for bandwidth with the LCP paint on throttled
+      // mobile. Loading it after `load` keeps it in the SAME pageview, so
+      // GA4 page_view and Ads conversion attribution are unaffected.
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'AW-1007225529');
       gtag('config', 'G-ZDXJQK61R3');
+      (function () {
+        var loaded = false;
+        function loadGtag() {
+          if (loaded) return; loaded = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-1007225529';
+          document.head.appendChild(s);
+        }
+        if (document.readyState === 'complete') loadGtag();
+        else window.addEventListener('load', function () {
+          ('requestIdleCallback' in window)
+            ? requestIdleCallback(loadGtag, { timeout: 2000 })
+            : setTimeout(loadGtag, 200);
+        }, { once: true });
+        ['pointerdown','keydown','touchstart'].forEach(function (evt) {
+          window.addEventListener(evt, loadGtag, { once: true, passive: true });
+        });
+      })();
     </script>
   </head>
   <body class="min-h-screen flex flex-col">
