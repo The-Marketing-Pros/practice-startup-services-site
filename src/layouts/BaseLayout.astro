@@ -191,6 +191,27 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
         });
       })();
     </script>
+
+    <!-- GA4 engagement events for Prompt CRM form + booking submissions
+         (operator listener, 2026-07-22). ADDITIVE: the pp:form_submitted
+         Ads-conversion listener elsewhere in this file still runs; this fires
+         the GA4 analytics events (form_submitted / booking_confirmed). gtag's
+         shim is defined synchronously above, so these calls queue and fire when
+         gtag.js loads. The `e.detail &&` guard avoids a throw if an event ever
+         arrives without a detail payload. -->
+    <script is:inline>
+      (function () {
+        function track(name, params) {
+          if (typeof gtag === 'function') gtag('event', name, params);
+        }
+        window.addEventListener('pp:form_submitted', function (e) {
+          track('form_submitted', { form: e.detail && e.detail.slug });
+        });
+        window.addEventListener('pp:booking_confirmed', function (e) {
+          track('booking_confirmed', { booking_page: e.detail && e.detail.slug });
+        });
+      })();
+    </script>
   </head>
   <body class="min-h-screen flex flex-col">
     <a
