@@ -1,0 +1,28 @@
+# Practice Startup Services
+
+> The practice launch guide — and the team to make it real.
+
+Practice Startup Services provides launch guides, advisory services, and specialist build crews for physicians and providers starting independent private practices. The site includes a free launch readiness scan, a complete seven-phase launch blueprint, and professional services for each phase — entity formation, credentialing, EHR selection, billing launch, and marketing.
+
+## Key Pages
+
+- [Home](https://practicestartupservices.com/): Launch readiness overview and service index.
+- [Practice Startup Consulting](https://practicestartupservices.com/services/practice-startup-consulting/): End-to-end advisory from decision to first patient.
+- [Credentialing](https://practicestartupservices.com/services/credentialing/): Phase 4 — get in-network before you open.
+- [Contact](https://practicestartupservices.com/contact/): Book a consultation.
+
+## Services
+
+- End-to-End Launch Advisory: Pro forma, entity formation, vendor selection, credentialing, billing launch.
+- Credentialing Build Crew: Phase 4 — payer enrollment, CAQH, Medicare, commercial panels.
+- EHR & Tech Selection: Vendor evaluation matched to practice size and specialty.
+- Billing Launch: Revenue cycle setup before the first patient arrives.
+
+## Contact
+
+- Website: https://practicestartupservices.com
+- Contact: https://practicestartupservices.com/contact/
+
+## Notes
+
+The Independent Practice Blueprint is the free resource library. Paid services are available for physicians who want the work done for them. This site serves physicians, NPs, PAs, and other providers launching private practices in the US.
