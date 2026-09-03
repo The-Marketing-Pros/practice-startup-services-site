@@ -1,0 +1,96 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { phases } from "@data/phases";
+---
+
+{/*
+  LEAD-FORM confirmation. This is the redirect destination for the Prompt CRM
+  lead form on Practice Startup Services:
+
+      https://practicestartupservices.com/thank-you/
+
+  Analytics rules — same pattern as the sibling brands (Therapy Practice
+  Services, Provider Enrollment Services):
+
+  - This page fires a GA4 `generate_lead` event ONLY.
+  - It deliberately does NOT fire a Google Ads conversion. The form's submit
+    handler in the widget fires the Ads conversion at submit time (survives
+    the redirect via gtag's sendBeacon transport). Firing Ads a second time
+    here would double-count every lead.
+  - Booking flow is entirely off-site (prompt-platform-bay.vercel.app/...),
+    so there is no /thank-you-booking/ counterpart on this site — the Ads
+    conversion for booking fires on the outbound click (see the click listener
+    in BaseLayout).
+
+  noIndex is set so this page never ranks or appears in search results — it's
+  a post-submit confirmation, not a landing surface.
+*/}
+
+<BaseLayout
+  title="Thanks — request received"
+  description="Thanks for reaching out. We'll review your practice and reach back within one business day."
+  noIndex={true}
+>
+  <section class="py-24 lg:py-32 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid-thanks" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="hsl(var(--ink-800))" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bp-grid-thanks)" />
+      </svg>
+    </div>
+
+    <div class="container-site relative">
+      <div class="max-w-2xl mx-auto text-center">
+        <div class="phase-label text-bronze-700 mb-5">Received</div>
+        <h1 class="font-display text-display-lg font-medium text-ink mb-5 text-balance">
+          We've got your request.
+        </h1>
+        <p class="text-lede text-graphite-700 mb-10 text-pretty">
+          Thanks for reaching out. We'll review what you sent and reach back
+          within one business day with a plan and a straight-up quote. In the
+          meantime, here's the blueprint we work from.
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-10">
+          {
+            phases.map((p) => (
+              <a
+                href={`/journey/${p.slug}/`}
+                class="border border-ink/10 hover:border-ink/30 hover:bg-paper-200/60 rounded-soft py-3 transition-colors"
+              >
+                <div class="font-mono text-label text-bronze-700">{p.id}</div>
+                <div class="text-small text-graphite-800 mt-1">{p.verb}</div>
+              </a>
+            ))
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-3 justify-center">
+          <a href="/services/" class="btn-primary">See our services</a>
+          <a href="/" class="btn-secondary">Back to home</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    // GA4 lead event. NOT a Google Ads conversion — that already fired at
+    // submit time in the widget (see the header comment above). dataLayer.push
+    // covers a GTM-style setup; the gtag('event') call covers the direct-gtag
+    // setup this site actually uses. GA4 records the lead either way. gtag's
+    // shim is defined synchronously in <head> by BaseLayout, so this call
+    // queues and fires when gtag.js loads.
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "generate_lead", lead_type: "contact_form" });
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "generate_lead", {
+        event_category: "engagement",
+        lead_type: "contact_form",
+      });
+    }
+  </script>
+</BaseLayout>
