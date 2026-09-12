@@ -65,3 +65,7 @@ Tailwind class names are unchanged.
 ---
 
 Built by Alf · The Marketing Pros · 2026-06-11
+
+## Engineering protocol
+
+See [developer handoff](docs/developer-handoff.md), [engineering protocol](docs/engineering-protocol.md), [governance](docs/repository-governance.md) and [five-PR audit](docs/integration-audit-protocol.md). Andrew is the sole human owner; independent agent reviews are acceptable.
