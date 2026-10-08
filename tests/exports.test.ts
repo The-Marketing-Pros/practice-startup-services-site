@@ -12,3 +12,19 @@ test('Excel formulas and cached results reconcile to cash model across delay and
   const bytes=await w.xlsx.writeBuffer();assert.ok(bytes.byteLength>10000);
  }
 });
+
+test('checklist exports include relevant optional services without changing task IDs or progress',async()=>{
+ const {checklistWorkbook}=await import('../src/lib/planners/downloads.ts');
+ const {newChecklist,visibleTasks}=await import('../src/lib/planners/checklist.ts');
+ const p=newChecklist();p.progress['task-8']={done:true,owner:'Founder',due:null,notes:'Compare advisers'};
+ const before=structuredClone(p);const w=await checklistWorkbook(p);const s=w.getWorksheet('Startup checklist')!;
+ const accountingRow=visibleTasks(p).findIndex(t=>t.id==='task-8')+8;
+ assert.equal(s.getCell(`C${accountingRow}`).value,'Complete');
+ assert.match(String(s.getCell(`H${accountingRow}`).value),/UnfairCPA/);
+ assert.equal(s.getCell(`I${accountingRow}`).hyperlink,'https://unfaircpa.com/');
+ assert.deepEqual(p,before);
+ p.profile.payer='cash';p.profile.staff='no';
+ const cash=await checklistWorkbook(p);const values=JSON.stringify(cash.getWorksheet('Startup checklist')!.getSheetValues());
+ assert.doesNotMatch(values,/PPS credentialing & enrollment|PPS revenue cycle support/);
+ assert.match(values,/LaborGenie/);
+});

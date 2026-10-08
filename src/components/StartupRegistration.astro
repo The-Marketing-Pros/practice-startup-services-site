@@ -1,0 +1,57 @@
+---
+const { standalone = false } = Astro.props;
+---
+<section class:list={["rs-registration", { "rs-panel": standalone }]} id="startup-registration" aria-labelledby="registration-title">
+  <div>
+    <span class="rs-tag">A head start for your team</span>
+    <h2 id="registration-title">Your plan. A free LaborGenie license. More support when you need it.</h2>
+    <p>Register your email and practice name to request your free LaborGenie license for staff training, compliance preparation, and onboarding.</p>
+    <p class="rs-small">You can also choose PPS startup resources and product news, including updates about our upcoming EHR and UnfairCPA. Product emails are optional.</p>
+  </div>
+  {standalone ? <div class="rs-registration-form">
+    <div id="pps-startup-registration" aria-label="Register for a free LaborGenie license"></div>
+    <p id="registration-loading" class="rs-small" role="status">Loading the registration form…</p>
+    <p class="rs-small">Your email and practice name go to PPS through HubSpot. Your checklist notes and pro forma inputs are not sent with this registration. <a class="rs-link" href="/privacy/">Privacy policy</a>.</p>
+    <p class="rs-small">Need another way to register? <a class="rs-link" href="https://physicianpracticespecialists.com/contact/">Contact PPS</a> and mention the free LaborGenie license.</p>
+    <noscript><p>JavaScript is needed for this form. Please use the PPS contact link above to register.</p></noscript>
+  </div> : <div class="rs-registration-actions">
+    <a class="rs-btn" href="/resources/hipaa-training/#startup-registration">Register for my free license</a>
+    <p class="rs-small">PPS emails you with access details. No account needed to use or download these planning tools.</p>
+  </div>}
+</section>
+<script>
+  type Forms = { create(options: Record<string, unknown>): void };
+  const host = document.getElementById("pps-startup-registration");
+  if (host) {
+    const status = document.getElementById("registration-loading")!;
+    const fail = () => {
+      status.textContent = "The registration form could not load. Please use the PPS contact link below, or reload this page to try again.";
+      status.classList.add("error");
+    };
+    const timeout = window.setTimeout(fail, 15000);
+    const ready = () => {
+      window.clearTimeout(timeout);
+      status.textContent = "";
+      status.classList.remove("error");
+    };
+    const script = document.createElement("script");
+    script.src = "https://js-na2.hsforms.net/forms/embed/v2.js";
+    script.async = true;
+    script.onerror = () => { window.clearTimeout(timeout); fail(); };
+    script.onload = () => {
+      const forms = (window as Window & { hbspt?: { forms?: Forms } }).hbspt?.forms;
+      if (!forms) { window.clearTimeout(timeout); fail(); return; }
+      try {
+        forms.create({
+          region: "na2",
+          portalId: "1849537",
+          formId: "a511bd25-cdf3-4265-aecb-d56ff941bf9e",
+          target: "#pps-startup-registration",
+          onFormReady: ready,
+          onFormSubmitted: ready,
+        });
+      } catch { window.clearTimeout(timeout); fail(); }
+    };
+    document.head.appendChild(script);
+  }
+</script>

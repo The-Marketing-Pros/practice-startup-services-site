@@ -812,3 +812,18 @@ html.rs-js .rs-has-js {
 .rs-mobile-jump { display:none; margin-top:18px; min-height:44px; align-items:center; }
 #launch-plan, #cash-forecast, #custom-task, .rs-phase { scroll-margin-top:100px; }
 @media(max-width:1000px) { .rs-mobile-jump { display:inline-flex; } }
+
+.rs-task-support { margin:16px 0 16px 28px; padding:16px 18px; border-left:3px solid #758c70; background:#f1f4ed; border-radius:0 8px 8px 0; }
+.rs-task-support > span { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#52634e; margin-bottom:5px; }
+.rs-task-support strong { display:block; font-size:15px; }
+.rs-task-support p { font-size:14px; line-height:1.6; margin:5px 0 8px; }
+.rs-task-support .rs-link { display:inline-flex; align-items:center; min-height:32px; font-size:14px; }
+@media(max-width:600px) { .rs-task-support { margin-left:0; } }
+.rs-registration { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:36px; align-items:center; background:#eaf0e5; border:1px solid #cbd6c4; border-radius:14px; padding:32px; margin:32px 0 48px; scroll-margin-top:110px; }
+.rs-registration h2 { margin:14px 0; font-size:30px; }
+.rs-registration p { margin:12px 0; line-height:1.65; }
+.rs-registration .rs-btn { text-align:center; }
+.rs-registration-form { min-width:0; background:white; border-radius:10px; padding:24px; }
+.rs-benefits { margin-bottom:32px; }
+.rs-benefits h2 { font-size:25px; }
+@media(max-width:900px) { .rs-registration { grid-template-columns:1fr; padding:22px; gap:20px; } .rs-registration-form { padding:18px; } }

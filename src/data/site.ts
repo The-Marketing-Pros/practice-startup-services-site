@@ -114,7 +114,7 @@ export const NAV = [
     children: [
       { label: "Startup Checklist", href: "/resources/startup-checklist/" },
       { label: "Pro Forma Builder", href: "/resources/pro-forma/" },
-      { label: "Free HIPAA Training", href: "/resources/hipaa-training/" },
+      { label: "Free LaborGenie license", href: "/resources/hipaa-training/" },
       { label: "Medicare Tools", href: "/resources/medicare-tools/" },
       { label: "Startup Cost Guide", href: "/resources/startup-costs/" },
       { label: "Articles", href: "/resources/articles/" },
