@@ -381,6 +381,7 @@ async function pdfDocument(title: string, subtitle: string) {
   return {
     doc,
     line,
+    keep: (height: number) => { if (y + height > 275) { doc.addPage(); y = 20; } },
     space: () => {
       y += 5;
     },
@@ -420,6 +421,7 @@ export async function checklistPdf(plan: Checklist) {
       phase = t.phase;
     }
     const p = taskProgress(plan, t);
+    pdf.keep(32);
     pdf.line(`${p.done ? "[Done]" : "[Open]"} ${t.title}`, 11, true);
     pdf.line(t.detail);
     pdf.line(
@@ -459,6 +461,7 @@ export async function financePdf(plan: FinancePlan) {
   pdf.space();
   pdf.line("Monthly cash forecast", 14, true);
   for (const m of r.months) {
+    pdf.keep(28);
     pdf.line(
       `${m.month}. ${m.label} | Visits ${m.visits.toFixed(1)} | Utilization ${(m.utilization * 100).toFixed(0)}%`,
       11,

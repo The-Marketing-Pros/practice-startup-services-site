@@ -80,7 +80,7 @@ export async function exportPlan(
   } catch (error) {
     if (import.meta.env.DEV) console.error(error);
     status(
-      "The download could not be created. Please try again, or download a backup to keep your work.",
+      "The download could not be created. Download a backup to keep your work, then reload this page and try again.",
       true,
     );
   } finally {
