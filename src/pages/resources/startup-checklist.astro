@@ -5,7 +5,7 @@ import StartupRegistration from '@components/StartupRegistration.astro';
 import { states, stages } from '../../lib/planners/checklist';
 import '@styles/resources.css';
 ---
-<BaseLayout title="Build Your Free Practice Startup Checklist" description="Customize your practice startup checklist, assign owners, set due dates, and download your plan as a PDF or editable spreadsheet. Free from PPS.">
+<BaseLayout title="Build Your Free Practice Startup Checklist" description="Customize your practice startup checklist, assign owners, set due dates, and download your plan as an editable Excel spreadsheet or printable PDF. Free from PPS.">
 <div class="resource-site">
  <div class="rs-wrap">
   <section class="rs-hero compact"><div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup checklist</span></div><p class="rs-kicker">Your launch, one step at a time</p><h1 class="rs-title">Build your startup checklist.</h1><p class="rs-intro">Tell us a little about your practice. Get a working plan you can customize, track, and take with you.</p><a class="rs-link rs-mobile-jump" href="#launch-plan">Go to my checklist</a></section>
@@ -20,7 +20,8 @@ import '@styles/resources.css';
     <div class="rs-field"><label for="practice-staff">Hiring employees?</label><select id="practice-staff" name="staff"><option value="yes">Yes</option><option value="no">No, solo for now</option></select></div>
     <div class="rs-field"><label for="practice-opening">Target opening date</label><input type="date" id="practice-opening" name="opening" min="2000-01-01" max="2100-12-31" /><small>Creates suggested dates. Your edited task dates stay as you set them.</small></div>
    </form><PlannerStorage /></aside>
-   <section class="rs-panel" id="launch-plan"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions"><button class="rs-btn secondary" id="checklist-xlsx">Download Excel</button><button class="rs-btn" id="checklist-pdf">Download PDF</button><a class="rs-link" href="#startup-registration">Get my free LaborGenie license</a></div></div>
+   <section class="rs-panel" id="launch-plan"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions"><button class="rs-btn" id="checklist-xlsx" aria-describedby="checklist-export-help">Download editable Excel</button><button class="rs-btn secondary" id="checklist-pdf" aria-describedby="checklist-export-help">Download printable PDF</button><a class="rs-link" href="#startup-registration">Get my free LaborGenie license</a></div></div>
+    <p class="rs-small" id="checklist-export-help">Keep updating tasks, owners, dates, and progress in the Excel spreadsheet (.xlsx). Use the PDF to print or share a snapshot of your plan. You can also keep editing your checklist here.</p>
     <div class="rs-status" id="planner-status" role="status"></div>
     <div class="rs-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
     <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant. PPS services, LaborGenie, and UnfairCPA appear beside relevant steps and in your downloads. These are optional ways to get help.</p>
