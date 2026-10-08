@@ -4,14 +4,31 @@ import PlannerStorage from '@components/PlannerStorage.astro';
 import StartupRegistration from '@components/StartupRegistration.astro';
 import { states, stages } from '../../lib/planners/checklist';
 import '@styles/resources.css';
+import '@styles/checklist-workspace.css';
 ---
 <BaseLayout title="Build Your Free Practice Startup Checklist" description="Customize your practice startup checklist, assign owners, set due dates, and download your plan as an editable Excel spreadsheet or printable PDF. Free from PPS.">
-<div class="resource-site">
+<div class="resource-site checklist-studio">
  <div class="rs-wrap">
-  <section class="rs-hero compact"><div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup checklist</span></div><p class="rs-kicker">Your launch, one step at a time</p><h1 class="rs-title">Build your startup checklist.</h1><p class="rs-intro">Tell us a little about your practice. Get a working plan you can customize, track, and take with you.</p><a class="rs-link rs-mobile-jump" href="#launch-plan">Go to my checklist</a></section>
+  <section class="launch-hero" aria-labelledby="checklist-title">
+   <div class="launch-hero-copy">
+    <div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup checklist</span></div>
+    <p class="rs-kicker">An independent practice starts here</p>
+    <h1 id="checklist-title">Build your<br/><span>startup checklist.</span></h1>
+    <p class="rs-intro">Your next chapter, one clear step at a time. Shape a plan around your practice, track the work, and take it with you.</p>
+    <div class="launch-promise"><span>Free to use</span><span>No account needed</span><span>Yours to edit</span></div>
+    <div class="launch-people"><div class="rs-faces" aria-hidden="true"><img src="/images/team/lindsay-pauly.webp" width="42" height="42" alt=""/><img src="/images/team/tonya-barry.webp" width="42" height="42" alt=""/><img src="/images/team/marisa-martell.webp" width="42" height="42" alt=""/></div><p>Built by PPS.<br/><a href="https://physicianpracticespecialists.com/about-us/">Real people behind your plan.</a></p></div>
+   </div>
+   <aside class="launch-dashboard rs-has-js rs-no-print" aria-label="Your checklist progress">
+    <div class="launch-dashboard-top"><span>Your launch at a glance</span><span class="launch-live">Your progress</span></div>
+    <div class="launch-dashboard-body"><div class="launch-ring" id="launch-ring" aria-hidden="true"><div><strong id="launch-percent">0%</strong><span>complete</span></div></div><div class="launch-metrics"><strong id="launch-completed">0 tasks</strong><span>checked off your list</span><p id="launch-remaining">Make your first move.</p></div></div>
+    <a class="launch-next" id="launch-next" href="#launch-plan"><span>Next on your list</span><strong id="launch-next-title">Explore your launch plan</strong><span class="launch-next-action"><span id="launch-next-label">Go to this step</span> <span aria-hidden="true">↓</span></span></a>
+    <p class="launch-dashboard-note">A little progress today. A clearer path to opening day.</p>
+   </aside>
+  </section>
+  <nav class="launch-route rs-has-js rs-no-print" id="launch-route" aria-label="Jump to a checklist phase">{stages.map((stage,i)=><a href={`#phase-0${i+1}`} data-phase={i}><span class="launch-route-number">0{i+1}</span><strong>{stage}</strong><span class="launch-route-count" id={`route-count-${i}`}>View tasks</span></a>)}</nav>
   <noscript><p class="rs-notice">Enable JavaScript to customize and download your checklist. You can also read the <a class="rs-link" href="/journey/">seven launch guides</a>.</p></noscript>
   <div class="rs-workspace rs-has-js" id="checklist-app">
-   <aside class="rs-panel rs-no-print"><h2>Your practice</h2><form id="practice-profile" class="rs-profile-fields" autocomplete="off">
+   <aside class="rs-panel launch-profile rs-no-print"><p class="rs-kicker">01 / Make it yours</p><h2>Your practice</h2><p class="rs-small launch-profile-intro">A few details. A plan that fits.</p><form id="practice-profile" class="rs-profile-fields" autocomplete="off">
     <div class="rs-field"><label for="practice-name">Practice name</label><input id="practice-name" name="name" maxlength="100" placeholder="My new practice" /></div>
     <div class="rs-field"><label for="practice-provider">Provider type</label><select id="practice-provider" name="provider"><option value="physician">Physician (MD / DO)</option><option value="np">Nurse practitioner</option><option value="pa">Physician assistant</option><option value="therapist">Therapist / behavioral health</option><option value="other">Other provider</option></select></div>
     <div class="rs-field"><label for="practice-state">State</label><select id="practice-state" name="state"><option value="">Select your state</option>{states.map(s=><option value={s}>{s}</option>)}</select><small>For your plan’s context. Verify current state requirements with your board.</small></div>
@@ -20,10 +37,10 @@ import '@styles/resources.css';
     <div class="rs-field"><label for="practice-staff">Hiring employees?</label><select id="practice-staff" name="staff"><option value="yes">Yes</option><option value="no">No, solo for now</option></select></div>
     <div class="rs-field"><label for="practice-opening">Target opening date</label><input type="date" id="practice-opening" name="opening" min="2000-01-01" max="2100-12-31" /><small>Creates suggested dates. Your edited task dates stay as you set them.</small></div>
    </form><PlannerStorage /></aside>
-   <section class="rs-panel" id="launch-plan"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions"><button class="rs-btn" id="checklist-xlsx" aria-describedby="checklist-export-help">Download editable Excel</button><button class="rs-btn secondary" id="checklist-pdf" aria-describedby="checklist-export-help">Download printable PDF</button><a class="rs-link" href="#startup-registration">Get my free LaborGenie license</a></div></div>
+   <section class="rs-panel launch-plan" id="launch-plan"><div class="rs-toolbar"><div><p class="rs-kicker">02 / Put your plan in motion</p><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions launch-downloads"><button class="rs-btn" id="checklist-xlsx" aria-describedby="checklist-export-help">Download editable Excel</button><button class="rs-btn secondary" id="checklist-pdf" aria-describedby="checklist-export-help">Download printable PDF</button><a class="rs-link" href="#startup-registration">Get my free LaborGenie license</a></div></div>
     <p class="rs-small" id="checklist-export-help">Keep updating tasks, owners, dates, and progress in the Excel spreadsheet (.xlsx). Use the PDF to print or share a snapshot of your plan. You can also keep editing your checklist here.</p>
     <div class="rs-status" id="planner-status" role="status"></div>
-    <div class="rs-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
+    <div class="rs-progress launch-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
     <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant. PPS services, LaborGenie, and UnfairCPA appear beside relevant steps and in your downloads. These are optional ways to get help.</p>
     <div class="rs-tabs"><button id="show-all" aria-pressed="true">All tasks</button><button id="show-open" aria-pressed="false">To do</button><a class="rs-text-btn" href="#custom-task">Add my own task</a></div>
     <div id="checklist-tasks"></div>

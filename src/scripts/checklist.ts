@@ -41,6 +41,22 @@ function summary() {
     `${complete} of ${all.length} tasks complete`;
   element("checklist-progress").style.width =
     `${all.length ? (complete / all.length) * 100 : 0}%`;
+  const percent = all.length ? Math.round(complete / all.length * 100) : 0;
+  element("launch-percent").textContent = `${percent}%`;
+  element("launch-ring").style.setProperty("--progress", `${percent}%`);
+  element("launch-completed").textContent = `${complete} ${complete === 1 ? "task" : "tasks"}`;
+  element("launch-remaining").textContent = `${all.length - complete} remaining · ${stages.length} phases`;
+  const next = all.find(t => !taskProgress(plan, t).done);
+  element("launch-next-title").textContent = next ? next.title : "Your current checklist is complete";
+  element("launch-next-label").textContent = next ? "Go to this step" : "Review your plan";
+  element<HTMLAnchorElement>("launch-next").href = next ? `#done-${next.id}` : "#launch-plan";
+  for (let phase = 0; phase < stages.length; phase++) {
+    const tasks = all.filter(t => t.phase === phase);
+    const done = tasks.filter(t => taskProgress(plan, t).done).length;
+    element(`route-count-${phase}`).textContent = `${done} / ${tasks.length} done`;
+    document.querySelector(`[data-phase="${phase}"]`)?.classList.toggle("is-complete", tasks.length > 0 && done === tasks.length);
+  }
+
 }
 function render() {
   summary();
@@ -52,7 +68,7 @@ function render() {
       .map((stage, phase) => {
         const items = all.filter((t) => t.phase === phase);
         if (!items.length) return "";
-        return `<section class="rs-phase" id="phase-0${phase + 1}"><div class="rs-phase-heading"><h3>${phase + 1}. ${stage}</h3><span class="rs-small">${items.length} tasks</span></div>${items
+        return `<section class="rs-phase" id="phase-0${phase + 1}" tabindex="-1"><div class="rs-phase-heading"><h3><span class="launch-phase-number" aria-hidden="true">0${phase + 1}</span>${stage}</h3><span class="rs-small">${items.length} tasks</span></div>${items
           .map((t) => {
             const p = taskProgress(plan, t);
             const help = supportForTask(t.id);
@@ -123,6 +139,14 @@ for (const [id, value] of [
     element("show-open").setAttribute("aria-pressed", String(value));
     render();
   });
+// Phase links always reveal their destination, including completed phases in To do view.
+element("launch-route").addEventListener("click", (event) => {
+  if (!(event.target as HTMLElement).closest("a[data-phase]")) return;
+  openOnly = false;
+  element("show-all").setAttribute("aria-pressed", "true");
+  element("show-open").setAttribute("aria-pressed", "false");
+  render();
+});
 element("custom-task").addEventListener("submit", (e) => {
   e.preventDefault();
   const input = element<HTMLInputElement>("custom-title");

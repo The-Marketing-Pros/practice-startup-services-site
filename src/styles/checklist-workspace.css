@@ -1,0 +1,83 @@
+/* Checklist presentation stays scoped; shared planner behavior and exports are unchanged. */
+.checklist-studio{background:#f5f7fb;padding-bottom:1px}
+.checklist-studio>.rs-wrap{max-width:1440px;padding:0 44px}
+.launch-hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,.8fr);gap:64px;align-items:center;padding:40px 0 38px}
+.launch-hero .rs-breadcrumb{font-size:12px;color:#52637b;margin-bottom:32px;display:flex;gap:12px}
+.launch-hero .rs-kicker{color:#3759b2;font-size:10px;letter-spacing:.17em;margin-bottom:14px}
+.launch-hero h1{font-size:clamp(42px,4.7vw,68px);font-weight:780;line-height:1.02;letter-spacing:-.055em;color:#142647;margin:0 0 23px}
+.launch-hero h1>span{color:#3155d9}
+.launch-hero .rs-intro{font-size:17px;max-width:520px;line-height:1.65}
+.launch-promise{display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;color:#334b68;font-size:12px;font-weight:600}
+.launch-promise span:before{content:"✓";color:#246648;margin-right:6px}
+.launch-people{display:flex;align-items:center;gap:13px;margin-top:26px}
+.launch-people .rs-faces img{width:42px;height:42px}
+.launch-people p{font-size:12px;line-height:1.5;color:#52627b;margin:0}
+.launch-people a{color:#213858;font-weight:600;text-underline-offset:3px}
+.launch-dashboard{background:#122644;color:#fff;border-radius:24px;padding:25px 28px 20px;box-shadow:0 20px 40px #1326471c;position:relative;border:1px solid #2f4562}
+.launch-dashboard:before{content:"";position:absolute;left:28px;right:28px;height:5px;top:-1px;background:#bcedd3;border-radius:0 0 6px 6px}
+.launch-dashboard-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;font-weight:650;text-transform:uppercase;letter-spacing:.1em;color:#d2e0f2}
+.launch-live{font-size:9px;letter-spacing:.02em;padding:5px 7px;border:1px solid #496079;border-radius:5px;white-space:nowrap}
+.launch-dashboard-body{display:flex;align-items:center;gap:26px;padding:30px 0}
+.launch-ring{--progress:0%;background:conic-gradient(#bcedd3 var(--progress),#354b67 0);width:132px;height:132px;border-radius:50%;padding:7px;flex-shrink:0}
+.launch-ring>div{border-radius:50%;background:#122644;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.launch-ring strong{font-size:36px;line-height:1.2;letter-spacing:-.045em;color:#fff}
+.launch-ring span{font-size:11px;color:#b7c9df}
+.launch-metrics strong{font-size:25px;display:block;line-height:1.2;letter-spacing:-.035em;color:#fff}
+.launch-metrics>span{font-size:12px;color:#bacce2}
+.launch-metrics p{font-size:11px;color:#bcedd3;margin:15px 0 0}
+.launch-next{display:block;background:#fff;border-radius:12px;padding:18px 20px;text-decoration:none;color:#142647;transition:background .15s}
+.launch-next:hover{background:#e9f8f0}
+.launch-next>span:first-child{display:block;color:#5a6b83;font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+.launch-next strong{display:block;font-size:16px;line-height:1.4;margin:7px 0 10px;letter-spacing:-.02em}
+.launch-next-action{font-size:11px;font-weight:700;color:#3155d9}
+.launch-next-action>span[aria-hidden]{margin-left:8px}
+.launch-dashboard-note{font-size:10px;text-align:center;margin:15px 0 0;color:#b7c9df}
+html:not(.rs-js) .launch-route{display:none}
+.launch-route{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#fff;border:1px solid #dbe3ef;border-radius:16px;overflow:hidden;margin:0 0 30px;box-shadow:0 8px 20px #14264704}
+.launch-route a{padding:17px 18px;text-decoration:none;border-right:1px solid #e7edf4;display:grid;gap:5px;color:#142647;transition:background .15s}
+.launch-route a:last-child{border:0}
+.launch-route a:hover{background:#edf2ff}
+.launch-route a:focus-visible{outline-offset:-4px}
+.launch-route-number{font-size:10px;font-weight:700;color:#5570b4;letter-spacing:.1em}
+.launch-route strong{font-size:14px;letter-spacing:-.02em}
+.launch-route-count{font-size:10px;color:#5b6c84}
+.launch-route a.is-complete{background:#eaf6ef}
+.checklist-studio .rs-workspace{grid-template-columns:280px minmax(0,1fr);gap:26px;align-items:start}
+.launch-profile{padding:27px 23px!important;border-top:4px solid #3155d9!important}
+.launch-profile>.rs-kicker,.launch-plan .rs-toolbar .rs-kicker{font-size:9px;margin-bottom:10px;letter-spacing:.14em}
+.launch-profile .rs-profile-fields{display:block}
+.launch-profile h2{font-size:25px;margin-bottom:4px}
+.launch-profile-intro{margin-bottom:24px}
+.launch-profile .rs-field input,.launch-profile .rs-field select{background:white;min-height:44px}
+.checklist-studio .launch-plan{background:transparent;border:0;box-shadow:none;padding:0}
+.launch-plan .rs-toolbar{padding:0 0 16px;margin-bottom:0;align-items:center}
+.launch-plan .rs-toolbar h2{font-size:30px}
+.launch-downloads{background:white;padding:12px;border:1px solid #dce4ef;border-radius:13px;width:100%;align-items:center}
+.launch-downloads .rs-btn{font-size:13px;min-height:46px}
+.launch-downloads .rs-link{font-size:12px;margin-left:auto;padding:8px 2px;min-height:40px;display:flex;align-items:center}
+#checklist-export-help{font-size:12px;line-height:1.65;margin-bottom:10px;max-width:720px}
+.launch-progress{height:5px;margin-bottom:18px}
+.checklist-studio .rs-tabs{margin-top:24px}
+.checklist-studio .rs-tabs button{border-radius:30px;padding:9px 18px;min-height:42px}
+.checklist-studio .rs-tabs .rs-text-btn{margin-left:auto}
+.checklist-studio .rs-phase{scroll-margin-top:110px;margin:30px 0 36px}
+.checklist-studio .rs-phase-heading{border:0;padding-bottom:12px}
+.checklist-studio .rs-phase-heading h3{display:flex;gap:12px;align-items:center;font-size:22px;font-weight:700}
+.launch-phase-number{display:grid;place-items:center;background:#e2eafb;color:#3c5fc3;width:37px;height:37px;border-radius:10px;font-size:12px;letter-spacing:.03em}
+.checklist-studio .rs-task{background:#fff;border:1px solid #dce4ef;border-radius:13px;padding:21px 22px;margin-bottom:12px;box-shadow:0 3px 10px #14264703;transition:border-color .15s}
+.checklist-studio .rs-task:hover{border-color:#9cafda}
+.checklist-studio .rs-task.done{background:#f1f8f4;border-color:#d1e5da}
+.checklist-studio .rs-task.done .rs-task-title{color:#486252}
+.checklist-studio .rs-task-title{font-size:16px;color:#223857}
+.checklist-studio .rs-task-desc{color:#5a6d85;font-size:13px;line-height:1.65}
+.checklist-studio .rs-task details summary{color:#3e5da1;min-height:38px;padding-top:10px}
+.checklist-studio .rs-task-line input{scroll-margin-top:130px;width:23px;height:23px}
+.checklist-studio .rs-task-support{background:#f1f5fc;border:1px solid #dfe7f5;border-radius:9px;padding:14px 17px;margin:16px 0 8px 35px}
+.checklist-studio .rs-task-support>span{font-size:9px;letter-spacing:.1em}
+.checklist-studio .rs-task-support p{font-size:12px}
+.checklist-studio .rs-task-support .rs-link{font-size:12px}
+.checklist-studio #custom-task{background:#eaf0fc;border:1px dashed #a8bce9;border-radius:14px;padding:24px}
+@media(max-width:1100px){.launch-hero{gap:32px}.checklist-studio>.rs-wrap{padding:0 28px}.launch-dashboard{padding:25px 22px 20px}.launch-dashboard-body{gap:18px}.launch-ring{width:112px;height:112px}.launch-route a{padding:16px 12px}.checklist-studio .rs-workspace{grid-template-columns:250px minmax(0,1fr);gap:22px}.launch-downloads .rs-link{margin-left:0}}
+@media(max-width:900px){.launch-hero{grid-template-columns:1fr 1fr;gap:24px}.launch-hero h1{font-size:44px}.launch-dashboard-top{flex-wrap:wrap}.launch-live{display:none}.launch-dashboard-body{gap:15px}.launch-metrics strong{font-size:22px}.launch-dashboard-note{font-size:9px}.checklist-studio .rs-workspace{grid-template-columns:1fr}.launch-profile .rs-profile-fields{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.launch-route{grid-template-columns:repeat(4,minmax(0,1fr))}.launch-route a{border-bottom:1px solid #e7edf4}.launch-route a:nth-child(4){border-right:0}.launch-route a:nth-child(n+5){border-bottom:0}.launch-route a:last-child{border-right:1px solid #e7edf4}}
+@media(max-width:640px){.checklist-studio>.rs-wrap{padding:0 18px}.launch-hero{grid-template-columns:1fr;gap:28px;padding:25px 0}.launch-hero .rs-breadcrumb{margin-bottom:25px}.launch-hero h1{font-size:clamp(37px,9.5vw,53px)}.launch-hero .rs-intro{font-size:16px}.launch-promise{gap:12px;font-size:10px}.launch-people{margin-top:20px}.launch-dashboard{padding:23px}.launch-dashboard-body{padding:22px 0;gap:25px}.launch-dashboard-top{font-size:9px}.launch-live{display:inline}.launch-ring{width:110px;height:110px}.launch-ring strong{font-size:30px}.launch-dashboard-note{font-size:10px}.launch-route{grid-template-columns:repeat(4,minmax(0,1fr));border-radius:12px;margin-bottom:24px}.launch-route a{padding:12px 8px;gap:3px}.launch-route strong{font-size:11px}.launch-route-count{font-size:9px}.launch-route-number{font-size:9px}.launch-profile{padding:23px 18px!important}.launch-profile .rs-profile-fields{gap:0 12px}.launch-downloads{gap:9px;padding:12px}.launch-downloads .rs-btn{width:100%;justify-content:center;font-size:14px}.launch-downloads .rs-link{margin:auto;font-size:12px}.launch-plan .rs-toolbar h2{font-size:28px}.checklist-studio .rs-tabs{gap:6px;flex-wrap:wrap}.checklist-studio .rs-tabs .rs-text-btn{margin-left:0}.checklist-studio .rs-task{padding:18px 16px}.checklist-studio .rs-task-support{margin-left:0}.checklist-studio .rs-phase-heading h3{font-size:20px}.checklist-studio .rs-task-title{font-size:15px}.checklist-studio .rs-task-desc{margin-left:35px}.checklist-studio .rs-task-fields{grid-template-columns:1fr}}
+@media print{.checklist-studio{background:white}.launch-hero{display:block;padding:0}.launch-hero h1,.launch-hero h1>span{color:#142647;font-size:32px}.launch-hero .rs-intro{color:#334b68}.launch-dashboard,.launch-people,.launch-promise,.launch-downloads{display:none}.checklist-studio .rs-task{box-shadow:none;break-inside:avoid}.checklist-studio .launch-plan{padding:0}.checklist-studio>.rs-wrap{padding:0}}
