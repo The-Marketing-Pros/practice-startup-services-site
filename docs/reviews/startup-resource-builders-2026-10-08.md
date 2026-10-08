@@ -2,7 +2,7 @@
 
 Date: 2026-10-08. Repository: The-Marketing-Pros/practice-startup-services-site.
 Base: `220c54eaae4f1ed729d425488ad759efd4004ee3`.
-Final implementation reviewed: `d219aef07c4e8be7139bd066a61645b0eda73973`.
+Final implementation reviewed: `39b0a2cfd4a2f32fbf96f3fe440532a9c0de289d`.
 
 ## Owner authorization and scope
 
@@ -33,7 +33,7 @@ Reviewed head: `92b178244f31bda28dbaa01865d7f605aaa4669e`, same base above.
 
 Fixes: require bounded string IDs; raise import cap to 2 MB with maximum-size UTF-8/JSON-escaped regression; restore successor focus; improve mobile jumps and remove the overlong sticky sidebar. PDF month blocks remain together across pages.
 
-## R1 and R2 — final round
+## R1 and R2 — second round (historical)
 
 Both reviewed exact head `d219aef07c4e8be7139bd066a61645b0eda73973` against base `220c54eaae4f1ed729d425488ad759efd4004ee3`, including every change since the historical review.
 
@@ -44,6 +44,17 @@ Both reviewed exact head `d219aef07c4e8be7139bd066a61645b0eda73973` against base
 
 These are actual independent agent reviews, not GitHub approval reviews or owner authorization. No source was sent to an additional provider.
 
+## R1 and R2 — final round
+
+Both independently reviewed exact head `39b0a2cfd4a2f32fbf96f3fe440532a9c0de289d` against base `220c54eaae4f1ed729d425488ad759efd4004ee3`, retaining their previous full review and inspecting the complete incremental diff. Application changes since round two are two `pdf.keep()` calls that keep a checklist phase heading with its first task and the pro forma model notes together. Evidence-only commit `422bc1d04a890635a20301130d215bfd06393168` was inspected separately by both reviewers.
+
+| Channel | Independent reviewer / model | Verdict and evidence | Limitations |
+| --- | --- | --- | --- |
+| R1 | `/root/startup_r1`, Codex agent; inherited requested, actual identifier unavailable | Pass; no new supported findings. Appropriate pagination helper use; clean tree and diff check. Incremental diff SHA-256 `9766e121682f0e5c9f76bb9c9837c598fa317cfdcd8cd2c1d78ba65365ddf786`. | Tests not rerun for these layout-only changes. No browser, PDF rendering, deployment, fulfillment, or Excel-engine recalculation. |
+| R2 | `/root/startup_r2`, Codex agent; inherited requested, actual identifier unavailable | Pass; no new supported findings. All 13 planner tests and full diff whitespace check passed; clean tree. No calculations, storage, or validation changed. | No browser/PDF visual inspection, full build rerun, deployment, fulfillment, or Excel-engine recalculation. |
+
+V1 rebuilt the final implementation, downloaded both final PDFs through the production-build browser, rendered every page, and inspected text/page breaks. Checklist phase headings now remain with their first task; pro forma model notes remain together. The accented sample practice name and forecast totals remain intact. These are implementer observations, separate from independent review.
+
 ## Product and dependency boundaries
 
 - LaborGenie request uses PPS email/contact with manual fulfillment; no license is auto-issued. Seats/duration are not invented. Fulfillment has not been exercised by sending a test message.
@@ -53,7 +64,7 @@ These are actual independent agent reviews, not GitHub approval reviews or owner
 
 ## CI, integration, and publishing
 
-Hosted CI and deployment links will be recorded in the PR and final publication note once they exist; this initial record does not claim a deployment.
+Hosted checks passed on historical head `422bc1d04a890635a20301130d215bfd06393168`: [engineering protocol CI run](https://github.com/The-Marketing-Pros/practice-startup-services-site/actions/runs/37820893538), including repository verification, CI gate regressions, and required-ci. The existing Cloudflare Pages preview also passed. Final-head CI and production acceptance will be recorded in the PR and publication note; this record does not yet claim production deployment.
 
 After adoption baseline `c13072b7dcd42e88e8be775cf11b171db7ee9889`, only PR #5 is integrated, at `220c54eaae4f1ed729d425488ad759efd4004ee3`. This feature would be integration 2/5. The five-PR combined audit is not yet due.
 
