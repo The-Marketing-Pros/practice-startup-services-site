@@ -1,10 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-// PracticeStartupServices.com — Blueprint visual system
-// See: personas/alf/campaigns/2026-Q2/practice-startup-services/03b-recommended-direction.md §2
-// 2026-06 refresh: palette moved to HSL design tokens defined in src/styles/global.css
-// (deep warm-charcoal ink + warm cream paper + brass accent). Class names are
-// unchanged; values resolve through `hsl(var(--token) / <alpha-value>)` so the
-// palette has exactly one source of truth and opacity modifiers keep working.
+// PracticeStartupServices.com — navy, cool-white, and mint visual system.
+// Existing utility names resolve to the shared tokens in global.css.
 
 const token = (name) => `hsl(var(--${name}) / <alpha-value>)`;
 
@@ -81,8 +77,8 @@ export default {
         },
       },
       fontFamily: {
-        // Three faces total — Fraunces (display, optical-size axis), Archivo (text/UI), JetBrains Mono (annotations)
-        display: ['"Fraunces Variable"', "Georgia", "serif"],
+        // Archivo for bold headings and readable UI; JetBrains Mono for annotations.
+        display: ['"Archivo Variable"', "Archivo", "system-ui", "sans-serif"],
         sans: ['"Archivo Variable"', "Archivo", "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },

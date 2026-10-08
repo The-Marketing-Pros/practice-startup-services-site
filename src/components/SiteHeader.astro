@@ -11,99 +11,50 @@ const headerNav = [
 const mobileNav = [...headerNav, {label:"Free LaborGenie license", href:"/resources/hipaa-training/"}, {label:"PPS services",href:"/services/"}, {label:"About PPS",href:"/about/"}];
 ---
 
-<header class="sticky top-0 z-30 bg-paper-100/95 backdrop-blur-lg border-b border-ink/8 shadow-sm">
-  <div class="container-site flex items-center justify-between h-16 lg:h-20">
-    <a href="/" class="flex items-center gap-3 group">
-      <!-- Blueprint mark — ink + brass -->
-      <span aria-hidden="true" class="inline-flex h-9 w-9 items-center justify-center rounded-sharp bg-ink text-paper-100 font-display text-lg font-medium">
-        P
-      </span>
-      <span class="sr-only sm:hidden">{SITE.name} — home</span>
-      <span class="hidden sm:flex flex-col leading-tight">
-        <span class="font-display text-base lg:text-lg font-medium text-ink">Practice Startup Services</span>
-        <span class="phase-label text-graphite-600">Free tools. Backed by PPS.</span>
-      </span>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="site-brand" aria-label={`${SITE.name} — home`}>
+      <span class="brand-mark" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M5 25V5h11a7 7 0 0 1 0 14h-5" stroke="currentColor" stroke-width="4"/><path d="M17 25h8M21 21v8" stroke="currentColor" stroke-width="3"/></svg></span>
+      <span class="brand-name">Practice Startup<span class="brand-caption">SERVICES <span>BY PPS</span></span></span>
     </a>
-
-    <nav class="hidden lg:flex items-center gap-5" aria-label="Primary">
-      {
-        headerNav.map((item) => (
-          <a
-            href={item.href}
-            class="text-[15px] min-h-[44px] inline-flex items-center font-medium text-graphite-800 hover:text-ink transition-colors"
-          >
-            {item.label}
-          </a>
-        ))
-      }
+    <nav class="header-nav" aria-label="Primary">
+      {headerNav.map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}
     </nav>
-
-    <div class="flex items-center gap-2 sm:gap-3">
-      <a
-        href={CONSULT_BOOKING_URL}
-        target="_blank"
-        rel="noopener"
-        class="btn-secondary text-[14px] min-h-[44px] whitespace-nowrap"
-      >
-        <span class="hidden sm:inline">Talk to PPS</span>
-        <span class="sm:hidden">Talk to PPS</span>
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </a>
-
-      <!-- Mobile menu — native disclosure, works without JS -->
-      <details class="lg:hidden relative" id="mobile-menu">
-        <summary
-          class="list-none [&::-webkit-details-marker]:hidden inline-flex h-11 w-11 items-center justify-center rounded-soft border border-ink/15 text-ink cursor-pointer hover:bg-paper-200/60 transition-colors"
-          aria-label="Site menu"
-        >
-          <svg class="menu-open-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <path d="M2 4.5h14M2 9h14M2 13.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-          </svg>
-          <svg class="menu-close-icon hidden" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-          </svg>
-        </summary>
-
-        <nav
-          class="absolute right-0 top-[calc(100%+0.75rem)] w-72 max-w-[calc(100vw-2rem)] max-h-[70vh] overflow-y-auto bg-paper-50 border border-ink/12 rounded-card shadow-elevated p-2"
-          aria-label="Mobile"
-        >
-          <ul class="divide-y divide-ink/8">
-            {
-              mobileNav.map((item, i) => (
-                <li>
-                  <a
-                    href={item.href}
-                    class="flex items-center justify-between gap-3 px-4 py-3 min-h-[44px] text-body font-medium text-ink hover:bg-paper-200/60 rounded-soft transition-colors"
-                  >
-                    {item.label}
-                    <span class="font-mono text-label text-bronze-700">{String(i + 1).padStart(2, "0")}</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <div class="p-3 pt-4 border-t border-ink/8 mt-1">
-            <a
-              href={CONSULT_BOOKING_URL}
-              target="_blank"
-              rel="noopener"
-              class="btn-primary text-small w-full justify-center"
-            >
-              Talk to PPS
-            </a>
-          </div>
-        </nav>
+    <div class="header-actions">
+      <a href={CONSULT_BOOKING_URL} target="_blank" rel="noopener" class="header-cta">Talk to PPS</a>
+      <details class="header-menu" id="mobile-menu">
+        <summary aria-label="Site menu"><svg class="menu-open-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9" stroke="currentColor" stroke-width="1.8"/></svg><svg class="menu-close-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8"/></svg></summary>
+        <nav aria-label="Mobile">{mobileNav.map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
       </details>
     </div>
   </div>
 </header>
-
 <style>
-  details[open] .menu-open-icon { display: none; }
-  details[open] .menu-close-icon { display: block; }
+  .site-header{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid #e2e8f2;box-shadow:0 4px 24px #13244006}
+  .header-inner{max-width:1360px;margin:auto;padding:0 36px;min-height:90px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+  .site-brand{display:flex;align-items:center;gap:12px;flex-shrink:0;color:#122344;text-decoration:none}
+  .brand-mark{display:grid;place-items:center;width:48px;height:48px;background:#122344;color:#c2f0da;border-radius:14px 14px 14px 3px}
+  .brand-name{font-size:21px;font-weight:750;letter-spacing:-.045em;line-height:1.15}
+  .brand-caption{display:flex;gap:11px;margin-top:6px;font-size:10px;font-weight:600;letter-spacing:.18em;color:#5b6b83}
+  .brand-caption span{border-left:1px solid #c6d0df;padding-left:11px;color:#224cb8}
+  .header-nav{display:flex;align-items:center;gap:5px}
+  .header-nav a{display:flex;align-items:center;min-height:44px;padding:0 13px;border-radius:8px;font-size:14px;font-weight:600;color:#44516a;text-decoration:none}
+  .header-nav a:hover,.header-nav a[aria-current]{color:#254dd2;background:#edf2ff}
+  .header-actions{display:flex;align-items:center;gap:10px}
+  .header-cta{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 21px;background:#3155d9;color:#fff;border:1px solid #3155d9;border-radius:9px;font-size:14px;font-weight:650;white-space:nowrap;box-shadow:0 4px 10px #3155d922}
+  .header-cta:hover{background:#2342b6}
+  .header-menu{display:none;position:relative}
+  summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d5deeb;border-radius:8px;cursor:pointer;color:#152847}
+  summary::-webkit-details-marker{display:none}
+  .menu-close-icon{display:none}
+  details[open] .menu-open-icon{display:none}
+  details[open] .menu-close-icon{display:block}
+  .header-menu nav{position:absolute;top:calc(100% + 18px);right:0;width:290px;max-width:calc(100vw - 32px);max-height:70vh;overflow-y:auto;padding:10px;background:#fff;border:1px solid #dce4ef;border-radius:14px;box-shadow:0 20px 60px #14264726}
+  .header-menu nav a{display:block;padding:14px;font-size:15px;color:#142647;border-radius:7px;font-weight:600}
+  .header-menu nav a:hover,.header-menu nav a[aria-current]{background:#edf2ff;color:#254dd2}
+  @media(max-width:1100px){.header-nav{display:none}.header-menu{display:block}.header-inner{min-height:78px;padding:0 24px}}
+  @media(max-width:540px){.header-inner{min-height:74px;padding:0 16px;gap:10px}.brand-mark{width:38px;height:42px;border-radius:10px 10px 10px 2px}.brand-mark svg{width:24px}.site-brand{gap:8px}.brand-name{font-size:16px}.brand-caption{font-size:8px;gap:6px;letter-spacing:.11em}.brand-caption span{padding-left:6px}.header-cta{padding:0 12px;font-size:12px;min-height:42px}.header-actions{gap:7px}}
+  @media(max-width:359px){.brand-caption{display:none}.brand-name{max-width:95px}.header-inner{padding:0 10px}.site-brand{gap:6px}.header-cta{padding:0 9px}}
 </style>
 
 <script is:inline>

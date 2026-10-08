@@ -1,4 +1,3 @@
-@import "@fontsource-variable/fraunces/opsz.css";
 @import "@fontsource-variable/archivo/index.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
@@ -8,27 +7,16 @@
 @tailwind utilities;
 
 @layer base {
-  /*
-   * Design tokens — HSL triplets consumed by tailwind.config.mjs as
-   * `hsl(var(--token) / <alpha-value>)`. One source of truth for the palette.
-   *
-   * Brand direction (2026-06 refresh): deep warm-charcoal ink + warm cream
-   * paper + brass accent. "Architectural Digest meets a16z" — drafting-table
-   * editorial, not clinical SaaS. Every text/surface pair below is verified
-   * WCAG 2.2 AA (4.5:1 minimum, including the brass-on-cream small caps).
-   */
+  /* Shared navy, cool-white, and blue visual system. */
   :root {
-    /* ink — deep warm charcoal (near-black). The drawing ink. */
-    --ink-900: 26 25% 6%;
-    --ink-800: 26 20% 10%;
-    --ink-700: 27 14% 18%;
-    --ink-600: 28 11% 28%;
-
-    /* paper — warm cream. The vellum. NOT clinical white. */
-    --paper-50: 40 55% 98%;
-    --paper-100: 40 36% 95%;
-    --paper-200: 40 33% 89%;
-    --paper-300: 39 31% 81%;
+    --ink-900: 220 58% 9%;
+    --ink-800: 220 53% 15%;
+    --ink-700: 220 38% 24%;
+    --ink-600: 220 25% 35%;
+    --paper-50: 220 30% 99%;
+    --paper-100: 220 33% 97%;
+    --paper-200: 220 30% 92%;
+    --paper-300: 220 25% 84%;
 
     /* graphite — warmed neutrals for secondary text */
     --graphite-900: 28 12% 11%;
@@ -41,14 +29,14 @@
     --graphite-200: 33 9% 89%;
     --graphite-100: 36 12% 95%;
 
-    /* brass — the accent. Annotations, CTAs, phase numerals. */
-    --bronze-900: 33 48% 26%;
-    --bronze-800: 34 46% 31%;
-    --bronze-700: 35 45% 35%; /* text-grade brass: 4.6:1+ on every paper surface */
-    --bronze-600: 36 45% 49%; /* fill-grade brass: CTAs, rules */
-    --bronze-500: 37 45% 58%;
-    --bronze-400: 38 46% 67%;
-    --bronze-300: 39 47% 77%;
+    /* Retain existing accent token names for legacy pages; mint fills and dark teal text. */
+    --bronze-900: 160 50% 20%;
+    --bronze-800: 160 48% 25%;
+    --bronze-700: 160 45% 29%;
+    --bronze-600: 152 61% 82%;
+    --bronze-500: 152 65% 88%;
+    --bronze-400: 152 58% 85%;
+    --bronze-300: 152 61% 88%;
 
     /* signal — restrained Control Room teal (three moments only) */
     --signal-900: 174 65% 22%;
@@ -80,19 +68,19 @@
   h1, h2, h3, h4 {
     font-family: theme("fontFamily.display");
     @apply text-ink;
-    /* Fraunces optical-size axis: large cuts are sculpted, high-contrast */
-    font-variation-settings: "opsz" 144;
+    font-weight: 700;
+    letter-spacing: -0.035em;
   }
 
-  /* Selection in ink with brass text */
+  /* High-contrast text selection. */
   ::selection {
     background: theme("colors.ink.DEFAULT");
     color: theme("colors.bronze.300");
   }
 
-  /* Focus ring — brass, not blue */
+  /* Visible blue keyboard focus on white and dark surfaces. */
   :focus-visible {
-    outline: 2px solid theme("colors.bronze.DEFAULT");
+    outline: 3px solid #5375ee;
     outline-offset: 2px;
     border-radius: 2px;
   }
