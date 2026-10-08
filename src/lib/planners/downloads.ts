@@ -416,6 +416,7 @@ export async function checklistPdf(plan: Checklist) {
   let phase = -1;
   for (const t of visibleTasks(plan)) {
     if (t.phase !== phase) {
+      pdf.keep(52);
       pdf.space();
       pdf.line(`${t.phase + 1}. ${stages[t.phase]}`, 14, true);
       phase = t.phase;
@@ -475,6 +476,7 @@ export async function financePdf(plan: FinancePlan) {
     );
   }
   pdf.space();
+  pdf.keep(65);
   pdf.line("Model notes", 14, true);
   pdf.line(
     "Startup costs are paid before opening. Available funding is received upfront. Volume ramps linearly; provider count and monthly costs remain constant. Collections lag by whole months. Variable costs follow cash collections. Owner/provider compensation and payroll burden are included.",
