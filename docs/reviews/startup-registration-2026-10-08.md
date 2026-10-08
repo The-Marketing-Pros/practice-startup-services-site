@@ -35,5 +35,5 @@ P3: earlier resource-builders customer-flow bullet described prepared email; upd
 
 ## CI and integration
 
-Hosted CI links will be added before merge. Evidence/documentation-only follow-up must be separately inspected and does not extend agent verdicts to unreviewed code.
+Hosted verification for evidence head 032c8d48c91ad861f0b7a79e77447dc9b36fa723: https://github.com/The-Marketing-Pros/practice-startup-services-site/actions/runs/37826860964 (status checked separately before merge). PR: https://github.com/The-Marketing-Pros/practice-startup-services-site/pull/19. Evidence/documentation-only follow-up must be separately inspected and does not extend agent verdicts to unreviewed code.
 Previous integrations after protocol baseline: PR #5 and PR #16 (2/5). This PR would be 3/5 after actual integration; combined audit not yet due.
