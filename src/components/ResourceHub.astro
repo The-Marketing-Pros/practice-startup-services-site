@@ -5,10 +5,11 @@ import '@/styles/resources.css';
 const { library = false } = Astro.props;
 ---
 <div class="resource-site">
-  <section class="rs-hero"><div class="rs-wrap">
+  <section class="rs-hero rs-hub-hero"><div class="rs-wrap">
     <div class="rs-kicker">Free resources from Physician Practice Specialists</div>
     <div class="rs-hero-row"><div><h1 class="rs-title">{library ? 'Your practice startup toolkit.' : 'Your practice starts with a plan.'}</h1>
-    <p class="rs-intro">Build your checklist. Work through the numbers. Take the next step with free tools you can customize, save, and keep.</p></div><span class="rs-tag">No account required</span></div>
+    <p class="rs-intro">Build your checklist. Work through the numbers. Take the next step with free tools you can customize, save, and keep.</p><span class="rs-hero-note"><span aria-hidden="true">✓</span> No account required</span></div>
+    <div class="rs-launch-art" aria-hidden="true"><div class="rs-art-top"><span>YOUR NEXT CHAPTER</span><span class="rs-art-spark">✳</span></div><div class="rs-art-title">From idea.<br/><span>To opening day.</span></div><div class="rs-art-route"><span>Plan</span><span>Build</span><span>Launch</span></div><div class="rs-art-bottom"><span class="rs-art-check">✓</span><span>Your practice.<br/><strong>Your way forward.</strong></span></div></div></div>
   </div></section>
   <section class="rs-wrap" aria-label="Free planning tools"><div class="rs-tools">
     <article class="rs-tool"><div class="rs-tool-top"><div class="rs-tool-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="5" width="21" height="24" rx="3"/><path d="M12 3h9v5h-9zM11 15l2 2 4-4m-6 10 2 2 4-4m3-6h4m-4 8h4"/></svg></div><div class="rs-mini"><span>01 &nbsp; Make it yours</span><span>02 &nbsp; Track your progress</span><span>03 &nbsp; Download your plan</span></div></div><div class="rs-tool-body"><span class="rs-tag">Interactive checklist</span><h2>Know what comes next.</h2><p>Get a launch checklist for your practice model. Set dates, assign owners, add your own tasks, and check off the work as you go.</p><a href="/resources/startup-checklist/" class="rs-btn">Build my startup checklist</a><p class="rs-small" style="margin-top:12px">Download as PDF or spreadsheet</p></div></article>

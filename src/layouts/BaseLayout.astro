@@ -4,9 +4,8 @@ import SiteHeader from "@components/SiteHeader.astro";
 import SiteFooter from "@components/SiteFooter.astro";
 import Architect from "@components/Architect.astro";
 import { SITE } from "@data/site";
-// Preload the display face (latin, opsz axis) — it renders every headline and
-// is the largest text paint on each page. Vite resolves the hashed URL.
-import frauncesWoff2 from "@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url";
+// One locally hosted variable family serves headings and body text.
+import archivoWoff2 from "@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url";
 
 interface Props {
   title: string;
@@ -123,7 +122,7 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
     {noIndex && <meta name="robots" content="noindex,nofollow" />}
 
     <!-- Display font preload — largest text paint on every page -->
-    <link rel="preload" as="font" type="font/woff2" href={frauncesWoff2} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={archivoWoff2} crossorigin />
 
     <!-- OG / Twitter -->
     <meta property="og:type" content="website" />
