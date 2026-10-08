@@ -1,0 +1,35 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PlannerStorage from '@components/PlannerStorage.astro';
+import {financeFields} from '../../lib/planners/finance';
+import '@styles/resources.css';
+const groups=[['volume','Patient volume & collections'],['startup','Startup costs & funding'],['monthly','Monthly expenses']];
+---
+<BaseLayout title="Free Medical Practice Pro Forma Builder" description="Build a customized 24-month startup cash forecast. Model revenue, expenses, collection delays, and funding needs, then download Excel or PDF.">
+<div class="resource-site"><div class="rs-wrap">
+ <section class="rs-hero compact"><div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Pro forma builder</span></div><p class="rs-kicker">Know what your launch needs</p><h1 class="rs-title">Put numbers behind your plan.</h1><p class="rs-intro">Build a 24-month cash forecast for your practice. Adjust your assumptions, see the impact, and download an editable pro forma.</p></section>
+ <noscript><p class="rs-notice">Enable JavaScript to use the pro forma builder, or read the <a class="rs-link" href="/resources/startup-costs/">startup cost guide</a>.</p></noscript>
+ <div class="rs-workspace rs-finance rs-has-js" id="finance-app">
+  <aside class="rs-panel"><h2>Your assumptions</h2><p class="rs-small">Start with the example, then make it yours. All sample values are illustrative—not industry benchmarks. Amounts are in USD.</p>
+   <form id="finance-inputs" autocomplete="off"><div class="rs-form-section rs-fields"><div class="rs-field"><label for="finance-name">Practice name</label><input id="finance-name" name="name" maxlength="100" placeholder="My new practice" /></div><div class="rs-field"><label for="finance-opening">Opening month</label><input type="month" id="finance-opening" name="opening" min="2000-01" max="2099-12" required /></div></div>
+   {groups.map(([id,title],i)=><details class="rs-form-section" open={i===0}><summary>{i+1}. {title}</summary><div>{financeFields.filter(f=>f[6]===id).map(([key,label,example,min,max])=><div class="rs-field"><label for={`finance-${key}`}>{label}</label><input type="number" id={`finance-${key}`} name={key} value={example} min={min} max={max} step={['providers','days','ramp','lag'].includes(key)?1:'any'} inputmode="decimal" required />{key==='netPerVisit'&&<small>Expected collectible revenue after contractual adjustments and expected losses, not gross charges.</small>}{key==='providerPay'&&<small>Total monthly compensation for all providers, including you. Payroll burden is added below.</small>}{key==='funding'&&<small>Cash available before opening, including committed loans and owner investment.</small>}{key==='ramp'&&<small>Linear growth from opening utilization. A one-month ramp starts at full capacity.</small>}{key==='debt'&&<small>Principal + interest paid each month. Count loan proceeds in available funding.</small>}</div>)}</div></details>)}
+   </form><PlannerStorage />
+  </aside>
+  <section class="rs-panel"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your cash forecast</h2><p class="rs-small">Updates as you change your inputs.</p></div><div class="rs-actions"><button id="finance-xlsx" class="rs-btn">Download Excel</button><button id="finance-pdf" class="rs-btn secondary">Download PDF</button></div></div>
+   <p id="planner-status" class="rs-status" role="status"></p><div id="finance-errors" role="alert" hidden class="rs-notice warn"></div>
+   <div id="finance-results"><div class="rs-summary"><div class="rs-stat"><span>Startup costs</span><strong id="startup-total"></strong></div><div class="rs-stat"><span>Lowest cash balance</span><strong id="lowest-cash"></strong></div><div class="rs-stat"><span>Additional funding</span><strong id="funding-gap"></strong></div></div>
+    <p class="rs-small">Additional funding covers the projected shortfall to stay at $0. Add a reserve for uncertainty.</p>
+    <h3>Cash balance over 24 months</h3><svg id="cash-chart" class="rs-chart" viewBox="0 0 620 190" role="img" aria-label="Projected cash balance over 24 months"></svg>
+    <p class="rs-small" id="cash-summary" aria-live="polite"></p>
+    <div class="rs-notice" id="cash-milestone"></div>
+    <div class="rs-summary"><div class="rs-stat"><span>Year 1 cash change</span><strong id="year-one"></strong></div><div class="rs-stat"><span>Year 2 cash change</span><strong id="year-two"></strong></div><div class="rs-stat"><span>Month 24 receivables</span><strong id="receivables"></strong></div></div>
+    <p class="rs-small" style="margin-bottom:12px">Cash change is after operating expenses and debt. Receivables are earned revenue still awaiting collection.</p>
+    <div class="rs-table-wrap" tabindex="0" role="region" aria-label="24-month cash forecast, scroll horizontally for all columns"><table class="rs-table"><caption class="sr-only">24-month cash forecast in US dollars</caption><thead><tr><th scope="col">Month</th><th scope="col">Visits</th><th scope="col">Earned</th><th scope="col">Collected</th><th scope="col">Operating costs</th><th scope="col">Debt</th><th scope="col">Net cash</th><th scope="col">Cash balance</th></tr></thead><tbody id="finance-months"></tbody></table></div>
+   </div>
+   <details class="rs-form-section"><summary>How the model works</summary><div class="rs-small"><p>Startup costs are paid before opening. Funding is available upfront. Patient volume ramps linearly to capacity; provider count, working days, and monthly costs remain constant. Collections are delayed by whole months, with no opening receivables. Variable costs are paid as a percentage of cash collections.</p><p style="margin-top:12px">This is a cash planning model, not an accrual income statement. It includes provider/owner compensation, payroll burden, and debt payments. It excludes taxes, depreciation, inflation, seasonality, later capital purchases, and later financing. Review your assumptions with your accountant and financing adviser.</p><p style="margin-top:12px">The Excel download includes editable assumptions, formulas, and method notes. Planning framework: <a class="rs-link" href="https://www.sba.gov/counseling/plan-your-business/" target="_blank" rel="noopener">SBA business planning resources</a>.</p></div></details>
+   <p class="rs-small" style="margin-top:20px">Keep your launch moving: <a href="/resources/startup-checklist/" class="rs-link">Build your startup checklist</a>.</p>
+  </section>
+ </div>
+</div></div>
+<script>import '../../scripts/finance';</script>
+</BaseLayout>

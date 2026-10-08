@@ -28,6 +28,8 @@ jobs:
         run: npm ci
       - name: Astro check
         run: npm run check
+      - name: Planner behavior tests
+        run: npm run test:planners
       - name: Build
         run: npm run build
 

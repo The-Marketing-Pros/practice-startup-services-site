@@ -1,134 +1,35 @@
 ---
-import BaseLayout from "@layouts/BaseLayout.astro";
-import FinalCta from "@components/FinalCta.astro";
-import { phases } from "@data/phases";
-import { SITE } from "@data/site";
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PlannerStorage from '@components/PlannerStorage.astro';
+import { states, stages } from '../../lib/planners/checklist';
+import '@styles/resources.css';
 ---
-
-<BaseLayout
-  title="The Practice Launch Checklist"
-  description="Phase-ordered, opinionated, and free. The exact tasks for each of the 7 phases — with the watchouts most checklists skip."
-  schema={[
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://practicestartupservices.com/" },
-        { "@type": "ListItem", position: 2, name: "Free Resources", item: "https://practicestartupservices.com/resources/" },
-        { "@type": "ListItem", position: 3, name: "Practice Launch Checklist", item: "https://practicestartupservices.com/resources/startup-checklist/" },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "HowTo",
-      name: "How to start a medical practice: the 7-phase launch checklist",
-      description:
-        "The phase-ordered checklist for launching an independent medical practice — what must happen first, what can run in parallel, and the watchouts that commonly delay each phase.",
-      step: phases.map((p, i) => ({
-        "@type": "HowToStep",
-        position: i + 1,
-        name: `Phase ${p.id} — ${p.title}`,
-        text: p.whatHappensFirst,
-        url: `https://practicestartupservices.com/resources/startup-checklist/#phase-${p.id}`,
-      })),
-    },
-  ]}
->
-  <section class="border-b border-ink/8 py-14 lg:py-20 relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="bp-grid-check" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="hsl(var(--ink-800))" stroke-width="1" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#bp-grid-check)" />
-      </svg>
-    </div>
-
-    <div class="container-site relative">
-      <div class="max-w-3xl">
-        <div class="phase-label text-bronze-700 mb-5">Free · No email gate</div>
-        <h1 class="font-display text-display-xl font-medium text-ink mb-5 text-balance">
-          The Practice Launch Checklist.
-        </h1>
-        <p class="text-lede text-graphite-700 max-w-prose-wide text-pretty mb-6">
-          Phase-ordered, opinionated, and free. The exact tasks for each of the 7 phases — with the
-          watchouts most checklists skip. Use it for free. Hire us when you want the build crew.
-        </p>
-        <div class="flex flex-wrap gap-3">
-          <a href={SITE.scheduleUrl} class="btn-primary">
-            {SITE.primaryCta}
-          </a>
-          <a href="/journey/" class="btn-secondary">
-            See the full journey
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="border-b border-ink/8 py-16 lg:py-20">
-    <div class="container-site">
-      <ol class="space-y-12 max-w-prose-wide mx-auto">
-        {
-          phases.map((p) => (
-            <li id={`phase-${p.id}`}>
-              <div class="flex items-start gap-5">
-                <div class="font-mono text-display-md text-bronze-700 font-medium leading-none">
-                  {p.id}
-                </div>
-                <div class="flex-1">
-                  <div class="phase-label text-graphite-500 mb-1">Phase {p.id} · {p.verb}</div>
-                  <h2 class="font-display text-display-md font-medium text-ink mb-2 text-balance">
-                    {p.title}
-                  </h2>
-                  <p class="text-body text-graphite-800 leading-relaxed mb-5 text-pretty">
-                    {p.subtitle}
-                  </p>
-
-                  <div class="phase-label text-graphite-600 mb-2">Must do first</div>
-                  <p class="text-body text-ink leading-relaxed mb-5">{p.whatHappensFirst}</p>
-
-                  <div class="phase-label text-graphite-600 mb-2">Can do in parallel</div>
-                  <ul class="space-y-1.5 mb-5">
-                    {p.whatCanHappenInParallel.map((item) => (
-                      <li class="flex gap-3 text-body text-graphite-800 leading-relaxed">
-                        <span class="font-mono text-bronze-700 mt-1">☐</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div class="do-not-skip">
-                    <div class="do-not-skip-label">Watchouts</div>
-                    <ul class="space-y-1.5 mt-2">
-                      {p.whatCommonlyDelays.map((item) => (
-                        <li class="flex gap-3 text-body text-graphite-900 leading-relaxed">
-                          <span class="text-warn font-mono mt-1">!</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div class="mt-5 flex flex-wrap gap-3 text-small">
-                    <a href={`/journey/${p.slug}/`} class="text-bronze-700 hover:text-ink font-medium">
-                      Full Phase {p.id} guide →
-                    </a>
-                    <span class="text-graphite-400">·</span>
-                    <a href={p.freeResource.href} class="text-graphite-700 hover:text-ink">
-                      {p.freeResource.label}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
-
-  <FinalCta variant="resource" />
+<BaseLayout title="Build Your Free Practice Startup Checklist" description="Customize your practice startup checklist, assign owners, set due dates, and download your plan as a PDF or editable spreadsheet. Free from PPS.">
+<div class="resource-site">
+ <div class="rs-wrap">
+  <section class="rs-hero compact"><div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup checklist</span></div><p class="rs-kicker">Your launch, one step at a time</p><h1 class="rs-title">Build your startup checklist.</h1><p class="rs-intro">Tell us a little about your practice. Get a working plan you can customize, track, and take with you.</p></section>
+  <noscript><p class="rs-notice">Enable JavaScript to customize and download your checklist. You can also read the <a class="rs-link" href="/journey/">seven launch guides</a>.</p></noscript>
+  <div class="rs-workspace rs-has-js" id="checklist-app">
+   <aside class="rs-panel rs-sticky rs-no-print"><h2>Your practice</h2><form id="practice-profile" class="rs-profile-fields" autocomplete="off">
+    <div class="rs-field"><label for="practice-name">Practice name</label><input id="practice-name" name="name" maxlength="100" placeholder="My new practice" /></div>
+    <div class="rs-field"><label for="practice-provider">Provider type</label><select id="practice-provider" name="provider"><option value="physician">Physician (MD / DO)</option><option value="np">Nurse practitioner</option><option value="pa">Physician assistant</option><option value="therapist">Therapist / behavioral health</option><option value="other">Other provider</option></select></div>
+    <div class="rs-field"><label for="practice-state">State</label><select id="practice-state" name="state"><option value="">Select your state</option>{states.map(s=><option value={s}>{s}</option>)}</select><small>For your plan’s context. Verify current state requirements with your board.</small></div>
+    <div class="rs-field"><label for="practice-setting">Care setting</label><select id="practice-setting" name="setting"><option value="office">In-person office</option><option value="telehealth">Telehealth only</option><option value="hybrid">In-person + telehealth</option></select></div>
+    <div class="rs-field"><label for="practice-payer">Payment model</label><select id="practice-payer" name="payer"><option value="insurance">Insurance</option><option value="cash">Cash-pay</option><option value="hybrid">Insurance + cash-pay</option></select></div>
+    <div class="rs-field"><label for="practice-staff">Hiring employees?</label><select id="practice-staff" name="staff"><option value="yes">Yes</option><option value="no">No, solo for now</option></select></div>
+    <div class="rs-field"><label for="practice-opening">Target opening date</label><input type="date" id="practice-opening" name="opening" min="2000-01-01" max="2100-12-31" /><small>Creates suggested dates. Your edited task dates stay as you set them.</small></div>
+   </form><PlannerStorage /></aside>
+   <section class="rs-panel"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions"><button class="rs-btn secondary" id="checklist-xlsx">Download Excel</button><button class="rs-btn" id="checklist-pdf">Download PDF</button></div></div>
+    <div class="rs-status" id="planner-status" role="status"></div>
+    <div class="rs-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
+    <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant.</p>
+    <div class="rs-tabs"><button id="show-all" aria-pressed="true">All tasks</button><button id="show-open" aria-pressed="false">To do</button></div>
+    <div id="checklist-tasks"></div>
+    <form id="custom-task" class="rs-form-section rs-no-print"><h3>Add something specific to your practice</h3><div class="rs-fields"><div class="rs-field"><label for="custom-title">Task name</label><input id="custom-title" maxlength="160" required placeholder="e.g., Order exterior signage" /></div><div class="rs-field"><label for="custom-phase">Phase</label><select id="custom-phase">{stages.map((s,i)=><option value={i}>{i+1}. {s}</option>)}</select></div></div><button class="rs-btn secondary" type="submit">Add task</button></form>
+    <p class="rs-small" style="margin-top:24px">Next up: <a class="rs-link" href="/resources/pro-forma/">Build your startup pro forma</a> or <a class="rs-link" href="/resources/hipaa-training/">request free HIPAA training</a>.</p>
+   </section>
+  </div>
+ </div>
+</div>
+<script>import '../../scripts/checklist';</script>
 </BaseLayout>
