@@ -1,0 +1,29 @@
+---
+import { phases } from '@data/phases';
+import { SITE } from '@data/site';
+import '@/styles/resources.css';
+const { library = false } = Astro.props;
+---
+<div class="resource-site">
+  <section class="rs-hero"><div class="rs-wrap">
+    <div class="rs-kicker">Free resources from Physician Practice Specialists</div>
+    <div class="rs-hero-row"><div><h1 class="rs-title">{library ? 'Your practice startup toolkit.' : 'Your practice starts with a plan.'}</h1>
+    <p class="rs-intro">Build your checklist. Work through the numbers. Take the next step with free tools you can customize, save, and keep.</p></div><span class="rs-tag">No account required</span></div>
+  </div></section>
+  <section class="rs-wrap" aria-label="Free planning tools"><div class="rs-tools">
+    <article class="rs-tool"><div class="rs-tool-top"><div class="rs-tool-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="5" width="21" height="24" rx="3"/><path d="M12 3h9v5h-9zM11 15l2 2 4-4m-6 10 2 2 4-4m3-6h4m-4 8h4"/></svg></div><div class="rs-mini"><span>01 &nbsp; Make it yours</span><span>02 &nbsp; Track your progress</span><span>03 &nbsp; Download your plan</span></div></div><div class="rs-tool-body"><span class="rs-tag">Interactive checklist</span><h2>Know what comes next.</h2><p>Get a launch checklist for your practice model. Set dates, assign owners, add your own tasks, and check off the work as you go.</p><a href="/resources/startup-checklist/" class="rs-btn">Build my startup checklist</a><p class="rs-small" style="margin-top:12px">Download as PDF or spreadsheet</p></div></article>
+    <article class="rs-tool"><div class="rs-tool-top"><div class="rs-tool-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="4" width="22" height="25" rx="3"/><path d="M9 9h14M10 16v8m6-5v5m6-10v10"/></svg></div><div class="rs-mini"><span>Startup costs</span><span>24-month cash flow</span><span>A plan you can adjust</span></div></div><div class="rs-tool-body"><span class="rs-tag">Pro forma builder</span><h2>Put numbers to your plan.</h2><p>Explore revenue, expenses, collection delays, and the cash you may need. Change your assumptions and see the forecast update.</p><a href="/resources/pro-forma/" class="rs-btn">Build my pro forma</a><p class="rs-small" style="margin-top:12px">Download as Excel or PDF</p></div></article>
+  </div><div class="rs-trust"><div class="rs-faces" aria-hidden="true"><img src="/images/team/lindsay-pauly.webp" width="50" height="50" alt=""/><img src="/images/team/tonya-barry.webp" width="50" height="50" alt=""/><img src="/images/team/marisa-martell.webp" width="50" height="50" alt=""/></div><div class="rs-trust-copy"><strong>Free tools. Experienced people behind them.</strong><p class="rs-small">Created by PPS, the team supporting practice startup, credentialing, and revenue cycle. When you want help, you can work with our specialists.</p></div><a class="rs-link" href="https://physicianpracticespecialists.com/about-us/">Meet PPS</a></div></section>
+  <section class="rs-section" id="resources"><div class="rs-wrap"><div class="rs-section-head"><div><div class="rs-kicker">Read, plan, prepare</div><h2>More help for opening day.</h2><p class="rs-small">Practical guidance, useful tools, and a head start on training.</p></div></div>
+    <div class="rs-library">
+      <article class="rs-resource featured"><span class="rs-tag">Free license offer</span><h3>HIPAA training with LaborGenie</h3><p>Request a free LaborGenie license for HIPAA training and a certificate of completion.</p><a class="rs-link" href="/resources/hipaa-training/">Explore the training offer</a></article>
+      <article class="rs-resource"><span class="rs-tag">Planning guide</span><h3>Understand startup costs</h3><p>Explore the expenses to consider before you build your budget or commit to a space.</p><a class="rs-link" href="/resources/startup-costs/">Read the cost guide</a></article>
+      <article class="rs-resource pending"><span class="rs-tag">Coming later</span><h3>The practice startup ebook</h3><p>A companion guide to opening an independent practice is planned. The online launch guides are available now.</p><a class="rs-link" href="/journey/">Read the online guides</a></article>
+      <article class="rs-resource"><span class="rs-tag">Quick assessment</span><h3>Find your starting point</h3><p>Use the launch readiness scan to find the guides that match where you are today.</p><a class="rs-link" href="/scan/">Take the readiness scan</a></article>
+      <article class="rs-resource"><span class="rs-tag">Reference tools</span><h3>Medicare planning tools</h3><p>Find fee schedule and revalidation resources from the Metolius team.</p><a class="rs-link" href="/resources/medicare-tools/">Explore Medicare tools</a></article>
+      <article class="rs-resource"><span class="rs-tag">Resource library</span><h3>Answers as you go</h3><p>Go deeper on planning, credentialing, technology, and the decisions ahead.</p><a class="rs-link" href="/resources/articles/">Browse articles</a></article>
+    </div>
+  </div></section>
+  <section class="rs-section"><div class="rs-wrap"><div class="rs-section-head"><div><div class="rs-kicker">Your launch, step by step</div><h2>A guide for each stage.</h2></div><a class="rs-link" href="/journey/">See the complete launch guide</a></div><div class="rs-guide-list">{phases.map(p=><a href={`/journey/${p.slug}/`}><span>{p.id}</span>{p.title}</a>)}</div></div></section>
+  <section class="rs-section"><div class="rs-wrap"><div class="rs-support"><div><h2>You do not have to figure it out alone.</h2><p>Bring your questions, checklist, or budget to a conversation with the PPS team. We can help you identify the work ahead and the support you need.</p></div><a href={SITE.scheduleUrl} class="rs-btn">Talk with a startup specialist</a></div></div></section>
+</div>

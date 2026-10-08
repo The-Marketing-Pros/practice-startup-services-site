@@ -11,9 +11,9 @@ export const SITE = {
   name: "Practice Startup Services",
   domain: "practicestartupservices.com",
   url: "https://practicestartupservices.com",
-  tagline: "The practice launch guide — and the team to make it real.",
+  tagline: "Your practice. Your plan. A team behind you.",
   promise:
-    "The complete platform for launching a private medical practice — free guides, expert services, and the tools to make it real.",
+    "Free startup tools and practical guides from Physician Practice Specialists. Build your plan, download it, and get help when you need it.",
   // Single source of truth for the booking URL is src/config/site.ts.
   scheduleUrl: CONSULT_BOOKING_URL,
   metoliusToolsUrl: "https://mymetolius.com/tools",
@@ -113,6 +113,8 @@ export const NAV = [
     href: "/resources/",
     children: [
       { label: "Startup Checklist", href: "/resources/startup-checklist/" },
+      { label: "Pro Forma Builder", href: "/resources/pro-forma/" },
+      { label: "Free HIPAA Training", href: "/resources/hipaa-training/" },
       { label: "Medicare Tools", href: "/resources/medicare-tools/" },
       { label: "Startup Cost Guide", href: "/resources/startup-costs/" },
       { label: "Articles", href: "/resources/articles/" },

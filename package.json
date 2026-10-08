@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
-  "description": "PracticeStartupServices.com — The premium blueprint for launching an independent medical practice.",
+  "description": "PracticeStartupServices.com \u2014 The premium blueprint for launching an independent medical practice.",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "test:planners": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -21,6 +22,8 @@
     "@fontsource-variable/fraunces": "^5.2.9",
     "@fontsource/jetbrains-mono": "^5.1.0",
     "astro": "^5.1.1",
+    "exceljs": "^4.4.0",
+    "jspdf": "^4.2.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   },
