@@ -161,3 +161,20 @@ test("suggested due dates follow opening changes until explicitly edited", () =>
   p.profile.opening = "2027-08-01";
   assert.equal(taskProgress(p, t).due, "2027-01-01");
 });
+
+
+test("custom backup IDs must be bounded strings, not coercible values",()=>{
+ for(const id of [["custom-array"],{},null,123,"custom-"+"a".repeat(81)]){
+  const p=newChecklist();p.custom=[{id,phase:0,title:"Follow up",detail:"",weeks:0} as never];
+  assert.throws(()=>parseChecklist(p));
+ }
+});
+
+test("maximum valid UTF-8 checklist fits the import limit and round trips",async()=>{
+ const {MAX_BACKUP_BYTES}=await import("../src/lib/planners/browser.ts");
+ const p=newChecklist();p.profile.setting="hybrid";p.profile.provider="np";
+ p.custom=Array.from({length:100},(_,i)=>({id:`custom-${i}`,phase:0,title:"界".repeat(160),detail:"Your custom task.",weeks:0}));
+ for(const t of visibleTasks(p))p.progress[t.id]={done:false,owner:"界".repeat(100),notes:"界".repeat(2000),due:null};
+ const json=JSON.stringify(p,null,2);const size=new TextEncoder().encode(json).byteLength;
+ assert.ok(size>500000);assert.ok(size<MAX_BACKUP_BYTES);assert.deepEqual(parseChecklist(JSON.parse(json)),p);
+});

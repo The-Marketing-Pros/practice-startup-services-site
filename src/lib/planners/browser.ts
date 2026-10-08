@@ -1,3 +1,5 @@
+// Exceeds the maximum UTF-8 size of every schema-valid checklist.
+export const MAX_BACKUP_BYTES = 2_000_000;
 export function element<T = HTMLElement>(id: string) {
   const el = document.getElementById(id);
   if (!el) throw Error(`Missing ${id}`);
@@ -47,7 +49,7 @@ export async function importPlan<T>(
   try {
     const file = input.files?.[0];
     if (!file) return;
-    if (file.size > 500000) throw Error("Choose a backup smaller than 500 KB.");
+    if (file.size > MAX_BACKUP_BYTES) throw Error("Choose a backup smaller than 2 MB.");
     const plan = parse(JSON.parse(await file.text()));
     if (
       !confirm(

@@ -91,7 +91,12 @@ list.addEventListener("input", (event) => {
   store(key, plan);
   input.closest(".rs-task")?.classList.toggle("done", progress.done);
   summary();
-  if (input.dataset.field === "done" && openOnly) render();
+  if (input.dataset.field === "done" && openOnly) {
+    const index = [...list.querySelectorAll("input[type=checkbox]")].indexOf(input);
+    render();
+    const next = list.querySelectorAll<HTMLInputElement>("input[type=checkbox]");
+    (next[Math.min(index, next.length - 1)] || element("show-all")).focus();
+  }
 });
 list.addEventListener("click", (e) => {
   const button = (e.target as HTMLElement).closest<HTMLElement>(
@@ -103,6 +108,7 @@ list.addEventListener("click", (e) => {
   delete plan.progress[id];
   store(key, plan);
   render();
+  element<HTMLInputElement>("custom-title").focus();
   status("Custom task removed.");
 });
 for (const [id, value] of [

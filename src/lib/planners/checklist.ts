@@ -372,6 +372,8 @@ export function parseChecklist(raw: unknown): Checklist {
   const custom = x.custom.map((t) => {
     if (
       !t ||
+      typeof t.id !== "string" ||
+      t.id.length > 80 ||
       !/^custom-[a-zA-Z0-9-]+$/.test(t.id) ||
       !text(t.title, 160) ||
       !t.title.trim() ||

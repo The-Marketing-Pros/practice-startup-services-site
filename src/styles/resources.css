@@ -808,3 +808,7 @@ html.rs-js .rs-has-js {
     break-inside: avoid;
   }
 }
+
+.rs-mobile-jump { display:none; margin-top:18px; min-height:44px; align-items:center; }
+#launch-plan, #cash-forecast, #custom-task, .rs-phase { scroll-margin-top:100px; }
+@media(max-width:1000px) { .rs-mobile-jump { display:inline-flex; } }
