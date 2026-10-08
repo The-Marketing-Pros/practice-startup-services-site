@@ -8,7 +8,7 @@ The homepage and `/resources/` expose the checklist and pro forma first, with th
 - `/resources/pro-forma/`: 24-month cash forecast with editable illustrative assumptions, collection delay, upfront startup costs, provider compensation, payroll burden, debt payments, funding gap, and ending receivables. Excel has editable assumptions and cached formulas; PDF summarizes the current plan. This is not an accrual income statement. Model boundaries are visible in the UI and both exports.
 - Both tools store a versioned plan in localStorage. No planner inputs are posted to a server or analytics. Site-wide analytics remain as before. Exports are created in the browser, with dependencies loaded only when needed.
 - Browser saving can fail or be cleared. The UI explains local storage and offers backup/restore; invalid backups fail validation. Do not enter patient data.
-- `/resources/hipaa-training/`: user-authorized free license offer. Requests use a prepared email to the PPS public sales address, with the PPS contact page as an alternative. PPS must fulfill manually and confirm license scope. No automated activation, seat count, or term is promised. A completion certificate is not government certification or proof of organizational HIPAA compliance.
+- `/resources/hipaa-training/`: user-authorized free license offer. Requests use the dedicated HubSpot registration form, with the PPS contact page as an alternative. PPS must fulfill manually and confirm license scope. No automated activation, seat count, or term is promised. A completion certificate is not government certification or proof of organizational HIPAA compliance.
 - Ebook is explicitly planned, with available online guides linked instead. No fake download or signup gate.
 
 ## Sources and assets
@@ -33,4 +33,4 @@ The dedicated LaborGenie registration page embeds HubSpot portal 1849537 form a5
 
 HubSpot form published through the existing account UI on October 8. CAPTCHA enabled; new email addresses create separate contacts. Marketing contact auto-classification is off: opt-in is captured, but future campaigns must select consenting recipients and activate their marketing-contact status. No follow-up campaign or automated license provisioning is configured. PPS manually arranges license access. Customized-plan email delivery is not implemented; direct PDF/Excel and JSON downloads remain available.
 
-The HubSpot publisher warned that domains must be in Reports & Analytics Tracking. Confirm practicestartupservices.com is allowed before relying on submission routing. No customer record or test email was submitted during implementation.
+The HubSpot publisher warned that domains must be in Reports & Analytics Tracking. Added practicestartupservices.com as an external domain, saved the setting, and verified the saved list on October 8. No customer record or test email was submitted during implementation.
