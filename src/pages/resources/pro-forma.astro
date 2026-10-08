@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PlannerStorage from '@components/PlannerStorage.astro';
+import StartupRegistration from '@components/StartupRegistration.astro';
 import {financeFields} from '../../lib/planners/finance';
 import '@styles/resources.css';
 const groups=[['volume','Patient volume & collections'],['startup','Startup costs & funding'],['monthly','Monthly expenses']];
@@ -15,7 +16,7 @@ const groups=[['volume','Patient volume & collections'],['startup','Startup cost
    {groups.map(([id,title],i)=><details class="rs-form-section" open={i===0}><summary>{i+1}. {title}</summary><div>{financeFields.filter(f=>f[6]===id).map(([key,label,example,min,max])=><div class="rs-field"><label for={`finance-${key}`}>{label}</label><input type="number" id={`finance-${key}`} name={key} value={example} min={min} max={max} step={['providers','days','ramp','lag'].includes(key)?1:'any'} inputmode="decimal" required />{key==='netPerVisit'&&<small>Expected collectible revenue after contractual adjustments and expected losses, not gross charges.</small>}{key==='providerPay'&&<small>Total monthly compensation for all providers, including you. Payroll burden is added below.</small>}{key==='funding'&&<small>Cash available before opening, including committed loans and owner investment.</small>}{key==='ramp'&&<small>Linear growth from opening utilization. A one-month ramp starts at full capacity.</small>}{key==='debt'&&<small>Principal + interest paid each month. Count loan proceeds in available funding.</small>}</div>)}</div></details>)}
    </form><PlannerStorage />
   </aside>
-  <section class="rs-panel" id="cash-forecast"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your cash forecast</h2><p class="rs-small">Updates as you change your inputs.</p></div><div class="rs-actions"><button id="finance-xlsx" class="rs-btn">Download Excel</button><button id="finance-pdf" class="rs-btn secondary">Download PDF</button></div></div>
+  <section class="rs-panel" id="cash-forecast"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your cash forecast</h2><p class="rs-small">Updates as you change your inputs.</p></div><div class="rs-actions"><button id="finance-xlsx" class="rs-btn">Download Excel</button><button id="finance-pdf" class="rs-btn secondary">Download PDF</button><a class="rs-link" href="#startup-registration">Get my free LaborGenie license</a></div></div>
    <p id="planner-status" class="rs-status" role="status"></p><div id="finance-errors" role="alert" hidden class="rs-notice warn"></div>
    <div id="finance-results"><div class="rs-summary"><div class="rs-stat"><span>Startup costs</span><strong id="startup-total"></strong></div><div class="rs-stat"><span>Lowest cash balance</span><strong id="lowest-cash"></strong></div><div class="rs-stat"><span>Additional funding</span><strong id="funding-gap"></strong></div></div>
     <p class="rs-small">Additional funding covers the projected shortfall to stay at $0. Add a reserve for uncertainty.</p>
@@ -30,6 +31,7 @@ const groups=[['volume','Patient volume & collections'],['startup','Startup cost
    <p class="rs-small" style="margin-top:20px">Keep your launch moving: <a href="/resources/startup-checklist/" class="rs-link">Build your startup checklist</a>.</p>
   </section>
  </div>
+<StartupRegistration />
 </div></div>
 <script>import '../../scripts/finance';</script>
 </BaseLayout>

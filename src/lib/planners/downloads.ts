@@ -1,3 +1,4 @@
+import { supportForTask } from "./support.ts";
 import type { Checklist } from "./checklist.ts";
 import { stages, visibleTasks, taskProgress } from "./checklist.ts";
 import { financeFields, project, type FinancePlan } from "./finance.ts";
@@ -61,7 +62,7 @@ function styleSheet(s: import("exceljs").Worksheet, widths: number[]) {
     }
   });
 }
-export async function checklistExcel(plan: Checklist) {
+export async function checklistWorkbook(plan: Checklist) {
   const w = await workbook();
   const s = w.addWorksheet("Startup checklist");
   s.addRow(["YOUR PRACTICE STARTUP CHECKLIST"]);
@@ -84,9 +85,12 @@ export async function checklistExcel(plan: Checklist) {
     "Due date",
     "Notes",
     "Guidance",
+    "Optional support",
+    "Support link",
   ]);
   for (const t of visibleTasks(plan)) {
     const p = taskProgress(plan, t);
+    const help = supportForTask(t.id);
     s.addRow([
       stages[t.phase],
       t.title,
@@ -95,10 +99,16 @@ export async function checklistExcel(plan: Checklist) {
       p.due,
       p.notes,
       t.detail,
+      help ? `${help.name}: ${help.description}` : "",
+      help ? { text: help.label, hyperlink: help.url } : "",
     ]);
   }
-  styleSheet(s, [17, 48, 14, 23, 15, 50, 70]);
-  s.autoFilter = "A7:G7";
+  styleSheet(s, [17, 48, 14, 23, 15, 50, 70, 65, 35]);
+  s.autoFilter = "A7:I7";
+  return w;
+}
+export async function checklistExcel(plan: Checklist) {
+  const w = await checklistWorkbook(plan);
   saveFile(
     (await w.xlsx.writeBuffer()) as ArrayBuffer,
     "practice-startup-checklist.xlsx",
@@ -381,6 +391,18 @@ async function pdfDocument(title: string, subtitle: string) {
   return {
     doc,
     line,
+    link: (label: string, url: string) => {
+      doc.setFont("NotoSans", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(35, 79, 70);
+      for (const text of doc.splitTextToSize(`${label}: ${url}`, 172) as string[]) {
+        if (y > 275) { doc.addPage(); y = 20; }
+        doc.textWithLink(text, 19, y, { url });
+        y += 6;
+      }
+      y += 2;
+      doc.setTextColor(0);
+    },
     keep: (height: number) => { if (y + height > 275) { doc.addPage(); y = 20; } },
     space: () => {
       y += 5;
@@ -413,16 +435,18 @@ export async function checklistPdf(plan: Checklist) {
   pdf.line(
     "Suggested dates are editable planning targets, not required lead times. This checklist is a starting point; verify current requirements with your licensing board and advisers.",
   );
+  pdf.line("Optional PPS services, LaborGenie, and UnfairCPA resources are included alongside relevant tasks. You choose whether to use them.", 9);
   let phase = -1;
   for (const t of visibleTasks(plan)) {
+    const help = supportForTask(t.id);
     if (t.phase !== phase) {
-      pdf.keep(52);
+      pdf.keep(help ? 85 : 52);
       pdf.space();
       pdf.line(`${t.phase + 1}. ${stages[t.phase]}`, 14, true);
       phase = t.phase;
     }
     const p = taskProgress(plan, t);
-    pdf.keep(32);
+    pdf.keep(help ? 65 : 32);
     pdf.line(`${p.done ? "[Done]" : "[Open]"} ${t.title}`, 11, true);
     pdf.line(t.detail);
     pdf.line(
@@ -430,6 +454,12 @@ export async function checklistPdf(plan: Checklist) {
       9,
     );
     if (p.notes) pdf.line(`Notes: ${p.notes}`);
+    if (help) {
+      pdf.keep(38);
+      pdf.line(`Optional support: ${help.name}`, 9, true);
+      pdf.line(help.description, 9);
+      pdf.link(help.label, help.url);
+    }
   }
   pdf.finish("practice-startup-checklist.pdf");
 }

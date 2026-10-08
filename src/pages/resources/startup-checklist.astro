@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PlannerStorage from '@components/PlannerStorage.astro';
+import StartupRegistration from '@components/StartupRegistration.astro';
 import { states, stages } from '../../lib/planners/checklist';
 import '@styles/resources.css';
 ---
@@ -19,16 +20,17 @@ import '@styles/resources.css';
     <div class="rs-field"><label for="practice-staff">Hiring employees?</label><select id="practice-staff" name="staff"><option value="yes">Yes</option><option value="no">No, solo for now</option></select></div>
     <div class="rs-field"><label for="practice-opening">Target opening date</label><input type="date" id="practice-opening" name="opening" min="2000-01-01" max="2100-12-31" /><small>Creates suggested dates. Your edited task dates stay as you set them.</small></div>
    </form><PlannerStorage /></aside>
-   <section class="rs-panel" id="launch-plan"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions"><button class="rs-btn secondary" id="checklist-xlsx">Download Excel</button><button class="rs-btn" id="checklist-pdf">Download PDF</button></div></div>
+   <section class="rs-panel" id="launch-plan"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions"><button class="rs-btn secondary" id="checklist-xlsx">Download Excel</button><button class="rs-btn" id="checklist-pdf">Download PDF</button><a class="rs-link" href="#startup-registration">Get my free LaborGenie license</a></div></div>
     <div class="rs-status" id="planner-status" role="status"></div>
     <div class="rs-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
-    <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant.</p>
+    <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant. PPS services, LaborGenie, and UnfairCPA appear beside relevant steps and in your downloads. These are optional ways to get help.</p>
     <div class="rs-tabs"><button id="show-all" aria-pressed="true">All tasks</button><button id="show-open" aria-pressed="false">To do</button><a class="rs-text-btn" href="#custom-task">Add my own task</a></div>
     <div id="checklist-tasks"></div>
     <form id="custom-task" class="rs-form-section rs-no-print"><h3>Add something specific to your practice</h3><div class="rs-fields"><div class="rs-field"><label for="custom-title">Task name</label><input id="custom-title" maxlength="160" required placeholder="e.g., Order exterior signage" /></div><div class="rs-field"><label for="custom-phase">Phase</label><select id="custom-phase">{stages.map((s,i)=><option value={i}>{i+1}. {s}</option>)}</select></div></div><button class="rs-btn secondary" type="submit">Add task</button></form>
-    <p class="rs-small" style="margin-top:24px">Next up: <a class="rs-link" href="/resources/pro-forma/">Build your startup pro forma</a> or <a class="rs-link" href="/resources/hipaa-training/">request free HIPAA training</a>.</p>
+    <p class="rs-small" style="margin-top:24px">Next up: <a class="rs-link" href="/resources/pro-forma/">Build your startup pro forma</a> or <a class="rs-link" href="/resources/hipaa-training/">get the free LaborGenie offer</a>.</p>
    </section>
   </div>
+  <StartupRegistration />
  </div>
 </div>
 <script>import '../../scripts/checklist';</script>

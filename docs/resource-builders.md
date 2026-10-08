@@ -24,3 +24,13 @@ The homepage and `/resources/` expose the checklist and pro forma first, with th
 Run `npm run test:planners`, `npm run check`, `npm run build`, and the existing CI gate regression suite. Verify browser flows against a production build (`npm run preview`), because concurrent Astro development/check processes can invalidate Vite's dependency optimization cache.
 
 PDF/XLSX download packages are lazy imports. ExcelJS 4.4.0 brings a transitive uuid moderate audit advisory for buffer handling in UUID v3/v5/v6; this exporter does not call those APIs or parse workbooks. The repository also has existing Astro/Tailwind toolchain audit findings. No broad framework upgrade is included in this feature. A separate dependency maintenance change should address the existing toolchain.
+
+## Service links and LaborGenie registration (2026-10-08)
+
+Checklist tasks retain their stable IDs and progress. Relevant tasks show optional PPS, LaborGenie (staff training, compliance preparation, onboarding), or UnfairCPA help. These links are included in PDF and Excel exports; buying a service is never a completion requirement. UnfairCPA is a resource link, with no free-license promise.
+
+The dedicated LaborGenie registration page embeds HubSpot portal 1849537 form a511bd25-cdf3-4265-aecb-d56ff941bf9e. Required fields: email and practice name (contact company property). The optional unchecked marketing checkbox mentions PPS resources, the upcoming EHR, LaborGenie, and UnfairCPA. HubSpot scripts load on the registration page only, not inside either planner. Checklist notes and financial assumptions remain local.
+
+HubSpot form published through the existing account UI on October 8. CAPTCHA enabled; new email addresses create separate contacts. Marketing contact auto-classification is off: opt-in is captured, but future campaigns must select consenting recipients and activate their marketing-contact status. No follow-up campaign or automated license provisioning is configured. PPS manually arranges license access. Customized-plan email delivery is not implemented; direct PDF/Excel and JSON downloads remain available.
+
+The HubSpot publisher warned that domains must be in Reports & Analytics Tracking. Confirm practicestartupservices.com is allowed before relying on submission routing. No customer record or test email was submitted during implementation.
