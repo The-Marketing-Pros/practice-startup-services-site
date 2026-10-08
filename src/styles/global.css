@@ -227,7 +227,7 @@ html.js-revealable-init .is-in .rule-draw {
 
 /* Keep keyboard focus visible even on legacy controls with outline-none utilities.
    Mint is a surface accent, never the only focus indicator on a light surface. */
-:where(a, button, input, select, textarea, summary):focus-visible {
+:root :is(a, button, input, select, textarea, summary):focus-visible {
   outline: 3px solid #5375ee;
   outline-offset: 3px;
 }
