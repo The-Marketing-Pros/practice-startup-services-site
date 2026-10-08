@@ -19,10 +19,23 @@ export function status(message: string, error = false) {
   el.textContent = message;
   el.classList.toggle("error", error);
 }
-export function store(key: string, value: unknown) {
+// Each page remembers the exact saved snapshot it loaded or last wrote.
+// Web Locks serialize the compare/write across tabs on this origin.
+const savedSnapshots = new Map<string, string | null>();
+export async function store(key: string, value: unknown) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
-    element("save-status").textContent = "Saved on this browser.";
+    const snapshot = JSON.stringify(value);
+    if (!navigator.locks) throw Error("Safe browser saving is unavailable");
+    await navigator.locks.request(`pps-planner:${key}`, () => {
+      if (!savedSnapshots.has(key) || localStorage.getItem(key) !== savedSnapshots.get(key)) {
+        element("save-status").textContent =
+          "Another tab changed your saved plan. Changes in this tab are not saved. Download a backup of this tab before reloading to load the latest saved plan.";
+        return;
+      }
+      localStorage.setItem(key, snapshot);
+      savedSnapshots.set(key, snapshot);
+      element("save-status").textContent = "Saved on this browser.";
+    });
   } catch {
     element("save-status").textContent =
       "Browser saving is unavailable. Download a backup to keep your work.";
@@ -34,6 +47,7 @@ export function restore<T>(
 ): T | undefined {
   try {
     const raw = localStorage.getItem(key);
+    savedSnapshots.set(key, raw);
     if (raw) return parse(JSON.parse(raw));
   } catch {
     element("save-status").textContent =
