@@ -4,18 +4,19 @@ const { standalone = false } = Astro.props;
 <section class:list={["rs-registration", { "rs-panel": standalone }]} id="startup-registration" aria-labelledby="registration-title">
   <div>
     <span class="rs-tag">A head start for your team</span>
-    <h2 id="registration-title">Your plan. A free LaborGenie license. More support when you need it.</h2>
-    <p>Register your email and practice name to request your free LaborGenie license for staff training, compliance preparation, and onboarding.</p>
+    <h2 id="registration-title">Claim your free LaborGenie license.</h2>
+    <p>Give your team a head start on staff training, compliance preparation, and onboarding. Claim a free LaborGenie license for up to 10 users with your email and practice name.</p>
+    <p class="rs-small">For up to 10 users. Regular price: $9.99 per user/month.</p>
     <p class="rs-small">You can also choose PPS startup resources and product news, including updates about our upcoming EHR and UnfairCPA. Product emails are optional.</p>
   </div>
   {standalone ? <div class="rs-registration-form">
-    <div id="pps-startup-registration" aria-label="Register for a free LaborGenie license"></div>
+    <div id="pps-startup-registration" aria-label="Claim your free LaborGenie license"></div>
     <p id="registration-loading" class="rs-small" role="status">Loading the registration form…</p>
     <p class="rs-small">Your email and practice name go to PPS through HubSpot. Your checklist notes and pro forma inputs are not sent with this registration. <a class="rs-link" href="/privacy/">Privacy policy</a>.</p>
     <p class="rs-small">Need another way to register? <a class="rs-link" href="https://physicianpracticespecialists.com/contact/">Contact PPS</a> and mention the free LaborGenie license.</p>
     <noscript><p>JavaScript is needed for this form. Please use the PPS contact link above to register.</p></noscript>
   </div> : <div class="rs-registration-actions">
-    <a class="rs-btn" href="/resources/hipaa-training/#startup-registration">Register for my free license</a>
+    <a class="rs-btn" href="/resources/hipaa-training/#startup-registration">Claim your free license</a>
     <p class="rs-small">PPS emails you with access details. No account needed to use or download these planning tools.</p>
   </div>}
 </section>
