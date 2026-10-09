@@ -1,80 +1,19 @@
 ---
-import BaseLayout from "@layouts/BaseLayout.astro";
-import BlueprintJourney from "@components/BlueprintJourney.astro";
-import FinalCta from "@components/FinalCta.astro";
-import { phases } from "@data/phases";
-
-const itemListSchema = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "The 7-phase medical practice launch journey",
-  itemListOrder: "https://schema.org/ItemListOrderAscending",
-  numberOfItems: phases.length,
-  itemListElement: phases.map((p, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    name: `Phase ${p.id} — ${p.title}`,
-    url: `https://practicestartupservices.com/journey/${p.slug}/`,
-  })),
-};
+import BaseLayout from '@layouts/BaseLayout.astro';
+import LearningNav from '@components/LearningNav.astro';
+import LearningArticles from '@components/LearningArticles.astro';
+import LearningSupport from '@components/LearningSupport.astro';
+import { phases } from '@data/phases';
+import '@styles/learning.css';
+const outcomes = ['A practice model and a list of questions to validate.','A working budget and a forecast you can adjust.','A documented setup plan with your professional advisers.','A payer tracker with owners, next actions, and verified status.','A team and patient workflow ready to rehearse.','A coordinated opening plan, from first inquiry to follow-up.','A routine for reviewing results and improving the practice.'];
+const schema = {'@context':'https://schema.org','@type':'ItemList',name:'Medical practice launch roadmap',itemListOrder:'https://schema.org/ItemListOrderAscending',numberOfItems:phases.length,itemListElement:phases.map((p,i)=>({'@type':'ListItem',position:i+1,name:p.title,url:`https://practicestartupservices.com/journey/${p.slug}/`}))};
 ---
-
-<BaseLayout
-  title="The Launch Journey"
-  description="The 7-phase blueprint for launching an independent medical practice. Foundation, structure, systems, launch, growth — in order, with real watchouts."
-  schema={itemListSchema}
->
-  <section class="border-b border-ink/8 py-16 lg:py-24 relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="bp-grid-journey" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="hsl(var(--ink-800))" stroke-width="1" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#bp-grid-journey)" />
-      </svg>
-    </div>
-
-    <div class="container-site relative">
-      <div class="grid lg:grid-cols-12 gap-8">
-        <div class="lg:col-span-12">
-          <div class="phase-label text-bronze-700 mb-5">The Independent Practice Blueprint</div>
-          <h1 class="font-display text-display-xl font-medium text-ink mb-5">
-            The launch journey, in order.
-          </h1>
-        </div>
-        <div class="lg:col-span-12 max-w-prose-wide">
-        <p class="text-lede text-graphite-700 text-pretty mb-6">
-          Starting a practice isn't a checklist. It's a build sequence with dependencies, timing windows,
-          and traps. Most physicians launch the way they were taught to do residency — show up, work hard,
-          hope it works. That's how 90 to 180 days of revenue get lost to credentialing, working capital
-          gets burned on the wrong EHR, and marketing money goes to programs that don't fit.
-        </p>
-        <p class="text-lede text-ink text-pretty">
-          This is the order of operations. Use it for free. Hire us when you want the build crew.
-        </p>
-        </div>
-      </div>
-
-      <div class="mt-12 max-w-prose-wide card-blueprint reveal">
-        <h2 class="font-display text-display-sm font-medium text-ink mb-3 text-balance">
-          How long does it take to open a private practice?
-        </h2>
-        <p class="text-body text-graphite-800 leading-relaxed mb-3">
-          Most physicians should plan on roughly <strong class="text-ink">6–12 months from committed
-          decision to seeing patients</strong>. The long pole is credentialing: 90–180 days, started
-          4–6 months before your target open date. Planning (4–8 weeks), entity setup (2–4 weeks), and
-          infrastructure build-out (60–120 days) overlap around that clock — the sequence below shows
-          what runs in parallel and what can't.
-        </p>
-        <p class="text-small text-graphite-700">
-          Each phase guide lists honest durations, what must happen first, and what commonly causes delays.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <BlueprintJourney />
-  <FinalCta />
-</BaseLayout>
+<BaseLayout title="Your Medical Practice Launch Roadmap" description="Move from practice idea to opening day with seven practical phase guides, a customizable checklist, startup articles, and a free pro forma builder." schema={schema}>
+<div class="learning">
+<section class="learn-hero"><div class="learn-wrap learn-hero-grid"><div><div class="learn-eyebrow">Your practice, taking shape</div><h1 class="learn-title">Big ambition.<br/><em>A clear next step.</em></h1><p class="learn-intro">From the first idea to your first patient, make the work ahead easier to see. Explore seven stages of launching a practice, then turn the guidance into a plan you can use.</p><div class="learn-actions"><a class="learn-btn" href="/resources/startup-checklist/">Build my launch checklist</a><a class="learn-btn secondary" href="#launch-phases">Explore the seven stages</a></div><div class="learn-people"><div class="learn-faces" aria-hidden="true"><img src="/images/team/lindsay-pauly.webp" alt="" width="42" height="42"/><img src="/images/team/tonya-barry.webp" alt="" width="42" height="42"/><img src="/images/team/marisa-martell.webp" alt="" width="42" height="42"/></div><span>Free guidance. Real PPS people when you need help.</span></div></div><aside class="learn-roadmap" aria-label="Launch stages"><div class="learn-eyebrow">The way forward</div><h2>From “what if”<br/>to opening day.</h2><ol>{phases.map(p=><li><a href={`#phase-${p.id}`}><span>{p.id}</span>{p.title}</a></li>)}</ol><div class="learn-roadmap-foot">A flexible sequence, not a fixed schedule. Some work can move forward together.</div></aside></div></section>
+<LearningNav />
+<section class="learn-section" id="launch-phases"><div class="learn-wrap"><div class="learn-heading"><div><div class="learn-eyebrow">Find where you are</div><h2>Seven stages. Useful work at every step.</h2><p>Start with the decision in front of you. Each guide covers what to tackle first, what can run alongside it, and how to keep moving.</p></div></div><ol class="learn-phase-grid">{phases.map((p,i)=><li class="learn-phase" id={`phase-${p.id}`}><span class="learn-phase-number" aria-hidden="true">{p.id}</span><div><h3><a href={`/journey/${p.slug}/`}>{p.title}</a></h3><p>{p.subtitle}</p><p class="learn-outcome"><strong>What you’ll leave with</strong>{outcomes[i]}</p><a class="learn-link" href={`/journey/${p.slug}/`} aria-label={`Open stage ${p.id}: ${p.title}`}>Open this guide</a></div></li>)}</ol></div></section>
+<section class="learn-section"><div class="learn-wrap learn-split"><div><div class="learn-eyebrow">Set a pace that fits your practice</div><h2>Plan around dependencies, not a promised opening date.</h2><p class="learn-intro">Your specialty, location, build-out, staffing, and payer requirements shape the schedule. Track those moving parts together and revise the plan as answers come in.</p><div class="learn-actions"><a class="learn-btn secondary" href="/resources/pro-forma/">Explore my startup numbers</a></div></div><div class="learn-panel"><h3>Three ways to keep the plan useful</h3><ul class="learn-list"><li><strong>Give each task an owner.</strong> Add a target date and note what needs to happen before it can move.</li><li><strong>Confirm the outside dependencies.</strong> Ask vendors, advisers, and payers what they need and how they communicate progress.</li><li><strong>Review the plan regularly.</strong> Update your checklist and cash-flow assumptions when a key date changes.</li></ul></div></div></section>
+<section class="learn-section"><div class="learn-wrap"><div class="learn-heading"><div><div class="learn-eyebrow">A little more guidance</div><h2>Read it. Then put it to work.</h2><p>Practical articles that connect directly to your checklist and financial plan.</p></div><a class="learn-link" href="/resources/articles/">All articles</a></div><LearningArticles limit={3}/><div class="learn-actions"><a class="learn-btn secondary" href="/resources/videos/">Visit the video library</a><span class="learn-note">Walkthroughs are planned. Articles and tools are ready now.</span></div></div></section>
+<LearningSupport />
+</div></BaseLayout>

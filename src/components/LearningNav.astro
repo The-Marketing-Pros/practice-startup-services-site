@@ -1,0 +1,10 @@
+---
+const links = [
+  {label:'Launch roadmap', href:'/journey/'},
+  {label:'Articles', href:'/resources/articles/'},
+  {label:'Videos', href:'/resources/videos/'},
+  {label:'Free tools', href:'/resources/'}
+];
+const path = Astro.url.pathname;
+---
+<nav class="learn-nav" aria-label="Learning resources"><div class="learn-wrap">{links.map(item=><a href={item.href} aria-current={path === item.href ? 'page' : path.startsWith(item.href) && item.href !== '/resources/' ? 'location' : undefined}>{item.label}</a>)}</div></nav>

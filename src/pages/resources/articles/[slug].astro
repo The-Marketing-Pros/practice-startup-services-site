@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import LearningNav from '@components/LearningNav.astro';
+import LearningSupport from '@components/LearningSupport.astro';
+import { publishedArticles, type Article } from '@data/articles';
+import '@styles/learning.css';
+export function getStaticPaths(){ return publishedArticles.map(article=>({params:{slug:article.slug},props:{article}})); }
+interface Props {article:Article}
+const { article } = Astro.props;
+const date = new Date(`${article.publishedAt}T12:00:00Z`).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
+const schema = {'@context':'https://schema.org','@type':'Article',headline:article.title,description:article.description,datePublished:article.publishedAt,dateModified:article.publishedAt,author:{'@type':'Organization',name:article.author,url:'https://practicestartupservices.com/about/'},publisher:{'@id':'https://practicestartupservices.com/#organization'},mainEntityOfPage:`https://practicestartupservices.com/resources/articles/${article.slug}/`};
+---
+<BaseLayout title={article.title} description={article.description} datePublished={article.publishedAt} dateModified={article.publishedAt} schema={schema}>
+<div class="learning"><section class="learn-hero"><div class="learn-wrap"><a class="learn-link" href="/resources/articles/">All articles</a><div class="learn-eyebrow" style="margin-top:20px">{article.topics.join(' · ')}</div><h1 class="learn-title">{article.title}</h1><p class="learn-intro">{article.description}</p><div class="learn-meta"><span>By {article.author}</span><time datetime={article.publishedAt}>{date}</time><span>{article.readMinutes} min read</span></div></div></section><LearningNav /><div class="learn-section"><div class="learn-wrap learn-article-layout"><article class="learn-prose" aria-label={article.title}>{article.sections.map(section=><section id={section.id}><h2>{section.heading}</h2>{section.paragraphs.map(paragraph=><p>{paragraph}</p>)}{section.bullets && <ul class="learn-list">{section.bullets.map(item=><li>{item}</li>)}</ul>}</section>)}{article.sources.length>0 && <section id="sources"><h2>Further reading</h2><ul>{article.sources.map(source=><li><a class="learn-link" href={source.href}>{source.label}</a></li>)}</ul><p class="learn-note">Sources consulted October 8, 2026.</p></section>}<div class="learn-panel"><h2>Put it into practice.</h2><p>{article.action.description}</p><a class="learn-btn" href={article.action.href}>{article.action.label}</a></div></article><aside class="learn-article-aside"><nav aria-label="In this article"><strong>In this article</strong>{article.sections.map(section=><a href={`#${section.id}`}>{section.heading}</a>)}</nav><a class="learn-link" href="/resources/videos/">Future video walkthroughs</a></aside></div></div><LearningSupport /></div>
+</BaseLayout>
