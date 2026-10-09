@@ -14,8 +14,8 @@ const consulting: StartupSupport = {
 };
 const laborGenie: StartupSupport = {
   name: "LaborGenie",
-  description: "Bring staff onboarding, training, and compliance preparation into your launch plan. Register for the free license offer through PPS.",
-  label: "Get the free LaborGenie offer",
+  description: "Bring staff onboarding, training, and compliance preparation into your launch plan. Claim your free LaborGenie license for up to 10 users through PPS. Regular price: $9.99 per user/month.",
+  label: "Claim your free LaborGenie license",
   url: `${site}/resources/hipaa-training/`,
 };
 const billing: StartupSupport = {

@@ -1,6 +1,7 @@
 ---
 import { phases } from '@data/phases';
 import { SITE } from '@data/site';
+import PracticeElfCard from './PracticeElfCard.astro';
 import '@/styles/resources.css';
 const { library = false } = Astro.props;
 ---
@@ -17,7 +18,8 @@ const { library = false } = Astro.props;
   </div><div class="rs-trust"><div class="rs-faces" aria-hidden="true"><img src="/images/team/lindsay-pauly.webp" width="50" height="50" alt=""/><img src="/images/team/tonya-barry.webp" width="50" height="50" alt=""/><img src="/images/team/marisa-martell.webp" width="50" height="50" alt=""/></div><div class="rs-trust-copy"><strong>Free tools. Experienced people behind them.</strong><p class="rs-small">Created by PPS, the team supporting practice startup, credentialing, and revenue cycle. When you want help, you can work with our specialists.</p></div><a class="rs-link" href="https://physicianpracticespecialists.com/about-us/">Meet PPS</a></div></section>
   <section class="rs-section" id="resources"><div class="rs-wrap"><div class="rs-section-head"><div><div class="rs-kicker">Read, plan, prepare</div><h2>More help for opening day.</h2><p class="rs-small">Practical guidance, useful tools, and a head start on training.</p></div></div>
     <div class="rs-library">
-      <article class="rs-resource featured"><span class="rs-tag">Free license offer</span><h3>Staff readiness with LaborGenie</h3><p>Register for a free LaborGenie license for staff training, compliance preparation, and onboarding.</p><a class="rs-link" href="/resources/hipaa-training/">Get the free license offer</a></article>
+      <article class="rs-resource featured"><span class="rs-tag">Free license offer</span><h3>Staff readiness with LaborGenie</h3><p>Staff training, compliance preparation, and onboarding for up to 10 users. Claim your free LaborGenie license through PPS. Regular price: $9.99 per user/month.</p><a class="rs-link" href="/resources/hipaa-training/">Claim your free license</a></article>
+      <PracticeElfCard />
       <article class="rs-resource"><span class="rs-tag">Financial tools</span><h3>Explore UnfairCPA</h3><p>Consider UnfairCPA as you set up your accounting workflow and review the financial side of running a practice.</p><a class="rs-link" href="https://unfaircpa.com/" target="_blank" rel="noopener">Explore UnfairCPA<span class="sr-only"> (opens in a new tab)</span></a></article>
       <article class="rs-resource"><span class="rs-tag">Planning guide</span><h3>Understand startup costs</h3><p>Explore the expenses to consider before you build your budget or commit to a space.</p><a class="rs-link" href="/resources/startup-costs/">Read the cost guide</a></article>
       <article class="rs-resource pending"><span class="rs-tag">Coming later</span><h3>The practice startup ebook</h3><p>A companion guide to opening an independent practice is planned. The online launch guides are available now.</p><a class="rs-link" href="/journey/">Read the online guides</a></article>
