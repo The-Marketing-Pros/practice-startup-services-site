@@ -1,0 +1,5 @@
+---
+import { publishedArticles } from '@data/articles';
+const { limit = publishedArticles.length } = Astro.props;
+---
+<div class="learn-grid">{publishedArticles.slice(0,limit).map(article=><article class="learn-card"><span class="learn-tag">{article.topics[0]}</span><h3><a href={`/resources/articles/${article.slug}/`}>{article.title}</a></h3><p>{article.description}</p><span class="learn-note">{article.readMinutes} min read</span><a class="learn-link" href={`/resources/articles/${article.slug}/`} aria-label={`Read: ${article.title}`}>Read article</a></article>)}</div>

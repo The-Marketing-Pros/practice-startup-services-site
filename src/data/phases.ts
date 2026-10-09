@@ -28,203 +28,206 @@ export interface Phase {
 
 export const phases: Phase[] = [
   {
-    id: "01",
-    slug: "is-this-right-for-me",
-    verb: "Decide",
-    title: "Is This Right for Me?",
-    subtitle: "The decision before the decision.",
-    question: "Should I leave employment and start my own practice?",
-    decision: "Solo vs. group vs. concierge vs. DPC vs. stay employed.",
-    buildStage: "foundation",
-    controlRoom: false,
-    duration: "2–6 months of thinking, 30 days of deciding",
-    whatHappensFirst:
-      "Get honest about your financial runway, your specialty's economics, and whether you want to run a business or just see patients.",
-    whatCanHappenInParallel: [
-      "Talk to 3 physicians who've launched in the last 3 years",
-      "Run a back-of-envelope startup cost model",
-      "Test your local payer mix",
+    "id": "01",
+    "slug": "is-this-right-for-me",
+    "verb": "Decide",
+    "title": "Is This Right for Me?",
+    "subtitle": "Choose a practice model that fits your goals, patients, and working life.",
+    "question": "What kind of practice do I want to build?",
+    "decision": "Practice model, patient population, ownership goals, and personal constraints.",
+    "buildStage": "foundation",
+    "controlRoom": false,
+    "duration": "Explore before making commitments.",
+    "whatHappensFirst": "Write down the practice you want to open and the questions you still need to answer.",
+    "whatCanHappenInParallel": [
+      "Talk with owners in similar practice settings",
+      "Explore local patient needs and referral relationships",
+      "List personal and practice funding questions"
     ],
-    whatCommonlyDelays: [
-      "Waiting for the 'right time' (there isn't one)",
-      "Not running the numbers and getting scared by the unknown",
-      "Trying to decide alone",
+    "whatCommonlyDelays": [
+      "Making commitments before testing assumptions",
+      "Leaving ownership responsibilities undefined",
+      "Treating a preferred model as a finished plan"
     ],
-    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
-    consultationTrigger:
-      "Schedule a consultation when you've decided you're serious — before you sign anything.",
+    "freeResource": {
+      "label": "Practice Launch Checklist",
+      "href": "/resources/startup-checklist/"
+    },
+    "consultationTrigger": "When you want to compare options and turn an idea into a practical next step."
   },
   {
-    id: "02",
-    slug: "business-planning",
-    verb: "Plan",
-    title: "Business Planning",
-    subtitle: "The numbers that decide whether you launch or stall.",
-    question: "Can the math work in my market for my specialty?",
-    decision: "Service mix, payer mix, location, capital required, financing.",
-    buildStage: "foundation",
-    controlRoom: false,
-    duration: "4–8 weeks",
-    whatHappensFirst:
-      "Build a 24-month pro forma that includes a realistic credentialing lag and a 6-month working-capital cushion.",
-    whatCanHappenInParallel: [
-      "Scout 2–3 location options",
-      "Get pre-qualified for a practice loan or SBA-backed financing",
-      "Identify your minimum viable EHR + billing approach",
+    "id": "02",
+    "slug": "business-planning",
+    "verb": "Plan",
+    "title": "Business Planning",
+    "subtitle": "Connect the practice you want to build with the numbers it needs to work.",
+    "question": "What assumptions does my launch plan depend on?",
+    "decision": "Service mix, expected volume, expenses, collection timing, and funding needs.",
+    "buildStage": "foundation",
+    "controlRoom": false,
+    "duration": "An ongoing plan, refined as quotes and decisions arrive.",
+    "whatHappensFirst": "Create a first forecast using clearly labeled assumptions and separate opening costs from monthly expenses.",
+    "whatCanHappenInParallel": [
+      "Compare location and vendor quotes",
+      "Explore staffing and clinical schedules",
+      "Review funding questions with an accountant or financing adviser"
     ],
-    whatCommonlyDelays: [
-      "Underestimating credentialing lag",
-      "Picking a location before validating the payer mix",
-      "Skipping the working-capital reserve and running out of cash month 4",
+    "whatCommonlyDelays": [
+      "Mixing charges with expected cash collections",
+      "Omitting expenses that start before opening",
+      "Using one forecast without checking slower-start scenarios"
     ],
-    freeResource: { label: "Startup Cost Guide", href: "/resources/startup-costs/" },
-    consultationTrigger:
-      "Before you sign a lease or take a loan, talk to someone who's seen the next 18 months play out a dozen times.",
+    "freeResource": {
+      "label": "Pro Forma Builder",
+      "href": "/resources/pro-forma/"
+    },
+    "consultationTrigger": "Before making a major commitment, bring your assumptions and open questions for review."
   },
   {
-    id: "03",
-    slug: "legal-entity-setup",
-    verb: "Form",
-    title: "Legal & Entity Setup",
-    subtitle: "The structure under everything you'll build.",
-    question: "PC, LLC, S-corp, partnership — what's right and where?",
-    decision: "Entity type, state of formation, tax election, founding agreements.",
-    buildStage: "structure",
-    controlRoom: false,
-    duration: "2–4 weeks (parallel with planning)",
-    whatHappensFirst:
-      "Talk to a healthcare attorney in your state. Entity rules vary by state for physicians — wrong choice here is expensive to unwind.",
-    whatCanHappenInParallel: [
-      "EIN / state tax registration",
-      "Open business banking",
-      "Malpractice insurance quotes",
-      "Begin credentialing prep work (CAQH, NPI verification)",
+    "id": "03",
+    "slug": "legal-entity-setup",
+    "verb": "Form",
+    "title": "Legal & Entity Setup",
+    "subtitle": "Coordinate the business details that your banking, contracts, and applications depend on.",
+    "question": "Which professional advice and registrations do I need?",
+    "decision": "Ownership structure, professional requirements, tax questions, and agreements.",
+    "buildStage": "structure",
+    "controlRoom": false,
+    "duration": "Depends on your location, structure, and required reviews.",
+    "whatHappensFirst": "Review your proposed ownership and practice model with qualified advisers familiar with healthcare in your state.",
+    "whatCanHappenInParallel": [
+      "Prepare questions for legal and tax advisers",
+      "Collect the details needed for banking and insurance",
+      "Identify which payer applications depend on finalized business information"
     ],
-    whatCommonlyDelays: [
-      "DIY entity formation without state-specific physician practice rules",
-      "Mismatched partnership terms between founders",
-      "Forgetting to renew local business licenses annually",
+    "whatCommonlyDelays": [
+      "Choosing a structure before reviewing professional ownership requirements",
+      "Inconsistent names or addresses across records",
+      "Signing agreements before understanding the obligations"
     ],
-    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
-    consultationTrigger:
-      "If you have a partner, multi-provider plan, or any state-specific question — schedule before you file.",
+    "freeResource": {
+      "label": "Practice Launch Checklist",
+      "href": "/resources/startup-checklist/"
+    },
+    "consultationTrigger": "When you need to coordinate the setup work around advice from your attorney and accountant."
   },
   {
-    id: "04",
-    slug: "credentialing-enrollment",
-    verb: "Credential",
-    title: "Credentialing & Enrollment",
-    subtitle: "The clock that decides when you actually get paid.",
-    question: "How do I get in-network with payers without losing 6 months of revenue?",
-    decision: "Which payers to pursue, in what order, with what timeline.",
-    buildStage: "systems",
-    controlRoom: true, // CONTROL ROOM MOMENT — credentialing clock visual lives here
-    duration: "90–180 days (and this is the most expensive thing to get wrong)",
-    whatHappensFirst:
-      "Start credentialing 4–6 months before your target open date. Not 2 months. Not 90 days. Four to six months.",
-    whatCanHappenInParallel: [
-      "Medicare enrollment (855 forms)",
-      "Medicaid enrollment (state-specific)",
-      "Commercial payer applications (BCBS, UHC, Aetna, Cigna, etc.)",
-      "Hospital privileges if needed",
+    "id": "04",
+    "slug": "credentialing-enrollment",
+    "verb": "Credential",
+    "title": "Credentialing & Enrollment",
+    "subtitle": "Prepare the information, track each payer, and follow through to a confirmed decision.",
+    "question": "What does each payer need for this provider and practice?",
+    "decision": "Payer priorities, required applications, document owners, and verified enrollment status.",
+    "buildStage": "systems",
+    "controlRoom": true,
+    "duration": "Varies by payer, provider type, and application completeness.",
+    "whatHappensFirst": "Identify the application path and current requirements with each payer, then build your document inventory and follow-up tracker.",
+    "whatCanHappenInParallel": [
+      "Confirm provider and organization details",
+      "Prepare Medicare or state program enrollment where applicable",
+      "Organize commercial payer requirements",
+      "Track location and provider-association requirements"
     ],
-    whatCommonlyDelays: [
-      "Waiting until the lease is signed to start credentialing",
-      "Sending incomplete applications and discovering the gap 60 days later",
-      "Not following up with payers every 2 weeks",
-      "Missing a state-specific Medicaid quirk",
+    "whatCommonlyDelays": [
+      "Missing documents or conflicting identifiers",
+      "Unanswered requests for additional information",
+      "Assuming submission means approval",
+      "Treating all payers as one timeline"
     ],
-    freeResource: { label: "Medicare Fee Schedule Lookup", href: "https://mymetolius.com/tools" },
-    consultationTrigger:
-      "Credentialing failure costs 90–180 days of revenue. If you've never done this before, schedule a consultation before you submit your first application.",
+    "freeResource": {
+      "label": "Credentialing Preparation Article",
+      "href": "/resources/articles/organize-credentialing-before-you-apply/"
+    },
+    "consultationTrigger": "When you want PPS to help prepare applications, organize follow-up, and keep status visible."
   },
   {
-    id: "05",
-    slug: "infrastructure-technology",
-    verb: "Build",
-    title: "Infrastructure & Technology",
-    subtitle: "The systems that let your practice actually run.",
-    question: "Which EHR, which billing system, which clearinghouse, which everything?",
-    decision: "Tech stack, workflow design, staffing model.",
-    buildStage: "systems",
-    controlRoom: false,
-    duration: "60–120 days",
-    whatHappensFirst:
-      "Design your patient workflow first. Then pick the EHR that serves your workflow — not the other way around.",
-    whatCanHappenInParallel: [
-      "Telephony + scheduling system",
-      "Practice management / billing system",
-      "Clearinghouse setup",
-      "HIPAA compliance program (policies, BAAs, training)",
-      "Staffing plan + hiring",
-      "Office build-out / furniture / signage",
+    "id": "05",
+    "slug": "infrastructure-technology",
+    "verb": "Build",
+    "title": "Infrastructure & Technology",
+    "subtitle": "Bring people, space, and systems together around the way your practice will work.",
+    "question": "Can our team run the patient journey from start to finish?",
+    "decision": "Workflow, software fit, staffing, training, and operational responsibilities.",
+    "buildStage": "systems",
+    "controlRoom": false,
+    "duration": "Coordinate vendor lead times, setup, and team training.",
+    "whatHappensFirst": "Map a patient visit from first inquiry through follow-up, then use that workflow to evaluate systems and staffing.",
+    "whatCanHappenInParallel": [
+      "Review EHR and billing workflows",
+      "Set up scheduling, phone routing, and communications",
+      "Plan onboarding and staff training",
+      "Coordinate space, equipment, and technology setup"
     ],
-    whatCommonlyDelays: [
-      "Picking the EHR everyone else uses without checking specialty fit",
-      "Underspending on training and overspending on features",
-      "Ignoring HIPAA until something happens",
+    "whatCommonlyDelays": [
+      "Buying systems before agreeing on the workflow",
+      "Leaving data migration or integrations unassigned",
+      "Skipping team training and end-to-end testing"
     ],
-    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
-    consultationTrigger:
-      "Before you sign a 3-year EHR contract or hire your first 3 staff members.",
+    "freeResource": {
+      "label": "Practice Launch Checklist",
+      "href": "/resources/startup-checklist/"
+    },
+    "consultationTrigger": "Before selecting systems or setting a go-live date, review how the pieces will work together."
   },
   {
-    id: "06",
-    slug: "launch-marketing",
-    verb: "Launch",
-    title: "Launch & Marketing",
-    subtitle: "Getting your first 100 patients without burning your runway.",
-    question: "How do I fill the schedule without overspending on marketing I don't need yet?",
-    decision: "Website, local SEO, referral relationships, patient acquisition mix.",
-    buildStage: "launch",
-    controlRoom: false,
-    duration: "Starts 60 days before open, continues forever",
-    whatHappensFirst:
-      "A website that works on day one and a Google Business Profile that's claimed and complete. Most new practices launch with a Wix page that hurts them.",
-    whatCanHappenInParallel: [
-      "Build referral relationships with PCPs / specialists",
-      "Local SEO (citations, reviews, content)",
-      "Insurance directory listings",
-      "Soft-launch event or open house",
+    "id": "06",
+    "slug": "launch-marketing",
+    "verb": "Launch",
+    "title": "Launch & Marketing",
+    "subtitle": "Make it easy for patients to find you, understand your services, and take the next step.",
+    "question": "Are our team and patient-facing information ready for opening?",
+    "decision": "Opening readiness, referral outreach, website information, and scheduling capacity.",
+    "buildStage": "launch",
+    "controlRoom": false,
+    "duration": "Prepare before opening and refine after launch.",
+    "whatHappensFirst": "Confirm your service details, scheduling process, and team responsibilities, then test a complete patient inquiry.",
+    "whatCanHappenInParallel": [
+      "Prepare website and directory information",
+      "Build referral relationships",
+      "Rehearse front-desk and billing handoffs",
+      "Create a first-week operating plan"
     ],
-    whatCommonlyDelays: [
-      "Spending on paid ads before in-network credentialing is confirmed",
-      "Generic vendor website that doesn't rank or convert",
-      "Forgetting to ask your first 50 patients for reviews",
+    "whatCommonlyDelays": [
+      "Publishing unconfirmed insurance participation",
+      "Promoting appointments before scheduling works",
+      "Sending inquiries to channels nobody monitors"
     ],
-    freeResource: { label: "Practice Launch Checklist", href: "/resources/startup-checklist/" },
-    consultationTrigger:
-      "If you need a real medical practice website + local SEO program, we build them.",
+    "freeResource": {
+      "label": "Practice Launch Checklist",
+      "href": "/resources/startup-checklist/"
+    },
+    "consultationTrigger": "When you want help connecting your website, outreach, and operations to a realistic opening plan."
   },
   {
-    id: "07",
-    slug: "grow-optimize",
-    verb: "Grow",
-    title: "Grow & Optimize",
-    subtitle: "From 'open and billing' to 'profitable and sustainable.'",
-    question: "Now that I'm open, where's the leverage?",
-    decision: "RCM optimization, service line expansion, hiring, scaling, exit strategy.",
-    buildStage: "growth",
-    controlRoom: false,
-    duration: "Months 6+ forever",
-    whatHappensFirst:
-      "Look at your first 90 days of denials. The pattern in your denial codes is the single highest-leverage thing to fix.",
-    whatCanHappenInParallel: [
-      "Quarterly payer fee negotiation",
-      "Service line additions (ancillary revenue)",
-      "Adding providers (NP/PA, partner physicians)",
-      "Quality program participation (MIPS, value-based care)",
-      "Patient experience instrumentation",
+    "id": "07",
+    "slug": "grow-optimize",
+    "verb": "Grow",
+    "title": "Grow & Optimize",
+    "subtitle": "Use what the practice is learning to improve operations and plan the next move.",
+    "question": "What should we improve before adding more complexity?",
+    "decision": "Operational priorities, patient access, collections, team capacity, and growth plans.",
+    "buildStage": "growth",
+    "controlRoom": false,
+    "duration": "Start reviewing results after opening; keep a regular cadence.",
+    "whatHappensFirst": "Compare actual activity and expenses with your plan, then choose a small number of issues to investigate.",
+    "whatCanHappenInParallel": [
+      "Review scheduling and patient feedback",
+      "Investigate billing and denial patterns",
+      "Update the financial forecast",
+      "Track renewals, training, and enrollment maintenance"
     ],
-    whatCommonlyDelays: [
-      "Letting denials pile up without root-cause analysis",
-      "Hiring before the workflow can absorb new providers",
-      "Ignoring payer contract renewals",
+    "whatCommonlyDelays": [
+      "Changing several things without measuring the result",
+      "Adding capacity before resolving workflow bottlenecks",
+      "Letting recurring administrative tasks fall out of the plan"
     ],
-    freeResource: { label: "Medicare Revalidation Lookup", href: "https://mymetolius.com/tools" },
-    consultationTrigger:
-      "When you're stable but ready to grow — our RCM program is built for this phase.",
-  },
+    "freeResource": {
+      "label": "Pro Forma Builder",
+      "href": "/resources/pro-forma/"
+    },
+    "consultationTrigger": "When you want help reviewing operations, revenue cycle, or the next stage of growth."
+  }
 ];
 
 export const phaseBySlug = Object.fromEntries(phases.map((p) => [p.slug, p]));

@@ -46,7 +46,7 @@ export const services: Service[] = [
     scopeBadge: "single-phase",
     outcomeHeadline: "In-network with the payers that matter — on the timeline you need.",
     outcomeSub:
-      "Credentialing is the single most expensive thing to get wrong at launch. Our team manages the entire process so you don't lose 90–180 days of revenue.",
+      "Our team helps organize applications, follow up with payers, and keep enrollment progress visible while you prepare to open.",
     primaryPhase: "04",
     secondaryPhases: ["07"],
     whatsIncluded: [

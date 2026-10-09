@@ -4,7 +4,7 @@ const year = new Date().getFullYear();
 
 // Pick which NAV groups become footer columns. Promote Specialty + States
 // because the rest of the site discoverability hinges on them.
-const FOOTER_COLUMN_LABELS = ["The Blueprint", "Services", "By Specialty", "By State", "Free Resources"];
+const FOOTER_COLUMN_LABELS = ["Launch roadmap", "Services", "By Specialty", "By State", "Free Resources"];
 const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
   NAV.find((item) => item.label === label)
 ).filter(Boolean) as typeof NAV;
@@ -107,11 +107,13 @@ const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
     <div class="md:hidden mb-8 pt-8 border-t border-paper-200/15">
       <div class="phase-label text-paper-200/60 mb-3">Sitemap</div>
       <div class="grid grid-cols-2 gap-x-6 gap-y-2">
-        <a href="/journey/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">The Blueprint</a>
+        <a href="/journey/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Launch roadmap</a>
         <a href="/services/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Services</a>
         <a href="/specialty/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">By Specialty</a>
         <a href="/states/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">By State</a>
         <a href="/resources/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Free Resources</a>
+        <a href="/resources/articles/" class="text-small text-paper-200/85 hover:text-paper-100">Articles</a>
+        <a href="/resources/videos/" class="text-small text-paper-200/85 hover:text-paper-100">Video library</a>
         <a href="/who-we-help/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Who We Help</a>
         <a href="/scan/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Launch Scan</a>
         <a href="/about/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">About</a>

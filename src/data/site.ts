@@ -44,7 +44,7 @@ export const ARCHITECT = {
 
 export const NAV = [
   {
-    label: "The Blueprint",
+    label: "Launch roadmap",
     href: "/journey/",
     children: [
       { label: "Phase 1 — Decide", href: "/journey/is-this-right-for-me/" },
@@ -118,6 +118,7 @@ export const NAV = [
       { label: "Medicare Tools", href: "/resources/medicare-tools/" },
       { label: "Startup Cost Guide", href: "/resources/startup-costs/" },
       { label: "Articles", href: "/resources/articles/" },
+      { label: "Video library", href: "/resources/videos/" },
       { label: "Launch Readiness Scan", href: "/scan/" },
     ],
   },
