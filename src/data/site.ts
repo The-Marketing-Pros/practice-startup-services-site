@@ -39,7 +39,7 @@ export const ARCHITECT = {
   accent: "#B68546", // bronze — matches PSS brand
   title: "Ask The Architect",
   greeting:
-    "I'm the AI companion for this site — I know all 7 phases of the launch blueprint and the services that match each one. Ask me anything about starting a private medical practice and I'll point you to the right page, the right resource, or the right next move.",
+    "I'm the AI companion for this site. I know all 7 phases of the launch blueprint and the services that match each one. Ask me anything about starting a private medical practice and I'll point you to the right page, the right resource, or the right next move.",
 };
 
 export const NAV = [
@@ -47,13 +47,13 @@ export const NAV = [
     label: "Launch roadmap",
     href: "/journey/",
     children: [
-      { label: "Phase 1 — Decide", href: "/journey/is-this-right-for-me/" },
-      { label: "Phase 2 — Plan", href: "/journey/business-planning/" },
-      { label: "Phase 3 — Form", href: "/journey/legal-entity-setup/" },
-      { label: "Phase 4 — Credential", href: "/journey/credentialing-enrollment/" },
-      { label: "Phase 5 — Build", href: "/journey/infrastructure-technology/" },
-      { label: "Phase 6 — Launch", href: "/journey/launch-marketing/" },
-      { label: "Phase 7 — Grow", href: "/journey/grow-optimize/" },
+      { label: "Phase 1: Decide", href: "/journey/is-this-right-for-me/" },
+      { label: "Phase 2: Plan", href: "/journey/business-planning/" },
+      { label: "Phase 3: Form", href: "/journey/legal-entity-setup/" },
+      { label: "Phase 4: Credential", href: "/journey/credentialing-enrollment/" },
+      { label: "Phase 5: Build", href: "/journey/infrastructure-technology/" },
+      { label: "Phase 6: Launch", href: "/journey/launch-marketing/" },
+      { label: "Phase 7: Grow", href: "/journey/grow-optimize/" },
     ],
   },
   {
@@ -115,7 +115,7 @@ export const NAV = [
       { label: "Startup Checklist", href: "/resources/startup-checklist/" },
       { label: "Pro Forma Builder", href: "/resources/pro-forma/" },
       { label: "Claim free LaborGenie license", href: "/resources/hipaa-training/" },
-      { label: "Medicare Tools", href: "/resources/medicare-tools/" },
+      { label: "Metolius Medicare Tools", href: SITE.metoliusToolsUrl },
       { label: "Startup Cost Guide", href: "/resources/startup-costs/" },
       { label: "Articles", href: "/resources/articles/" },
       { label: "Video library", href: "/resources/videos/" },

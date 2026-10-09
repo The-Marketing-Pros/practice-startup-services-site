@@ -23,7 +23,7 @@ export const services: Service[] = [
     name: "Practice Startup Consulting",
     crewLabel: "Build crew for end-to-end practice launch",
     scopeBadge: "end-to-end",
-    outcomeHeadline: "From decision to first patient — without the expensive mistakes.",
+    outcomeHeadline: "From decision to first patient without the expensive mistakes.",
     outcomeSub:
       "End-to-end advisory through the full 7-phase launch. We've done this before. You'll get the order of operations right the first time.",
     primaryPhase: "02",
@@ -44,7 +44,7 @@ export const services: Service[] = [
     name: "Medical Credentialing",
     crewLabel: "Build crew for Phase 4",
     scopeBadge: "single-phase",
-    outcomeHeadline: "In-network with the payers that matter — on the timeline you need.",
+    outcomeHeadline: "In-network with the payers that matter, on the timeline you need.",
     outcomeSub:
       "Our team helps organize applications, follow up with payers, and keep enrollment progress visible while you prepare to open.",
     primaryPhase: "04",
@@ -109,14 +109,14 @@ export const services: Service[] = [
     scopeBadge: "single-phase",
     outcomeHeadline: "The right tech stack. The right AI. No long-term contract traps.",
     outcomeSub:
-      "EHR, billing, telephony, patient experience, and AI productivity tools — selected, contracted, and implemented for your specialty. Decades of vendor relationships, focus on value not lock-in.",
+      "EHR, billing, telephony, patient experience, and AI productivity tools, selected, contracted, and implemented for your specialty. Decades of vendor relationships, focus on value not lock-in.",
     primaryPhase: "05",
     secondaryPhases: ["06", "07"],
     whatsIncluded: [
-      "EHR + practice management evaluation and selection — specialty-fit over brand",
-      "Telephony, scheduling, intake, payments — best-in-breed stack",
+      "EHR + practice management evaluation and selection, with specialty fit over brand",
+      "Telephony, scheduling, intake, and payments in one coordinated stack",
       "AI tool evaluation: ambient documentation, RCM/denial management, patient communication",
-      "Contract review and exit-term negotiation — no multi-year exclusive traps",
+      "Contract review and exit-term negotiation, with no multi-year exclusive traps",
       "BAA management and security governance for every vendor",
       "Implementation, integration testing, staff training",
       "HIPAA risk analysis + policy framework (including AI use)",
@@ -133,7 +133,7 @@ export const services: Service[] = [
     name: "Practice Infrastructure Support",
     crewLabel: "Build crew for Phase 5",
     scopeBadge: "single-phase",
-    outcomeHeadline: "EHR, HIPAA, staffing, telephony — the operational systems, set up right.",
+    outcomeHeadline: "Your EHR, HIPAA program, staffing, and phones, set up to work together.",
     outcomeSub:
       "The unglamorous pieces that determine whether your practice runs. We help you pick the right systems, configure them, and train your team.",
     primaryPhase: "05",

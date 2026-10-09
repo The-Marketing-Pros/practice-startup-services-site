@@ -10,7 +10,7 @@ import { phases } from "@data/phases";
 ---
 
 <BaseLayout
-  title="Your launch readiness — results"
+  title="Your launch readiness results"
   description="The phase you should focus on now, the resources you need, and the next decision in front of you."
   noIndex={true}
 >
@@ -65,7 +65,7 @@ import { phases } from "@data/phases";
                       </div>
                       <div class="col-span-10 lg:col-span-9">
                         <div class="font-display text-base font-medium text-ink group-hover:text-bronze-700 transition-colors">
-                          {p.verb} — {p.title}
+                          {p.verb}: {p.title}
                         </div>
                         <p class="text-small text-graphite-700 leading-snug mt-0.5">{p.subtitle}</p>
                       </div>
@@ -87,7 +87,7 @@ import { phases } from "@data/phases";
               We picked up your scan answers.
             </h3>
             <p class="text-small text-graphite-700 mb-5">
-              A free consultation surfaces a real plan for your specialty, market, and target timing —
+              A free consultation surfaces a real plan for your specialty, market, and target timing,
               starting from where you are right now.
             </p>
             <a id="scan-cta" href={SITE.scheduleUrl} class="btn-primary w-full justify-center">
@@ -103,7 +103,7 @@ import { phases } from "@data/phases";
             <ul class="space-y-2 text-small">
               <li><a href="/resources/startup-checklist/" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Practice Launch Checklist</a></li>
               <li><a href="/resources/startup-costs/" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Startup Cost Guide</a></li>
-              <li><a href="/resources/medicare-tools/" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Free Medicare Tools</a></li>
+              <li><a href="https://mymetolius.com/tools" class="text-graphite-800 hover:text-ink underline-offset-2 hover:underline">Metolius Medicare Tools</a></li>
             </ul>
           </div>
         </aside>

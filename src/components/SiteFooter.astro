@@ -1,136 +1,54 @@
 ---
-import { NAV, SITE } from "@data/site";
+import { NAV, SITE } from '@data/site';
 const year = new Date().getFullYear();
-
-// Pick which NAV groups become footer columns. Promote Specialty + States
-// because the rest of the site discoverability hinges on them.
-const FOOTER_COLUMN_LABELS = ["Launch roadmap", "Services", "By Specialty", "By State", "Free Resources"];
-const footerColumns = FOOTER_COLUMN_LABELS.map((label) =>
-  NAV.find((item) => item.label === label)
-).filter(Boolean) as typeof NAV;
+const groups = ['Free Resources', 'Launch roadmap', 'Services'].map(label => NAV.find(item => item.label === label)!);
+const directories = ['By Specialty', 'By State', 'Who We Help'].map(label => NAV.find(item => item.label === label)!);
 ---
-
-<footer class="bg-ink text-paper-200 mt-24">
-  <div class="container-site py-12 md:py-16">
-    <!-- Desktop+ wide footer; collapses to brand-only on small screens to reduce scroll tax -->
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-10 mb-8 md:mb-12">
-      <div class="col-span-2">
-        <div class="font-display text-display-sm font-medium text-paper-100 mb-3 text-balance">
-          {SITE.tagline}
-        </div>
-        <p class="text-small text-paper-200/80 max-w-narrow mb-6">
-          {SITE.promise}
-        </p>
-        <a href={SITE.scheduleUrl} class="btn-primary text-small">
-          {SITE.primaryCta}
-        </a>
-      </div>
-
-      {
-        footerColumns.map((col) => (
-          <div class="hidden md:block">
-            <div class="phase-label text-paper-200/60 mb-3">{col.label}</div>
-            <ul class="space-y-2">
-              {col.children?.length
-                ? col.children.slice(0, 20).map((c) => (
-                    <li>
-                      <a
-                        href={c.href}
-                        class="text-small text-paper-200/85 hover:text-paper-100 transition-colors"
-                      >
-                        {c.label}
-                      </a>
-                    </li>
-                  ))
-                : (
-                    <li>
-                      <a
-                        href={col.href}
-                        class="text-small text-paper-200/85 hover:text-paper-100 transition-colors"
-                      >
-                        {col.label}
-                      </a>
-                    </li>
-                  )}
-            </ul>
-          </div>
-        ))
-      }
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div class="footer-intro">
+      <div><h2>{SITE.tagline}</h2><p>{SITE.promise}</p></div>
+      <a href={SITE.scheduleUrl} class="footer-cta">{SITE.primaryCta}</a>
     </div>
-
-    <!-- Secondary nav columns — desktop only; mobile gets a condensed sitemap below -->
-    <div class="hidden md:grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-4 mb-12 pt-12 border-t border-paper-200/15">
-      <div>
-        <div class="phase-label text-paper-200/60 mb-2">Who we help</div>
-        <ul class="space-y-1.5">
-          <li><a href="/who-we-help/physicians/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Physicians</a></li>
-          <li><a href="/who-we-help/nurse-practitioners/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">NPs</a></li>
-          <li><a href="/who-we-help/physician-assistants/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">PAs</a></li>
-          <li><a href="/who-we-help/behavioral-health/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Behavioral Health</a></li>
-          <li><a href="/who-we-help/specialty/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Specialty Practices</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <div class="phase-label text-paper-200/60 mb-2">Tools</div>
-        <ul class="space-y-1.5">
-          <li><a href="/resources/pro-forma/" class="text-small text-paper-200/80 hover:text-paper-100">Pro Forma Builder</a></li>
-          <li><a href="/resources/hipaa-training/" class="text-small text-paper-200/80 hover:text-paper-100">Claim free LaborGenie license</a></li>
-          <li><a href="/scan/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Launch Readiness Scan</a></li>
-          <li><a href="/resources/medicare-tools/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Medicare Tools</a></li>
-          <li><a href="/resources/startup-checklist/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Practice Launch Checklist</a></li>
-          <li><a href="/resources/startup-costs/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Startup Cost Guide</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <div class="phase-label text-paper-200/60 mb-2">About</div>
-        <ul class="space-y-1.5">
-          <li><a href="/about/" class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Who we are</a></li>
-          <li><a href={SITE.scheduleUrl} class="text-small text-paper-200/80 hover:text-paper-100 transition-colors">Schedule a consultation</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <div class="phase-label text-paper-200/60 mb-2">Partner tools</div>
-        <ul class="space-y-1.5">
-          <li>
-            <a href={SITE.metoliusToolsUrl} class="text-small text-paper-200/80 hover:text-paper-100 transition-colors" target="_blank" rel="noopener">
-              Metolius Medicare Tools
-            </a>
-          </li>
-        </ul>
-      </div>
+    <nav class="footer-columns" aria-label="Footer">
+      {groups.map(group => <section class="footer-group"><h3><a href={group.href}>{group.label}</a></h3><ul>{group.children.map(item => <li><a href={item.href}>{item.label}</a></li>)}</ul></section>)}
+      <section class="footer-group"><h3>Explore PPS</h3><ul>
+        <li><a href="/about/">About PPS</a></li>
+        <li><a href="/who-we-help/">Who we help</a></li>
+        <li><a href="/specialty/">Guides by specialty</a></li>
+        <li><a href="/states/">Guides by state</a></li>
+        <li><a href="https://physicianpracticespecialists.com/">Visit the full PPS website</a></li>
+        <li><a href="/resources/medicare-tools/">Medicare reference guide</a></li>
+      </ul></section>
+    </nav>
+    <div class="footer-directories" aria-label="All practice guides">
+      {directories.map(group => <details><summary>{group.label}</summary><ul>{group.children.map(item => <li><a href={item.href}>{item.label}</a></li>)}</ul></details>)}
     </div>
-
-    <!-- Mobile-only condensed sitemap (hub links + key resources, no enumeration) -->
-    <div class="md:hidden mb-8 pt-8 border-t border-paper-200/15">
-      <div class="phase-label text-paper-200/60 mb-3">Sitemap</div>
-      <div class="grid grid-cols-2 gap-x-6 gap-y-2">
-        <a href="/journey/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Launch roadmap</a>
-        <a href="/services/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Services</a>
-        <a href="/specialty/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">By Specialty</a>
-        <a href="/states/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">By State</a>
-        <a href="/resources/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Free Resources</a>
-        <a href="/resources/articles/" class="text-small text-paper-200/85 hover:text-paper-100">Articles</a>
-        <a href="/resources/videos/" class="text-small text-paper-200/85 hover:text-paper-100">Video library</a>
-        <a href="/who-we-help/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Who We Help</a>
-        <a href="/scan/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">Launch Scan</a>
-        <a href="/about/" class="text-small text-paper-200/85 hover:text-paper-100 transition-colors">About</a>
-      </div>
-    </div>
-
-    <div class="blueprint-rule mb-8"></div>
-
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-small text-paper-200/70">
-      <div>
-        © {year} Practice Startup Services. Built for physicians, NPs, and PAs starting independent practices.
-      </div>
-      <div class="flex gap-6">
-        <a href="/about/" class="hover:text-paper-100 transition-colors">About</a>
-        <a href="/privacy/" class="hover:text-paper-100 transition-colors">Privacy</a>
-        <a href="/terms/" class="hover:text-paper-100 transition-colors">Terms</a>
-      </div>
-    </div>
+    <div class="footer-bottom"><p>© {year} Practice Startup Services. A PPS resource for independent practices.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></div>
   </div>
 </footer>
+<style>
+.site-footer{background:#10213f;color:#cbd7e8;margin-top:64px}
+.footer-wrap{width:min(1200px,calc(100% - 64px));margin-inline:auto;padding:48px 0 24px}
+.footer-intro{display:flex;align-items:center;justify-content:space-between;gap:40px;padding-bottom:32px;border-bottom:1px solid #ffffff25}
+.footer-intro>div{max-width:690px;min-width:0}
+.footer-intro h2{color:#fff;font-size:clamp(26px,3vw,34px);line-height:1.2;letter-spacing:-.035em;margin-bottom:12px}
+.footer-intro p{max-width:640px;font-size:15px;line-height:1.75}
+.footer-cta{display:inline-flex;justify-content:center;align-items:center;min-height:48px;padding:12px 20px;background:#b8eed6;border-radius:8px;color:#10213f;font-size:14px;font-weight:650;flex-shrink:0;text-align:center}
+.footer-columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px;padding:32px 0}
+.footer-group{min-width:0}.footer-group h3{display:flex;align-items:center;min-height:40px;font-family:inherit;color:#fff;font-size:16px;line-height:1.4;letter-spacing:0;margin-bottom:12px;font-weight:650}
+.footer-group h3 a{color:inherit;display:inline-flex;align-items:center;min-height:40px}
+.footer-group ul,.footer-directories ul{list-style:none;padding:0;margin:0}
+.footer-group li a,.footer-directories li a{display:flex;align-items:center;min-height:40px;padding:7px 0;font-size:14px;line-height:1.55;color:#cbd7e8;text-decoration:none;overflow-wrap:break-word}
+.footer-group a:hover,.footer-directories a:hover,.footer-bottom a:hover{color:white;text-decoration:underline;text-underline-offset:4px}
+.footer-directories{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:20px 0;border-top:1px solid #ffffff25;border-bottom:1px solid #ffffff25;align-items:start}
+.footer-directories summary{cursor:pointer;color:#dbe6f6;font-size:14px;font-weight:600;line-height:1.5;padding:12px 0;min-height:44px}
+.footer-directories ul{padding:8px 0 12px}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-top:20px;font-size:12px;line-height:1.6;color:#b7c6dc}
+.footer-bottom nav{display:flex;gap:24px;flex-shrink:0}.footer-bottom a{display:inline-flex;align-items:center;min-height:44px}
+.site-footer :focus-visible{outline:3px solid #b8eed6;outline-offset:4px}
+@media(max-width:1000px){.footer-columns{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px}.footer-intro{align-items:start;flex-direction:column;gap:20px}}
+@media(max-width:600px){.site-footer{margin-top:40px}.footer-wrap{width:calc(100% - 36px);padding-top:32px}.footer-columns{column-gap:24px;row-gap:28px}.footer-group li a{min-height:44px}.footer-directories{grid-template-columns:1fr;gap:0}.footer-directories details+details{border-top:1px solid #ffffff18}.footer-bottom{align-items:start;flex-direction:column;gap:4px}.footer-intro h2{font-size:28px}}
+@media(max-width:380px){.footer-columns{grid-template-columns:1fr}.footer-group h3{margin-bottom:4px}}
+@media print{.site-footer{display:none}}
+</style>

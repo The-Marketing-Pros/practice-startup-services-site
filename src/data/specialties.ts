@@ -26,7 +26,7 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["family-medicine", "pediatrics", "behavioral-health"],
     shortLabel: "Primary Care",
     headline: "For primary care physicians launching independent practices.",
-    sub: "Family medicine, internal medicine, and general primary care launches — solo, group, DPC, or hybrid.",
+    sub: "Family medicine, internal medicine, and general primary care launches: solo, group, DPC, or hybrid.",
     whatChanges:
       "Primary care economics depend on volume more than any other specialty. Payer mix, panel size, and operational efficiency drive whether the math works. The model choice (fee-for-service vs. DPC vs. concierge vs. hybrid) is one of the biggest Phase 01 decisions in this specialty.",
     phaseHighlights: {
@@ -37,13 +37,13 @@ export const specialties: Specialty[] = [
       "04":
         "Commercial credentialing typically with 8–12 payers for FFS. DPC practices skip most of this entirely.",
       "06":
-        "Local SEO is critical for FFS primary care — most patients find PCPs via 'doctor near me' searches.",
+        "Local SEO is critical for FFS primary care. Most patients find PCPs via 'doctor near me' searches.",
     },
     capitalRange: "$80,000–$250,000 for a solo FFS launch; $40,000–$120,000 for solo DPC",
     payerMixNote:
       "Traditional FFS primary care typically runs 35–50% Medicare, 30–45% commercial, 5–20% Medicaid. DPC bypasses payers entirely for primary care visits.",
     watchouts: [
-      "Underestimating panel ramp time — first 12 months are usually slower than projected",
+      "Underestimating panel ramp time: first 12 months are usually slower than projected",
       "Underbuilding the operational base (front desk, billing) for FFS volume",
       "DPC practices that over-spend on EHR features they don't need",
       "Hiring before the patient volume justifies it",
@@ -57,7 +57,7 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["cardiology", "urology", "gastroenterology"],
     shortLabel: "Ortho",
     headline: "For orthopedic surgeons launching independent or group practices.",
-    sub: "Orthopedic practice launches — solo, group, and integrated ortho/PT models.",
+    sub: "Orthopedic practice launches: solo, group, and integrated ortho/PT models.",
     whatChanges:
       "Orthopedic launches have higher capital requirements than most specialties due to imaging and procedure equipment. Payer mix and surgical reimbursement dynamics drive economics. Hospital privilege coordination is non-optional.",
     phaseHighlights: {
@@ -66,7 +66,7 @@ export const specialties: Specialty[] = [
       "04":
         "Hospital privileging is a separate process from payer credentialing and starts later but must be done. Workers compensation panel relationships matter especially.",
       "05":
-        "EHR + PACS integration becomes important — pick systems that work together cleanly.",
+        "EHR + PACS integration becomes important. Pick systems that work together cleanly.",
       "07":
         "Ancillary revenue (in-office imaging, PT, DME, ASC ownership) is where orthopedic practices typically build their longer-term economics.",
     },
@@ -89,7 +89,7 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["obgyn", "primary-care", "family-medicine"],
     shortLabel: "Derm",
     headline: "For dermatologists launching independent or boutique practices.",
-    sub: "Dermatology launches — medical, surgical, cosmetic, or mixed practice models.",
+    sub: "Dermatology launches: medical, surgical, cosmetic, or mixed practice models.",
     whatChanges:
       "Dermatology economics depend heavily on the mix between insured medical care and cash-pay cosmetic services. Capital requirements are moderate, but procedure capacity and product inventory affect both startup costs and ongoing cash flow.",
     phaseHighlights: {
@@ -120,7 +120,7 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["behavioral-health", "neurology", "primary-care"],
     shortLabel: "Psych",
     headline: "For psychiatrists launching independent practices.",
-    sub: "Psychiatry launches — solo, group, telehealth-first, and integrated mental health models.",
+    sub: "Psychiatry launches: solo, group, telehealth-first, and integrated mental health models.",
     whatChanges:
       "Psychiatry has unusually high cash-pay viability and telehealth integration. Insurance reimbursement remains uneven across states and payers, leading many psychiatrists toward hybrid or out-of-network models.",
     phaseHighlights: {
@@ -140,7 +140,7 @@ export const specialties: Specialty[] = [
       "Multistate telehealth practice requires licenses in each state where patients are located",
       "Controlled substance prescribing requires DEA registration and state-specific protocols (especially buprenorphine and Schedule II)",
       "Psychiatry credentialing with some payers can extend beyond standard timelines",
-      "42 CFR Part 2 if treating substance use disorders — separate compliance framework from HIPAA",
+      "42 CFR Part 2 if treating substance use disorders: separate compliance framework from HIPAA",
     ],
     ancillaryRevenue:
       "TMS (transcranial magnetic stimulation), ketamine-assisted treatment, group therapy programs, employer/EAP contracts.",
@@ -151,7 +151,7 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["psychiatry", "primary-care", "pediatrics"],
     shortLabel: "Behavioral Health",
     headline: "For licensed therapists, psychologists, and counselors launching independent practices.",
-    sub: "Behavioral health practice launches — solo, group, and telehealth-first models for licensed mental health professionals.",
+    sub: "Behavioral health practice launches: solo, group, and telehealth-first models for licensed mental health professionals.",
     whatChanges:
       "Behavioral health has unique economics: lower capital requirements than most medical specialties, but credentialing varies significantly by license type. Out-of-network practice is more viable here than in most fields.",
     phaseHighlights: {
@@ -168,11 +168,11 @@ export const specialties: Specialty[] = [
     payerMixNote:
       "Insurance-based: 60–80% commercial, 10–25% Medicare/Medicaid. OON: cash + superbills only. Mixed models vary.",
     watchouts: [
-      "License-type-specific credentialing — generic therapist guidance often doesn't apply",
+      "License-type-specific credentialing: generic therapist guidance often doesn't apply",
       "Multistate telehealth practice requires verifying licensure portability and state-by-state rules",
       "EAP and employer contracts can be high-value but have specific compliance requirements",
       "Notes, documentation, and clinical record retention rules vary by license and state",
-      "Many commercial payers have separate BH credentialing tracks — verify which applies",
+      "Many commercial payers have separate BH credentialing tracks. Verify which applies",
     ],
     ancillaryRevenue:
       "Group programs, workshops, employer/EAP contracts, supervision services, online courses or content.",
@@ -183,14 +183,14 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["gastroenterology", "neurology", "urology"],
     shortLabel: "Cardiology",
     headline: "For cardiologists launching independent practices.",
-    sub: "Cardiology launches — non-invasive, interventional, and integrated practice models.",
+    sub: "Cardiology launches: non-invasive, interventional, and integrated practice models.",
     whatChanges:
       "Cardiology has high capital requirements driven by imaging (echo, nuclear, vascular) and a payer mix skewed toward Medicare. Hospital privilege coordination is essential. Ancillary revenue from in-office testing is significant.",
     phaseHighlights: {
       "02":
         "Capital for imaging equipment is the single biggest line item in most cardiology pro formas.",
       "04":
-        "Medicare is the dominant payer — get this credentialing right and on time. Hospital privileges are separate and parallel.",
+        "Medicare is the dominant payer. Get this credentialing right and on time. Hospital privileges are separate and parallel.",
       "07":
         "Ancillary in-office testing (stress, echo, vascular, nuclear) drives long-term economics.",
     },
@@ -200,7 +200,7 @@ export const specialties: Specialty[] = [
     watchouts: [
       "Imaging equipment financing terms materially affect 24-month cash flow",
       "Nuclear cardiology has separate licensing and compliance requirements",
-      "Medicare audit risk is higher than most specialties — documentation must be tight",
+      "Medicare audit risk is higher than most specialties. Documentation must be tight",
       "Hospital privilege coordination needs early engagement",
     ],
     ancillaryRevenue:
@@ -212,14 +212,14 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["dermatology", "primary-care", "family-medicine"],
     shortLabel: "OB/GYN",
     headline: "For OB/GYNs launching independent practices.",
-    sub: "OB/GYN launches — solo, group, GYN-only, and integrated women's health models.",
+    sub: "OB/GYN launches: solo, group, GYN-only, and integrated women's health models.",
     whatChanges:
       "Obstetrics adds significant malpractice cost and hospital privilege complexity compared to GYN-only. Many newer practices launch as GYN-only initially, adding obstetrics deliberately.",
     phaseHighlights: {
       "01":
         "GYN-only vs. full OB/GYN is a major Phase 01 decision driven by malpractice cost and lifestyle.",
       "02":
-        "Malpractice insurance for OB is among the highest in medicine — model accurately.",
+        "Malpractice insurance for OB is among the highest in medicine. Model accurately.",
       "04":
         "Hospital privileges for OB require separate timing and coordination.",
       "05":
@@ -243,14 +243,14 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["gastroenterology", "orthopedics", "cardiology"],
     shortLabel: "Anesthesia",
     headline: "For anesthesiologists launching independent or group practices.",
-    sub: "Anesthesia practice launches — hospital-employed transitions, ambulatory surgery center contracts, pain management, and independent group models.",
+    sub: "Anesthesia practice launches: hospital-employed transitions, ambulatory surgery center contracts, pain management, and independent group models.",
     whatChanges:
       "Anesthesia is almost entirely site-dependent. Hospital contracts and ambulatory surgery center (ASC) relationships drive nearly all revenue. Credentialing timing and hospital privileges are tightly coupled. The 'office' is borrowed from the surgical setting; pure outpatient anesthesia practices are rare.",
     phaseHighlights: {
       "01":
         "Hospital-employed vs. independent contractor vs. group practice is the central Phase 01 decision. Many independent anesthesia 'practices' are essentially contract operations.",
       "02":
-        "Pro forma is dominated by the hospital or ASC contract structure and stipend/subsidy dynamics — not standard practice startup math.",
+        "Pro forma is dominated by the hospital or ASC contract structure and stipend/subsidy dynamics, not standard practice startup math.",
       "04":
         "Hospital privileging is the gate. Credentialing with the payers your facility contracts with is usually a follow-on, not parallel work.",
       "07":
@@ -258,7 +258,7 @@ export const specialties: Specialty[] = [
     },
     capitalRange: "$25,000–$150,000 for a contract-only independent launch; $100,000–$500,000+ for a pain practice add-on",
     payerMixNote:
-      "Anesthesia payer mix mirrors the facility's mix — you don't pick your patients. Commercial is typically 40–60%, Medicare 25–40%, Medicaid 10–20%.",
+      "Anesthesia payer mix mirrors the facility's mix. You don't pick your patients. Commercial is typically 40–60%, Medicare 25–40%, Medicaid 10–20%.",
     watchouts: [
       "Negotiating the hospital or ASC contract is far more important than typical credentialing-first thinking",
       "Anesthesia stipend / subsidy economics vary widely and shape practice viability",
@@ -274,12 +274,12 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["family-medicine", "primary-care", "behavioral-health"],
     shortLabel: "Peds",
     headline: "For pediatricians launching independent practices.",
-    sub: "Pediatric practice launches — solo, group, concierge peds, and integrated developmental-behavioral models.",
+    sub: "Pediatric practice launches: solo, group, concierge peds, and integrated developmental-behavioral models.",
     whatChanges:
-      "Pediatric economics depend heavily on payer mix — specifically the Medicaid share. State Medicaid reimbursement rates for pediatrics vary dramatically and drive whether a market is viable for independent practice. Patient volume per FTE is higher than most specialties.",
+      "Pediatric economics depend heavily on payer mix, specifically the Medicaid share. State Medicaid reimbursement rates for pediatrics vary dramatically and drive whether a market is viable for independent practice. Patient volume per FTE is higher than most specialties.",
     phaseHighlights: {
       "02":
-        "State Medicaid pediatric rates are the single biggest economic input — model with your state's actual fee schedule, not averages.",
+        "State Medicaid pediatric rates are the single biggest economic input. Model with your state's actual fee schedule, not averages.",
       "04":
         "Vaccines for Children (VFC) enrollment is a separate process from standard credentialing and required for most peds practices.",
       "05":
@@ -292,8 +292,8 @@ export const specialties: Specialty[] = [
       "Pediatric mix typically 30–60% Medicaid (state-dependent), 30–55% commercial, 0% Medicare. State Medicaid rate is the biggest variable.",
     watchouts: [
       "Vaccines for Children (VFC) enrollment, inventory, and reporting are non-trivial operational requirements",
-      "Vaccine inventory ties up working capital and has spoilage risk — manage actively",
-      "Well-visit volume drives revenue — pediatric-friendly scheduling and intake matter more than most specialties",
+      "Vaccine inventory ties up working capital and has spoilage risk. Manage actively",
+      "Well-visit volume drives revenue. Pediatric-friendly scheduling and intake matter more than most specialties",
       "State Medicaid pediatric rates can make some markets economically unviable for independent practice",
     ],
     ancillaryRevenue:
@@ -305,7 +305,7 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["cardiology", "urology", "anesthesiology"],
     shortLabel: "GI",
     headline: "For gastroenterologists launching independent or group practices.",
-    sub: "GI practice launches — solo, group, and integrated endoscopy/ASC models.",
+    sub: "GI practice launches: solo, group, and integrated endoscopy/ASC models.",
     whatChanges:
       "GI economics are dominated by endoscopy revenue, which means ambulatory surgery center (ASC) strategy is central. Capital requirements are high. Hospital privileges for inpatient consults are typically necessary.",
     phaseHighlights: {
@@ -322,9 +322,9 @@ export const specialties: Specialty[] = [
     payerMixNote:
       "GI mix typically 40–60% commercial, 30–45% Medicare, 5–15% Medicaid. Screening colonoscopy demographics skew older.",
     watchouts: [
-      "ASC strategy materially affects both capital requirements and 5-year revenue — don't defer this decision",
-      "Endoscopy equipment financing terms shape cash flow — model carefully",
-      "Infection control and reprocessing protocols are heavily scrutinized — budget appropriately",
+      "ASC strategy materially affects both capital requirements and 5-year revenue. Don't defer this decision",
+      "Endoscopy equipment financing terms shape cash flow. Model carefully",
+      "Infection control and reprocessing protocols are heavily scrutinized. Budget appropriately",
       "Screening colonoscopy reimbursement rules (preventive vs. diagnostic billing) have specific coding requirements",
     ],
     ancillaryRevenue:
@@ -336,14 +336,14 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["psychiatry", "cardiology", "orthopedics"],
     shortLabel: "Neuro",
     headline: "For neurologists launching independent practices.",
-    sub: "Neurology practice launches — general neurology, subspecialty (epilepsy, MS, headache, movement disorders), and integrated neuroscience models.",
+    sub: "Neurology practice launches: general neurology, subspecialty (epilepsy, MS, headache, movement disorders), and integrated neuroscience models.",
     whatChanges:
       "Neurology economics are subspecialty-dependent. General neurology with EEG/EMG ancillary is one model; subspecialty practice (headache, MS, epilepsy) is another with different patient acquisition patterns and equipment needs. Telehealth integration is increasingly important.",
     phaseHighlights: {
       "01":
-        "General vs. subspecialty focus is the central Phase 01 decision — they're functionally different businesses.",
+        "General vs. subspecialty focus is the central Phase 01 decision. They're functionally different businesses.",
       "02":
-        "EEG, EMG, and nerve conduction studies are common ancillary revenue — capital planning depends on which you'll offer.",
+        "EEG, EMG, and nerve conduction studies are common ancillary revenue. Capital planning depends on which you'll offer.",
       "04":
         "Telehealth-capable practice expands geographic reach but requires multistate licensure planning.",
       "06":
@@ -353,7 +353,7 @@ export const specialties: Specialty[] = [
     payerMixNote:
       "Neurology mix typically 40–55% Medicare, 35–50% commercial, 5–15% Medicaid. Subspecialty practices have different distributions.",
     watchouts: [
-      "Reimbursement for neurology cognitive services has historically lagged — model carefully",
+      "Reimbursement for neurology cognitive services has historically lagged. Model carefully",
       "In-office testing (EEG/EMG) has specific accreditation and billing requirements",
       "Subspecialty practices may have limited credentialing options with some commercial payers",
       "Telehealth integration requires deliberate state-by-state licensure planning if seeing patients across borders",
@@ -367,12 +367,12 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["orthopedics", "gastroenterology", "cardiology"],
     shortLabel: "Uro",
     headline: "For urologists launching independent or group practices.",
-    sub: "Urology practice launches — solo, group, and integrated urologic surgery/oncology models.",
+    sub: "Urology practice launches: solo, group, and integrated urologic surgery/oncology models.",
     whatChanges:
       "Urology economics depend on procedure mix. In-office procedures, imaging, and ancillary services (in-office labs, cystoscopy) drive a meaningful share of revenue. Demographics skew older, so Medicare exposure is high.",
     phaseHighlights: {
       "02":
-        "In-office procedure capability drives capital planning — cystoscopy, lithotripsy access, vasectomy infrastructure all shape the build.",
+        "In-office procedure capability drives capital planning. Cystoscopy, lithotripsy access, vasectomy infrastructure all shape the build.",
       "04":
         "Hospital privileging is typically necessary for inpatient consults and major procedures.",
       "05":
@@ -386,7 +386,7 @@ export const specialties: Specialty[] = [
     watchouts: [
       "In-office cystoscopy, ultrasound, and lab testing require specific accreditation and billing setup",
       "Lithotripsy and prostate procedure access shape competitive positioning",
-      "Medicare audit risk on urology procedures is higher than average — documentation must be tight",
+      "Medicare audit risk on urology procedures is higher than average. Documentation must be tight",
       "Men's health and fertility ancillary lines have different regulatory profiles than core urology",
     ],
     ancillaryRevenue:
@@ -398,14 +398,14 @@ export const specialties: Specialty[] = [
     relatedSlugs: ["primary-care", "pediatrics", "behavioral-health"],
     shortLabel: "Family Med",
     headline: "For family medicine physicians launching independent practices.",
-    sub: "Family medicine launches — solo, group, DPC, concierge, and integrated full-spectrum models.",
+    sub: "Family medicine launches: solo, group, DPC, concierge, and integrated full-spectrum models.",
     whatChanges:
       "Family medicine economics mirror primary care broadly but with added complexity from broader scope (peds, OB in some practices, geriatrics). DPC and direct primary care are particularly viable in family medicine.",
     phaseHighlights: {
       "01":
         "Model choice (FFS vs. DPC vs. concierge) is central. Scope decisions (peds inclusion, OB inclusion) also matter.",
       "02":
-        "Pro forma should reflect actual scope — full-spectrum family medicine has different volume math than narrower primary care.",
+        "Pro forma should reflect actual scope. Full-spectrum family medicine has different volume math than narrower primary care.",
       "06":
         "Marketing benefits from being explicit about scope and population (full family vs. adult-only).",
     },
@@ -416,7 +416,7 @@ export const specialties: Specialty[] = [
       "Defining scope clearly affects both credentialing and marketing",
       "Peds vaccine inventory and Vaccines for Children (VFC) participation add operational complexity",
       "DPC viability is high in family medicine but requires honest patient-base modeling",
-      "Same Phase 06 considerations as primary care — local SEO is the foundation",
+      "Same Phase 06 considerations as primary care. Local SEO is the foundation",
     ],
     ancillaryRevenue:
       "In-office labs, point-of-care testing, chronic care management, weight loss / hormone / aesthetic services in some markets.",
