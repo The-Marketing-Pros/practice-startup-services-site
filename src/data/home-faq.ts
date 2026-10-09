@@ -18,7 +18,7 @@ export interface FaqItem {
 export const homeFaq: FaqItem[] = [
   {
     q: "How much does it cost to start a medical practice?",
-    a: "Plan for $50k–$250k+ in capital expenses (build-out, equipment, deposits), $5k–$50k in one-time professional fees, and $15k–$40k per month of pre-revenue operating costs — plus a working-capital reserve of at least six months. Specialty, market, and ambition move every one of those ranges.",
+    a: "Plan for $50k–$250k+ in capital expenses (build-out, equipment, deposits), $5k–$50k in one-time professional fees, and $15k–$40k per month of pre-revenue operating costs, plus a working-capital reserve of at least six months. Specialty, market, and ambition move every one of those ranges.",
     href: "/resources/startup-costs/",
     hrefLabel: "See the full startup cost guide",
   },
@@ -30,7 +30,7 @@ export const homeFaq: FaqItem[] = [
   },
   {
     q: "Do I need to start credentialing before opening?",
-    a: "Yes. Start payer credentialing 4–6 months before your target open date — not 90 days before. Enrollment runs 90–180 days, and a practice that opens before it's in-network gives up that revenue window. It's the single most expensive thing to get wrong at launch.",
+    a: "Yes. Start payer credentialing 4–6 months before your target open date, not 90 days before. Enrollment runs 90–180 days, and a practice that opens before it's in-network gives up that revenue window. It's the single most expensive thing to get wrong at launch.",
     href: "/journey/credentialing-enrollment/",
     hrefLabel: "Read the Phase 4 credentialing guide",
   },
@@ -42,25 +42,25 @@ export const homeFaq: FaqItem[] = [
   },
   {
     q: "How long does medical credentialing take?",
-    a: "90–180 days for most payers. Medicare enrollment, state Medicaid, and commercial payer applications can run in parallel — and following up with each payer every two weeks is what keeps the clock from silently stalling.",
+    a: "90–180 days for most payers. Medicare enrollment, state Medicaid, and commercial payer applications can run in parallel, and following up with each payer every two weeks is what keeps the clock from silently stalling.",
     href: "/journey/credentialing-enrollment/",
     hrefLabel: "See the credentialing timeline",
   },
   {
     q: "Should I form an LLC or a PC for my medical practice?",
-    a: "It depends on your state. Many states restrict which entity types physicians can use — a professional entity (PC or PLLC) is often required instead of a standard LLC — and the tax election matters as much as the entity type. Entity rules vary by state for physicians, so talk to a healthcare attorney in your state before you file.",
+    a: "It depends on your state. Many states restrict which entity types physicians can use. A professional entity (PC or PLLC) is often required instead of a standard LLC. The tax election matters as much as the entity type. Entity rules vary by state for physicians, so talk to a healthcare attorney in your state before you file.",
     href: "/journey/legal-entity-setup/",
     hrefLabel: "Read the Phase 3 entity guide",
   },
   {
     q: "How much working capital does a new practice need?",
-    a: "Six months of operating expenses, minimum. Even after you open, insurance payments arrive 30–60 days after you bill — and credentialing delays can stretch that gap by another 60–120 days. Most practices reach break-even in months 7–12, not months 3–4.",
+    a: "Six months of operating expenses, minimum. Even after you open, insurance payments arrive 30–60 days after you bill, and credentialing delays can stretch that gap by another 60–120 days. Most practices reach break-even in months 7–12, not months 3–4.",
     href: "/resources/startup-costs/",
     hrefLabel: "See the working-capital math",
   },
   {
     q: "Do you work with nurse practitioners and physician assistants?",
-    a: "Yes. We work with physicians (MD/DO), nurse practitioners, physician assistants, behavioral health providers, and specialty practices. NP independent-practice authority is state-specific — in restricted states we help structure the required collaborating-physician arrangements.",
+    a: "Yes. We work with physicians (MD/DO), nurse practitioners, physician assistants, behavioral health providers, and specialty practices. NP independent-practice authority is state-specific. In restricted states we help structure the required collaborating-physician arrangements.",
     href: "/who-we-help/",
     hrefLabel: "See who we help",
   },

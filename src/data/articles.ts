@@ -64,7 +64,7 @@ export const articles: Article[] = [
       {id:'keep-it-current',heading:'Update the forecast when a decision becomes real.',paragraphs:[
         'Use the pro forma builder to explore the first 24 months, then download Excel if you want to continue working with the numbers. The opening date labels the forecast months; changing it alone does not add delay costs. To model a later opening, explicitly update pre-opening expenses and other affected assumptions. Replace estimates with actual quotes and expenses as the project progresses. The online model is a planning aid; an adviser can help assess financing, accounting, and tax decisions for your circumstances.'
       ]}
-    ],action:{label:'Build my pro forma',href:'/resources/pro-forma/',description:'Explore startup costs, revenue assumptions, expenses, and collection timing.'},sources:[{label:'SBA: Plan your business — startup costs',href:'https://www.sba.gov/counseling/plan-your-business/'}]
+    ],action:{label:'Build my pro forma',href:'/resources/pro-forma/',description:'Explore startup costs, revenue assumptions, expenses, and collection timing.'},sources:[{label:'SBA: Plan your business: startup costs',href:'https://www.sba.gov/counseling/plan-your-business/'}]
   },
   {
     slug:'organize-credentialing-before-you-apply',

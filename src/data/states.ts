@@ -32,7 +32,7 @@ export const states: StateInfo[] = [
     costNote: "Office space costs vary widely between South Florida metros and the rest of the state; rent in Miami-Dade and Broward runs 1.5–2x markets like Jacksonville or Tampa.",
     specificWatchouts: [
       "Florida requires a separate Medical Quality Assurance (MQA) license verification step that some out-of-state physicians underestimate",
-      "Medicare Advantage penetration is high — model your payer mix accordingly",
+      "Medicare Advantage penetration is high. Model your payer mix accordingly",
       "Hurricane preparedness and business interruption insurance are not optional in coastal practices",
       "Florida has no state income tax, but corporate franchise tax and county-specific fees still apply",
     ],
@@ -52,13 +52,13 @@ export const states: StateInfo[] = [
     payerLandscapeNote: "Blue Cross Blue Shield of Texas, UnitedHealthcare, Aetna, Cigna, and Humana lead the commercial market; rural Texas can have very thin commercial payer participation.",
     costNote: "Major metros (Austin, Dallas, Houston) have rapidly rising commercial rent; smaller markets and rural Texas offer dramatically lower startup costs but thinner payer mixes.",
     specificWatchouts: [
-      "Texas has restrictive corporate practice of medicine rules — entity structure matters more here than in many states",
+      "Texas has restrictive corporate practice of medicine rules. Entity structure matters more here than in many states",
       "Medicaid timing in Texas can extend beyond 120 days in some windows; plan accordingly",
       "Property tax burden in Texas is higher than the no-income-tax framing suggests",
-      "Rural credentialing can be slower with regional Blue plans — start earlier",
+      "Rural credentialing can be slower with regional Blue plans. Start earlier",
     ],
     attorneyNote:
-      "Texas corporate practice of medicine doctrine is strict — the wrong entity or ownership structure can invalidate your liability protection. Use a Texas-licensed healthcare attorney.",
+      "Texas corporate practice of medicine doctrine is strict. The wrong entity or ownership structure can invalidate your liability protection. Use a Texas-licensed healthcare attorney.",
     region: "south",
   },
   {
@@ -71,15 +71,15 @@ export const states: StateInfo[] = [
     npAuthority: "full",
     paAuthorityNote: "California PA practice authority expanded significantly in 2023; verify current scope and supervision rules with your specialty board.",
     payerLandscapeNote: "Anthem Blue Cross, Blue Shield of California, Kaiser Permanente (closed system), Health Net, and UnitedHealthcare dominate; Medi-Cal managed care plans add complexity.",
-    costNote: "California has the highest commercial rent, the most stringent compliance environment, and the largest patient base in the country — startup costs run 1.5–3x most states.",
+    costNote: "California has the highest commercial rent, the most stringent compliance environment, and the largest patient base in the country. Startup costs run 1.5–3x most states.",
     specificWatchouts: [
-      "Medi-Cal enrollment can take 4–6 months — start very early",
+      "Medi-Cal enrollment can take 4–6 months. Start very early",
       "California Professional Corporation rules require specific naming conventions and ownership structure",
       "Cal/OSHA, CMIA (state HIPAA equivalent), and CCPA add compliance layers beyond federal baseline",
       "Workers comp premiums for healthcare employees in California are among the highest in the country",
     ],
     attorneyNote:
-      "California healthcare regulation is the most complex in the country — corporate practice rules, peer review, and patient privacy laws all have state-specific requirements. Local healthcare attorney is essential.",
+      "California healthcare regulation is the most complex in the country. Corporate practice rules, peer review, and patient privacy laws all have state-specific requirements. Local healthcare attorney is essential.",
     region: "west",
   },
   {
@@ -96,7 +96,7 @@ export const states: StateInfo[] = [
     specificWatchouts: [
       "New York requires Article 28 facility licensure for certain office-based services beyond what most states require",
       "NYC has a separate Department of Health Article 28 + DOH-NY enrollment process",
-      "Corporate Practice of Medicine rules in New York are strict — entity structure matters",
+      "Corporate Practice of Medicine rules in New York are strict. Entity structure matters",
       "Mansion tax, commercial rent tax (NYC), and other municipal fees materially affect startup costs",
     ],
     attorneyNote:
@@ -118,7 +118,7 @@ export const states: StateInfo[] = [
       "Pennsylvania requires separate registration with the Department of State for professional entities",
       "Highmark and UPMC have aggressive narrow-network strategies; commercial credentialing in their regions can be slow",
       "Philadelphia has a city business license requirement separate from state",
-      "Workers comp panels are required in Pennsylvania — plan the relationship before launch",
+      "Workers comp panels are required in Pennsylvania. Plan the relationship before launch",
     ],
     attorneyNote:
       "Pennsylvania's CPM doctrine and entity rules are state-specific; the Highmark/UPMC regional dynamics also affect launch timing. Local healthcare counsel is worth the spend.",
@@ -138,7 +138,7 @@ export const states: StateInfo[] = [
     specificWatchouts: [
       "Illinois has specific Professional Service Corporation requirements distinct from generic PC rules",
       "Cook County and Chicago add municipal compliance layers",
-      "Illinois Medicaid (HFS) has a reputation for slow enrollment timing — start early",
+      "Illinois Medicaid (HFS) has a reputation for slow enrollment timing. Start early",
       "State worker classification rules are strict; misclassifying 1099 vs. W-2 is risky",
     ],
     attorneyNote:
@@ -160,7 +160,7 @@ export const states: StateInfo[] = [
       "Ohio requires Professional Association registration distinct from generic LLC/PC formation",
       "Medical Mutual's regional dominance means credentialing strategy varies from national-payer-first playbooks",
       "Ohio's BWC (Bureau of Workers' Compensation) is state-run; the relationship differs from private workers comp markets",
-      "Pharmacy Board registration is required for in-office dispensing — start early",
+      "Pharmacy Board registration is required for in-office dispensing. Start early",
     ],
     attorneyNote:
       "Ohio's state-run workers comp and Pharmacy Board rules add steps most generic startup guides miss. Local counsel matters.",
@@ -200,9 +200,9 @@ export const states: StateInfo[] = [
     costNote: "Charlotte and the Triangle (Raleigh/Durham) are high-cost; smaller NC markets remain relatively affordable.",
     specificWatchouts: [
       "Blue Cross NC dominance means commercial credentialing strategy revolves around BCNC timing",
-      "Recent NC Medicaid managed care transition added complexity to Medicaid credentialing — verify current pathway",
+      "Recent NC Medicaid managed care transition added complexity to Medicaid credentialing. Verify current pathway",
       "North Carolina has Certificate of Need (CON) requirements for certain services",
-      "PA scope-of-practice reforms in NC are ongoing — verify the current rules for your specialty",
+      "PA scope-of-practice reforms in NC are ongoing. Verify the current rules for your specialty",
     ],
     attorneyNote:
       "NC's CON requirements and ongoing scope-of-practice reforms make local healthcare counsel important, especially for specialty practices.",
@@ -225,8 +225,8 @@ export const states: StateInfo[] = [
     specificWatchouts: [
       "Washington has specific patient privacy rules (My Health My Data Act) that go beyond federal HIPAA",
       "Kaiser's closed system means a meaningful share of Seattle-area patients are out of reach for non-Kaiser practices",
-      "State business and occupation (B&O) tax structure is unusual — model accurately",
-      "Apple Health (Medicaid) managed care has multiple plans — enrollment is per-plan",
+      "State business and occupation (B&O) tax structure is unusual. Model accurately",
+      "Apple Health (Medicaid) managed care has multiple plans. Enrollment is per-plan",
     ],
     attorneyNote:
       "Washington's MHMDA, Kaiser dynamics, and B&O tax structure all warrant in-state healthcare counsel.",
@@ -247,10 +247,10 @@ export const states: StateInfo[] = [
     costNote:
       "North Jersey (Bergen, Essex, Hudson) and Princeton corridor have high commercial rent; southern New Jersey is moderate.",
     specificWatchouts: [
-      "Horizon BCBS dominance shapes credentialing strategy — their timing is the gate",
-      "NJ has strict corporate practice of medicine rules — entity structure matters",
+      "Horizon BCBS dominance shapes credentialing strategy. Their timing is the gate",
+      "NJ has strict corporate practice of medicine rules. Entity structure matters",
       "State malpractice insurance market has limited carriers; verify before assuming national rates",
-      "NJ FamilyCare is managed care — enrollment is per-plan",
+      "NJ FamilyCare is managed care. Enrollment is per-plan",
     ],
     attorneyNote:
       "NJ CPM rules and the Horizon dynamic both warrant in-state healthcare counsel.",
@@ -273,7 +273,7 @@ export const states: StateInfo[] = [
     specificWatchouts: [
       "Federal payer mix in Northern Virginia (Tricare, FEHB plans) is unusually significant",
       "Sentara's regional dominance in Hampton Roads affects credentialing strategy",
-      "Cardinal Care managed care has multiple MCOs — enrollment is per-MCO",
+      "Cardinal Care managed care has multiple MCOs. Enrollment is per-MCO",
       "Virginia non-compete enforcement varies; verify with local counsel before signing employment exits",
     ],
     attorneyNote:
@@ -295,10 +295,10 @@ export const states: StateInfo[] = [
     costNote:
       "Boston metro is among the highest-cost markets in the country; central and western Massachusetts are dramatically more affordable.",
     specificWatchouts: [
-      "Massachusetts has one of the most regulated healthcare markets — DPH licensure and DRG rules add steps",
+      "Massachusetts has one of the most regulated healthcare markets. DPH licensure and DRG rules add steps",
       "Strong hospital system networks (Mass General Brigham, Beth Israel Lahey) shape referral patterns more than most states",
-      "State has aggressive cost-growth benchmark enforcement — large rate increases get pushback",
-      "MassHealth managed care has multiple ACO and MCO options — enrollment is multi-step",
+      "State has aggressive cost-growth benchmark enforcement. Large rate increases get pushback",
+      "MassHealth managed care has multiple ACO and MCO options. Enrollment is multi-step",
     ],
     attorneyNote:
       "Massachusetts DPH licensure, cost-growth benchmark rules, and hospital system dynamics all warrant in-state healthcare counsel.",
@@ -320,8 +320,8 @@ export const states: StateInfo[] = [
       "Nashville commercial rent has risen rapidly; Memphis, Knoxville, and Chattanooga remain affordable; rural Tennessee very low-cost.",
     specificWatchouts: [
       "BCBS-TN dominance means commercial credentialing strategy revolves around their timing",
-      "TennCare is fully managed care via three MCOs — enrollment is per-MCO",
-      "Tennessee has a Certificate of Need (CON) program for certain services — verify before equipment purchase",
+      "TennCare is fully managed care via three MCOs. Enrollment is per-MCO",
+      "Tennessee has a Certificate of Need (CON) program for certain services. Verify before equipment purchase",
       "Nashville's healthcare investment community changes ownership patterns; understand the M&A landscape",
     ],
     attorneyNote:
@@ -340,10 +340,10 @@ export const states: StateInfo[] = [
     payerLandscapeNote: "Blue Cross Blue Shield of Arizona, UnitedHealthcare, Aetna, Cigna, and Humana lead; AHCCCS managed care plans add complexity.",
     costNote: "Phoenix metro is moderate-to-high cost with rapidly rising rent; Tucson and smaller markets remain affordable.",
     specificWatchouts: [
-      "AHCCCS uses managed care extensively — Medicaid credentialing requires individual managed care organization enrollment too",
+      "AHCCCS uses managed care extensively. Medicaid credentialing requires individual managed care organization enrollment too",
       "Arizona has a fast-growing population; underestimating patient demand in some specialties is common",
       "Phoenix metro property and rent costs are rising rapidly; lock terms early",
-      "Arizona has specific entity rules for medical practices — PC vs. PLLC choice matters",
+      "Arizona has specific entity rules for medical practices. PC vs. PLLC choice matters",
     ],
     attorneyNote:
       "AHCCCS managed care credentialing adds steps. Local counsel familiar with Arizona's entity rules and the AHCCCS system is worth the spend.",
