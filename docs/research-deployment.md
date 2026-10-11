@@ -33,11 +33,20 @@ All server logic is in `src/lib/research/handler.ts` and is type-checked by `npm
 | `RESEARCH_DAILY_LIMIT` / `RESEARCH_DAILY_PER_EMAIL` / `RESEARCH_DAILY_PER_IP` | vars | request caps | Owner (defaults 50 / 2 / 5) | Defaults apply. |
 | `RESEARCH_PREVIEW_DISABLED` | var `true` | preview kill switch | Owner | Preview on. |
 | `RESEARCH_PREVIEW_DAILY_PER_IP` | var | soft preview cap (needs DB) | Owner (default 60) | Default. |
-| `PUBLIC_META_PIXEL_ID` | build var | browser pixel + privacy text | Owner, when a Meta dataset exists | Pixel absent; privacy page omits Meta text. Loads only on the production hostname. |
-| `META_PIXEL_ID` + `META_CAPI_TOKEN` | var + secret | server Conversions API | Owner (set together with the build var) | No CAPI call. |
+| `PUBLIC_META_PIXEL_ID` | build var AND runtime var (set in both Pages scopes) | browser pixel, privacy text, and the CAPI switch | Owner, when a Meta dataset exists, ONLY after the Meta pre-enable steps below | Pixel absent; privacy page omits Meta text; CAPI off. Pixel loads only on the production hostname. |
+| `META_PIXEL_ID` + `META_CAPI_TOKEN` | var + secret | server Conversions API | Owner | No CAPI call. CAPI also stays off unless `META_PIXEL_ID` equals `PUBLIC_META_PIXEL_ID`, so disclosure and behavior share one switch. The token is sent in the JSON body, never the URL. |
 | `META_GRAPH_VERSION` | var | CAPI version | Owner (default `v23.0`) | Default. |
 
 **Dollar cap:** the code caps calls (max AI calls per day, max two calls per request, `max_output_tokens` 1800). It cannot cap dollars. The owner must set a monthly budget/usage limit on the OpenAI "PracticeELF" project before enabling.
+
+## Meta pre-enable steps (REQUIRED before setting `PUBLIC_META_PIXEL_ID`)
+
+`fbq('set','autoConfig',false,ID)` disables automatic event configuration only. Automatic Advanced Matching (AAM) is a dataset setting in Events Manager that code cannot disable, and the research page renders an email field.
+
+1. In Events Manager, open the PSS dataset, Settings, and turn **Automatic advanced matching OFF**. Record who did it and when.
+2. Set `PUBLIC_META_PIXEL_ID` (build and runtime) and optionally `META_PIXEL_ID` (same value) + `META_CAPI_TOKEN`; deploy.
+3. On production, with browser DevTools Network filtered to `facebook.com/tr`, type into the research email field WITHOUT submitting, then move focus and navigate. Confirm no `facebook.com/tr` request carries `ud[...]` or `udff[...]` parameters. Only then run ads.
+4. The privacy page's Meta section (rendered only when the pixel is configured) says the pixel sends page URL with campaign tags, referrer, IP, browser/device information and Meta cookie IDs for every visitor, and that settings exclude form contents. Step 1 is what makes that last statement true.
 
 ## HubSpot form (owner creates)
 

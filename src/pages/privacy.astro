@@ -72,7 +72,7 @@ const metaPixelEnabled = /^\d{5,20}$/.test((import.meta.env.PUBLIC_META_PIXEL_ID
         {metaPixelEnabled && (
           <>
             <h2>Meta measurement.</h2>
-            <p>We use the Meta Pixel to measure how our Instagram and Facebook ads perform. It records page views and, when you successfully request a research brief, a lead event. When you request a brief, our server may also send Meta that lead event with your IP address, browser type and Meta cookie identifiers so the two can be matched. We do not send your email address, phone number, or anything you type to Meta. You can manage ad preferences in your Meta account settings.</p>
+            <p>We use the Meta Pixel to measure how our Instagram and Facebook ads perform. For every visitor, the pixel sends Meta the page address (including any campaign tags in it), the referring page, your IP address, browser and device information, and Meta cookie identifiers. It records page views and, when you successfully request a research brief, a lead event. When you request a brief, our server may also send Meta that lead event with your IP address, browser user agent and Meta cookie identifiers so the two can be matched. We do not intentionally send your email address, phone number, or anything you type to Meta, and our Meta settings are configured not to collect form contents automatically. You can manage ad preferences in your Meta account settings.</p>
           </>
         )}
 

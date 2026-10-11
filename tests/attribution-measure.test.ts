@@ -58,6 +58,16 @@ test("blocked storage never throws", () => {
 test("server accepts only known attribution keys with clean values", () => {
   assert.deepEqual(sanitizePayload({ utm_source: " instagram ", ft_gclid: "g", email: "x@example.com", utm_term: 5, __proto__: { a: 1 } }), { utm_source: "instagram", ft_gclid: "g" });
   assert.deepEqual(sanitizePayload(["utm_source"]), {});
+  // landing_page must be a same-site path; referrer a bare http(s) origin.
+  assert.deepEqual(
+    sanitizePayload({
+      landing_page: "/resources/startup-research/", ft_landing_page: "https://evil.example/x",
+      referrer: "https://l.instagram.com", ft_referrer: "https://l.instagram.com/path?q=1",
+    }),
+    { landing_page: "/resources/startup-research/", referrer: "https://l.instagram.com" },
+  );
+  for (const bad of ["//evil.example/x", "javascript:alert(1)", "resources/x", "/a?b=c", "/a#frag", "/a b"]) assert.deepEqual(sanitizePayload({ landing_page: bad }), {}, bad);
+  for (const bad of ["ftp://x.example", "https://x.example/", "https://user@x.example", "x.example", "data:text/html,1"]) assert.deepEqual(sanitizePayload({ referrer: bad }), {}, bad);
 });
 
 test("lead events fire once per reference with the server event id; GA4 + Meta Lead only", () => {

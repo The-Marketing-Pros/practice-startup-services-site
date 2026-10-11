@@ -156,13 +156,31 @@ export function attributionPayload(
 export const ALLOWED_PAYLOAD_KEYS = new Set(
   [...ATTRIBUTION_KEYS, "landing_page", "referrer"].flatMap((k) => [k, `ft_${k}`]),
 );
+const SAME_SITE_PATH = /^\/[A-Za-z0-9\-._~!$&'()*+,;=:@%/]*$/;
+/** A same-site path: starts with one "/", no scheme, host, query or fragment. */
+export function validLandingPath(v: string): boolean {
+  return SAME_SITE_PATH.test(v) && !v.startsWith("//") && !v.includes("\\");
+}
+/** A bare http(s) origin: scheme + host (+ port), nothing else. */
+export function validOrigin(v: string): boolean {
+  try {
+    const u = new URL(v);
+    return (u.protocol === "http:" || u.protocol === "https:") && u.origin === v;
+  } catch {
+    return false;
+  }
+}
 export function sanitizePayload(raw: unknown): Record<string, string> {
   const out: Record<string, string> = {};
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
   for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
     if (!ALLOWED_PAYLOAD_KEYS.has(k)) continue;
     const c = clean(v);
-    if (c) out[k] = c;
+    if (!c) continue;
+    const base = k.startsWith("ft_") ? k.slice(3) : k;
+    if (base === "landing_page" && !validLandingPath(c)) continue;
+    if (base === "referrer" && !validOrigin(c)) continue;
+    out[k] = c;
   }
   return out;
 }

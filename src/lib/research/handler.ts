@@ -32,6 +32,8 @@ export interface ResearchEnv {
   RESEARCH_PREVIEW_DISABLED?: string;
   RESEARCH_PREVIEW_DAILY_PER_IP?: string;
   META_PIXEL_ID?: string;
+  /** Must equal META_PIXEL_ID: the published browser pixel (and its privacy text) and CAPI share one switch. */
+  PUBLIC_META_PIXEL_ID?: string;
   META_CAPI_TOKEN?: string;
   META_GRAPH_VERSION?: string;
 }
@@ -285,7 +287,8 @@ async function reserveAiCall(db: D1Database, day: string, cap: number): Promise<
 
 function sendCapi(request: Request, deps: Deps, eventId: string, db: D1Database, jobId: string, now: Date): void {
   const { env } = deps;
-  if (!env.META_PIXEL_ID || !env.META_CAPI_TOKEN) return;
+  // CAPI runs only for the same dataset the site publishes (and discloses).
+  if (!env.META_PIXEL_ID || !env.META_CAPI_TOKEN || env.PUBLIC_META_PIXEL_ID?.trim() !== env.META_PIXEL_ID.trim()) return;
   const version = env.META_GRAPH_VERSION || "v23.0";
   const userData: Record<string, string> = {};
   const ip = request.headers.get("CF-Connecting-IP");
@@ -297,6 +300,7 @@ function sendCapi(request: Request, deps: Deps, eventId: string, db: D1Database,
   if (fbp) userData.fbp = fbp;
   if (fbc) userData.fbc = fbc;
   const body = {
+    access_token: env.META_CAPI_TOKEN,
     data: [{
       event_name: "Lead",
       event_time: Math.floor(now.getTime() / 1000),
@@ -309,7 +313,8 @@ function sendCapi(request: Request, deps: Deps, eventId: string, db: D1Database,
   };
   const task = (async () => {
     try {
-      const r = await deps.fetcher(`https://graph.facebook.com/${version}/${env.META_PIXEL_ID}/events?access_token=${encodeURIComponent(env.META_CAPI_TOKEN!)}`, {
+      // Token travels in the JSON body, never in the URL.
+      const r = await deps.fetcher(`https://graph.facebook.com/${version}/${encodeURIComponent(env.META_PIXEL_ID!)}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

@@ -314,10 +314,20 @@ test("Meta CAPI: sent once with the shared event id and no email/phone; skipped 
   const off = setup();
   await handleGate(post(body()), off.deps);
   assert.equal(off.stub.count(/graph\.facebook\.com/), 0);
-  const { deps, stub, pending, sqlite } = setup({ env: { META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "test-capi-token" } });
+  // CAPI only runs when its dataset is the published browser pixel (one switch for behavior and disclosure).
+  const mismatch = setup({ env: { META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "test-capi-token" } });
+  await handleGate(post(body()), mismatch.deps);
+  assert.equal(mismatch.stub.count(/graph\.facebook\.com/), 0, "no CAPI without the matching PUBLIC_META_PIXEL_ID");
+  const other = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "999999999999999", META_CAPI_TOKEN: "test-capi-token" } });
+  await handleGate(post(body()), other.deps);
+  assert.equal(other.stub.count(/graph\.facebook\.com/), 0);
+  const { deps, stub, pending, sqlite } = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "test-capi-token" } });
   const r = await read(await handleGate(post(body(), { Cookie: "_fbp=fb.1.1.2; _fbc=fb.1.1.abc" }), deps));
   await Promise.all(pending);
   const call = stub.calls.find((c) => /graph\.facebook\.com/.test(c.url))!;
+  assert.ok(!call.url.includes("test-capi-token") && !call.url.includes("access_token"), "token never in the URL");
+  assert.equal(call.url, "https://graph.facebook.com/v23.0/123456789012345/events");
+  assert.equal(JSON.parse(String(call.init!.body)).access_token, "test-capi-token");
   const event = JSON.parse(String(call.init!.body)).data[0];
   assert.equal(event.event_name, "Lead");
   assert.equal(event.event_id, r.json.eventId);
