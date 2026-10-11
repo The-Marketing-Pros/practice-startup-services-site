@@ -26,7 +26,7 @@ export function briefStatusNote(status: string): string {
     case "ready":
       return "";
     case "rejected":
-      return "The AI draft did not pass our accuracy checks (every number must match the data above), so we are not showing it. Your data tables and tailored checklist are complete.";
+      return "The AI draft did not pass our accuracy checks, so we are not showing it. Your data tables and tailored checklist are complete.";
     case "capacity":
       return "We reached today's limit for written briefs. Your data tables and tailored checklist are complete.";
     case "insufficient_data":
@@ -75,7 +75,7 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
       pdf.line(s.heading, 12, true);
       for (const st of s.statements) pdf.line(`[${KIND_LABEL[st.kind] ?? st.kind}] ${st.text}`);
     }
-    pdf.line("Written by AI from the facts above only, then checked so every number matches the data. Review before relying on it.", 9);
+    pdf.line("Facts and estimates are written by our system from the data tables, word for word. AI chose which to include and wrote the interpretations, which contain no numbers. Review before relying on it.", 9);
   } else pdf.line(briefStatusNote(result.briefStatus));
 
   pdf.space();

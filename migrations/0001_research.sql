@@ -19,9 +19,11 @@ CREATE TABLE IF NOT EXISTS research_jobs (
   updated_at INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'processing', 'failed', 'complete')),
   lease_until INTEGER NOT NULL DEFAULT 0,
+  lease_token TEXT,                    -- owner of the current lease (renewals must match)
   hubspot_status TEXT NOT NULL DEFAULT 'pending' CHECK (hubspot_status IN ('pending', 'submitted')),
   ai_attempts INTEGER NOT NULL DEFAULT 0,
   ai_rejected INTEGER NOT NULL DEFAULT 0,
+  config_errors INTEGER NOT NULL DEFAULT 0, -- AI 400/401/403/404 count; capped per job
   event_id TEXT NOT NULL,              -- shared by browser pixel and CAPI for dedup
   capi_status TEXT NOT NULL DEFAULT 'none',
   last_error TEXT,

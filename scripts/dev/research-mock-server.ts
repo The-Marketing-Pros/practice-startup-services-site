@@ -9,7 +9,7 @@
 //   NPPES_MODE=live CENSUS_MODE=live PORT=8799 node --experimental-strip-types scripts/dev/research-mock-server.ts
 //
 // POST /__scenario {"name": "..."} switches the mocked provider behavior:
-//   ok | verification | hubspot_down | ai_down | ai_invented | db_down | rate_limited | capacity | no_data | unconfigured
+//   ok | verification | hubspot_down | ai_down | ai_invented | db_down | rate_limited | capacity | no_data | preview_unconfigured | unconfigured
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { join, extname, normalize } from "node:path";
@@ -34,20 +34,20 @@ function acsFor(zip: string) {
   return acsBody(zip, { pop: "23456", popM: "1200", age: "18.2", ageM: "1.5", unins: "7.1", uninsM: "1.3", inc: "71250", incM: "4100" });
 }
 
-// Brief that restates the facts the handler fetched, so it passes the guard.
+// Brief in the new shape: facts/estimates are ids only (rendered server-side);
+// interpretations are words only.
 function briefFor(body: string) {
   try {
     const input = JSON.parse(JSON.parse(body).input[0].content);
     const facts = input.FACTS;
-    const pop = facts.facts.find((f: any) => f.id === "acs_population");
-    const zipCount = facts.facts.find((f: any) => f.id === "nppes_zip_count");
-    const s: any = { sections: [
-      { heading: "Your area at a glance", statements: pop ? [{ text: `Census estimates ${pop.display} residents in ${pop.geography} (margin of error ${pop.marginOfError.replace("± ", "")}).`, kind: "fact", refs: ["acs_population"] }] : [{ text: "Census data was unavailable for this ZIP right now.", kind: "interpretation", refs: [] }] },
-      { heading: "Providers already listed nearby", statements: zipCount ? [{ text: `The NPI Registry lists ${zipCount.display} providers with a matching taxonomy at a practice location in ZIP ${facts.zip}.`, kind: "fact", refs: ["nppes_zip_count"] }] : [{ text: "Provider counts were unavailable for this combination.", kind: "interpretation", refs: [] }] },
-      { heading: "What this could mean for your plan", statements: [{ text: "Registry listings are not capacity, so confirm referral patterns and payer networks locally before choosing a site.", kind: "interpretation", refs: [] }] },
-      { heading: "Questions to answer next", statements: [{ text: `Which payers in ${facts.state || "your state"} are accepting new ${input.INPUTS.providerType.toLowerCase()}s, and how long does enrollment take?`, kind: "interpretation", refs: [] }] },
+    const has = (id: string) => facts.facts.some((f: any) => f.id === id && f.value !== null);
+    const est = facts.estimates.some((e: any) => e.value !== null);
+    return { sections: [
+      { heading: "Your area at a glance", statements: has("acs_population") ? [{ kind: "fact", refs: ["acs_population", "acs_age65_pct"].filter(has), text: "" }] : [{ kind: "interpretation", refs: [], text: "Census data was unavailable for this ZIP right now." }] },
+      { heading: "Providers already listed nearby", statements: has("nppes_zip_count") ? [{ kind: "fact", refs: ["nppes_zip_count"], text: "" }, ...(est ? [{ kind: "estimate", refs: ["est_residents_per_provider"], text: "" }] : [])] : [{ kind: "interpretation", refs: [], text: "Provider counts were unavailable for this combination." }] },
+      { heading: "What this could mean for your plan", statements: [{ kind: "interpretation", refs: [], text: "Registry listings are not capacity, so confirm referral patterns and payer networks locally before choosing a site." }] },
+      { heading: "Questions to answer next", statements: [{ kind: "interpretation", refs: [], text: `Which payers in ${facts.state || "your state"} are accepting new patients for your specialty, and how long does enrollment take?` }] },
     ] };
-    return s;
   } catch {
     return GOOD_BRIEF;
   }
@@ -61,7 +61,7 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
   if (url.includes("api.openai.com")) {
     await new Promise((r) => setTimeout(r, 900));
     if (scenario === "ai_down") return jsonResponse({ error: { message: "mock overload" } }, 503);
-    if (scenario === "ai_invented") return jsonResponse(openAiResponse({ sections: [{ heading: "Your area at a glance", statements: [{ text: "About 4,800 people here need this specialty.", kind: "fact", refs: ["acs_population"] }] }, ...GOOD_BRIEF.sections.slice(1)] }));
+    if (scenario === "ai_invented") return jsonResponse(openAiResponse({ sections: [{ heading: "Your area at a glance", statements: [{ kind: "interpretation", refs: [], text: "About 4,800 people here need this specialty." }] }, ...GOOD_BRIEF.sections.slice(1)] }));
     return jsonResponse(openAiResponse(briefFor(String(init?.body))));
   }
   if (url.includes("graph.facebook.com")) return jsonResponse({ events_received: 1 });
@@ -104,6 +104,7 @@ function env(): ResearchEnv {
   if (scenario === "unconfigured") return { RESEARCH_DB: d1 };
   if (scenario === "rate_limited") return { ...base, RESEARCH_DAILY_LIMIT: "0" };
   if (scenario === "capacity") return { ...base, RESEARCH_MAX_AI_CALLS_PER_DAY: "0" };
+  if (scenario === "preview_unconfigured") return { ...base, RESEARCH_DB: undefined };
   if (scenario === "db_down") return { ...base, RESEARCH_DB: createD1({ faults: [{ match: /research_jobs/, error: "D1_ERROR: mock outage" }] }).d1 };
   return base;
 }
@@ -123,11 +124,13 @@ createServer(async (req, res) => {
     const headers = new Headers();
     for (const [k, v] of Object.entries(req.headers)) if (typeof v === "string") headers.set(k, v);
     headers.set("CF-Connecting-IP", "127.0.0.1");
-    const request = new Request(url, { method: req.method, headers, body: ["GET", "HEAD"].includes(req.method || "GET") ? undefined : body });
+    // Simulate the production hostname (preview gating applies there).
+    const target = scenario === "preview_unconfigured" ? new URL(url.pathname + url.search, "https://practicestartupservices.com") : url;
+    const request = new Request(target, { method: req.method, headers, body: ["GET", "HEAD"].includes(req.method || "GET") ? undefined : body });
     const deps = { env: env(), fetcher: mockFetch, log: (e: string, d: Record<string, unknown>) => console.log("[handler]", e, JSON.stringify(d)) };
     let response: Response;
     if (url.pathname === "/api/startup-research-preview" && req.method === "GET") response = await handlePreview(request, deps);
-    else if (url.pathname === "/api/startup-research" && req.method === "GET") response = handleAvailability(deps);
+    else if (url.pathname === "/api/startup-research" && req.method === "GET") response = handleAvailability(request, deps);
     else if (url.pathname === "/api/startup-research" && req.method === "POST") response = await handleGate(request, deps);
     else response = new Response(JSON.stringify({ ok: false, kind: "validation" }), { status: 405, headers: { "Content-Type": "application/json" } });
     res.writeHead(response.status, Object.fromEntries(response.headers));

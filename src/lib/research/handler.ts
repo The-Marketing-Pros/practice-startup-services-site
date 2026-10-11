@@ -126,13 +126,25 @@ function cookie(request: Request, name: string): string {
 
 // ------------------------------------------------------------- GET
 
-export function handleAvailability(deps: Deps): Response {
+/** Whether the free preview may run on this hostname (same rule as handlePreview). */
+export function previewAllowed(hostname: string, env: ResearchEnv): { ok: boolean; reason: "" | "disabled" | "unconfigured" } {
+  if (env.RESEARCH_PREVIEW_DISABLED === "true") return { ok: false, reason: "disabled" };
+  // Production previews need an abuse limit: the D1 counter (DB + hash secret)
+  // or a confirmed Cloudflare rate-limiting rule. Preview deployments stay open.
+  const limited = !!(env.RESEARCH_DB && env.RESEARCH_HASH_SECRET);
+  if (PRODUCTION_HOSTS.includes(hostname) && !limited && env.RESEARCH_PREVIEW_WAF_CONFIRMED !== "true") return { ok: false, reason: "unconfigured" };
+  return { ok: true, reason: "" };
+}
+
+export function handleAvailability(request: Request, deps: Deps): Response {
   const { env } = deps;
+  const preview = previewAllowed(new URL(request.url).hostname, env);
+  if (preview.reason === "unconfigured") deps.log?.("preview_blocked_unconfigured", { where: "availability" });
   return json({
     ok: true,
     available: gateConfigured(env),
     marketingAvailable: gateConfigured(env) && !!env.HUBSPOT_MARKETING_SUBSCRIPTION_ID,
-    previewAvailable: env.RESEARCH_PREVIEW_DISABLED !== "true",
+    previewAvailable: preview.ok,
   });
 }
 
@@ -141,8 +153,13 @@ export function handleAvailability(deps: Deps): Response {
 export async function handlePreview(request: Request, deps: Deps): Promise<Response> {
   const { env } = deps;
   const now = deps.now ?? (() => new Date());
-  if (env.RESEARCH_PREVIEW_DISABLED === "true") return fail("unavailable", { message: "The free preview is paused. Your checklist and pro forma still work." });
   const url = new URL(request.url);
+  const allowed = previewAllowed(url.hostname, env);
+  if (allowed.reason === "disabled") return fail("unavailable", { message: "The free preview is paused. Your checklist and pro forma still work." });
+  if (allowed.reason === "unconfigured") {
+    deps.log?.("preview_blocked_unconfigured", { where: "preview" });
+    return fail("unavailable", { message: "The free preview is not available yet. Your checklist and pro forma still work." });
+  }
   let profile;
   try {
     profile = validateProfile(Object.fromEntries(url.searchParams));
@@ -152,10 +169,6 @@ export async function handlePreview(request: Request, deps: Deps): Promise<Respo
   }
   const db = env.RESEARCH_DB;
   const limited = !!(db && env.RESEARCH_HASH_SECRET);
-  // Production previews need an abuse limit: the D1 counter (DB + secret) or a
-  // confirmed Cloudflare rate-limiting rule. Preview deployments stay open.
-  if (PRODUCTION_HOSTS.includes(url.hostname) && !limited && env.RESEARCH_PREVIEW_WAF_CONFIRMED !== "true")
-    return fail("unavailable", { message: "The free preview is not available yet. Your checklist and pro forma still work." });
   if (limited) {
     // Per-IP daily cap on a keyed hash (never a public fallback key).
     try {
@@ -194,9 +207,10 @@ type JobRow = {
   event_id: string;
   capi_status: string;
   result_json: string | null;
+  config_errors: number;
 };
 
-const SELECT_JOB = "SELECT id, identity_hash, context_hash, status, lease_until, hubspot_status, ai_attempts, ai_rejected, event_id, capi_status, result_json FROM research_jobs WHERE id = ?1";
+const SELECT_JOB = "SELECT id, identity_hash, context_hash, status, lease_until, hubspot_status, ai_attempts, ai_rejected, event_id, capi_status, result_json, config_errors FROM research_jobs WHERE id = ?1";
 
 async function dbStep<T>(label: string, deps: Deps, fn: () => Promise<T>): Promise<T> {
   try {
@@ -438,10 +452,11 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   if (job.identity_hash !== identity || job.context_hash !== context) return fail("conflict");
   if (job.status === "complete" && job.result_json) return replay(job);
 
-  // Claim a short lease so concurrent retries cannot double-submit.
+  // Claim a short lease (with an owner token) so concurrent retries cannot double-submit.
+  const leaseToken = crypto.randomUUID();
   const claim = await dbStep("claim", deps, () =>
-    db.prepare("UPDATE research_jobs SET status = 'processing', lease_until = ?2, updated_at = ?3 WHERE id = ?1 AND status != 'complete' AND (status != 'processing' OR lease_until < ?3)")
-      .bind(g.requestId, t.getTime() + LEASE_MS, t.getTime())
+    db.prepare("UPDATE research_jobs SET status = 'processing', lease_until = ?2, updated_at = ?3, lease_token = ?4 WHERE id = ?1 AND status != 'complete' AND (status != 'processing' OR lease_until < ?3)")
+      .bind(g.requestId, t.getTime() + LEASE_MS, t.getTime(), leaseToken)
       .run(),
   );
   if ((claim.meta?.changes ?? 0) !== 1) {
@@ -492,10 +507,20 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   const hasData = citableIds(facts).length > 0;
   if (!hasData) briefStatus = "insufficient_data";
   let attempts = job.ai_attempts;
+  const CONFIG_ERROR_CAP = 2;
+  if (hasData && job.config_errors >= CONFIG_ERROR_CAP) {
+    await release("ai_config_capped");
+    return fail("unavailable");
+  }
   while (hasData && !brief && attempts < MAX_AI_ATTEMPTS_PER_REQUEST) {
+    // Renew our lease first (owner token). A failed or lost renewal consumes nothing.
+    const renew = await dbStep("renew_lease", deps, () =>
+      db.prepare("UPDATE research_jobs SET lease_until = ?2 WHERE id = ?1 AND lease_token = ?3").bind(g.requestId, now().getTime() + LEASE_MS, leaseToken).run(),
+    );
+    if ((renew.meta?.changes ?? 0) !== 1) return fail("in_progress");
     const reserved = await dbStep("reserve_ai", deps, () => reserveAiCall(db, day, int(env.RESEARCH_MAX_AI_CALLS_PER_DAY, 40)));
     if (!reserved) {
-      briefStatus = "capacity";
+      if (briefStatus !== "rejected") briefStatus = "capacity";
       break;
     }
     const bump = await dbStep("bump_attempt", deps, () =>
@@ -503,7 +528,6 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     );
     if ((bump.meta?.changes ?? 0) !== 1) break;
     attempts++;
-    await dbStep("renew_lease", deps, () => db.prepare("UPDATE research_jobs SET lease_until = ?2 WHERE id = ?1").bind(g.requestId, now().getTime() + LEASE_MS).run());
     let call;
     try {
       call = await generateBrief(deps.fetcher, { OPENAI_API_KEY: env.OPENAI_API_KEY!, RESEARCH_MODEL: env.RESEARCH_MODEL! }, facts, g.profile);
@@ -512,10 +536,19 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
       deps.log?.("ai_provider_error", { code });
       if (/^http_(400|401|403|404)$/.test(code)) {
         // Our configuration is wrong (key, model, request): not billed, not retryable.
-        // Refund the reserved daily call and this request's attempt.
+        // Refund the reserved daily call and this attempt; count the config error.
         await db.prepare("UPDATE research_usage SET ai_calls = max(ai_calls - 1, 0) WHERE day = ?1").bind(day).run().catch(() => {});
-        await db.prepare("UPDATE research_jobs SET ai_attempts = max(ai_attempts - 1, 0) WHERE id = ?1").bind(g.requestId).run().catch(() => {});
+        await db.prepare("UPDATE research_jobs SET ai_attempts = max(ai_attempts - 1, 0), config_errors = config_errors + 1 WHERE id = ?1").bind(g.requestId).run().catch(() => {});
+        // An earlier billed output was already rejected: finish with the fallback.
+        if (briefStatus === "rejected" || job.ai_rejected > 0) {
+          briefStatus = "rejected";
+          break;
+        }
         await release(`ai_${code}`);
+        if (job.config_errors + 1 >= CONFIG_ERROR_CAP) {
+          deps.log?.("ai_config_error_cap", { code });
+          return fail("unavailable");
+        }
         return fail("system");
       }
       await db.prepare("UPDATE research_usage SET provider_errors = provider_errors + 1 WHERE day = ?1").bind(day).run().catch(() => {});

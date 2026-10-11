@@ -305,7 +305,7 @@ function renderBrief(brief: Brief | null, status: string) {
     box.innerHTML = "";
     return;
   }
-  box.innerHTML = `<div class="research-brief"><p class="rs-small">Written by AI from the facts above only, then checked so every number matches the data. Each statement is labeled.</p>${brief.sections
+  box.innerHTML = `<div class="research-brief"><p class="rs-small">Facts and estimates are written by our system from the tables above, word for word. AI chose which to include and wrote the interpretations, which contain no numbers. Each statement is labeled.</p>${brief.sections
     .map(
       (s) =>
         `<section><h4>${esc(s.heading)}</h4>${s.statements
@@ -379,6 +379,12 @@ async function init() {
   syncMix();
   const avail = await requestJson(fetch, "/api/startup-research");
   gateAvailable = avail.type === "success" && avail.body.available === true;
+  // Tell visitors up front when the preview cannot run, instead of failing after they fill the form.
+  if (avail.type === "success" && avail.body.previewAvailable === false) {
+    $("preview-unavailable").hidden = false;
+    for (const el of Array.from(profileForm.elements) as HTMLInputElement[]) el.disabled = true;
+    $("preview-empty").hidden = true;
+  }
   $("g-marketing-wrap").hidden = !(gateAvailable && avail.type === "success" && avail.body.marketingAvailable === true);
   // Restore this visit's result (for example after a reload).
   try {

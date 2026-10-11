@@ -16,8 +16,8 @@ type Opts = {
   faults?: Fault[];
   hideFirstSelects?: number;
   turnstile?: () => Response;
-  hubspot?: Array<() => Response>;
-  openai?: Array<() => Response>;
+  hubspot?: Array<() => Response | Promise<Response>>;
+  openai?: Array<() => Response | Promise<Response>>;
 };
 
 function setup(o: Opts = {}) {
@@ -76,7 +76,7 @@ const AI = /api\.openai\.com/;
 
 test("availability and unconfigured gate report unavailable without calling any provider", async () => {
   const { deps, stub } = setup({ env: { HUBSPOT_RESEARCH_FORM_ID: undefined } });
-  const a = await read(handleAvailability(deps));
+  const a = await read(handleAvailability(new Request(`${ORIGIN}/api/startup-research`), deps));
   assert.equal(a.json.available, false);
   assert.equal(a.json.previewAvailable, true);
   const r = await read(await handleGate(post(body()), deps));
@@ -84,7 +84,7 @@ test("availability and unconfigured gate report unavailable without calling any 
   assert.equal(r.json.kind, "unavailable");
   assert.equal(stub.calls.length, 0);
   const off = setup({ env: { RESEARCH_ENABLED: "false" } });
-  assert.equal((await read(handleAvailability(off.deps))).json.available, false);
+  assert.equal((await read(handleAvailability(new Request(`${ORIGIN}/api/startup-research`), off.deps))).json.available, false);
 });
 
 test("success captures the lead once, returns a guarded brief, facts and a stable event id", async () => {
@@ -257,7 +257,7 @@ test("request hygiene: exact origin, JSON content type, body cap, malformed JSON
 });
 
 test("numeric guard rejection: never shown, counted as billed, one regeneration only, then fallback", async () => {
-  const invented = { ...GOOD_BRIEF, sections: GOOD_BRIEF.sections.map((s, i) => (i === 0 ? { ...s, statements: [{ text: "About 3,200 locals need surgery.", kind: "fact", sourceIds: ["acs"] }] } : s)) };
+  const invented = { ...GOOD_BRIEF, sections: GOOD_BRIEF.sections.map((s, i) => (i === 0 ? { ...s, statements: [{ kind: "interpretation", refs: [], text: "About 3,200 locals need surgery." }] } : s)) };
   const { deps, stub, sqlite } = setup({ openai: [() => jsonResponse(openAiResponse(invented)), () => jsonResponse(openAiResponse(invented))] });
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.status, 200, "the lead was captured; the visitor gets the deterministic deliverable");
@@ -447,4 +447,67 @@ test("CAPI never fires from preview deployments, even with matching IDs", async 
   assert.equal(r.status, 200);
   await Promise.all(pending);
   assert.equal(stub.count(/graph\.facebook\.com/), 0);
+});
+
+test("availability reports the real previewAvailable for the hostname (same rule as the preview)", async () => {
+  const cases: Array<[Partial<ResearchEnv>, string, boolean]> = [
+    [{ RESEARCH_DB: undefined }, ORIGIN, false],
+    [{ RESEARCH_HASH_SECRET: undefined }, ORIGIN, false],
+    [{}, ORIGIN, true],
+    [{ RESEARCH_DB: undefined, RESEARCH_PREVIEW_WAF_CONFIRMED: "true" }, ORIGIN, true],
+    [{ RESEARCH_DB: undefined }, PREVIEW_HOST, true],
+    [{ RESEARCH_PREVIEW_DISABLED: "true" }, PREVIEW_HOST, false],
+  ];
+  for (const [env, host, expected] of cases) {
+    const logs: string[] = [];
+    const { deps } = setup({ env });
+    const d = { ...deps, log: (e: string) => void logs.push(e) };
+    const a = await read(handleAvailability(new Request(`${host}/api/startup-research`), d));
+    assert.equal(a.json.previewAvailable, expected, JSON.stringify(env) + host);
+    const p = await handlePreview(new Request(`${host}/api/startup-research-preview?${q()}`), d);
+    assert.equal(p.status === 200, expected, "preview endpoint agrees with availability");
+    if (!expected && !env.RESEARCH_PREVIEW_DISABLED) assert.ok(logs.includes("preview_blocked_unconfigured"));
+  }
+});
+
+test("AI config errors are capped per job; after a rejected output a 4xx finishes with the fallback", async () => {
+  const { deps, stub } = setup({ openai: [() => jsonResponse({ error: {} }, 401), () => jsonResponse({ error: {} }, 401)] });
+  assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "system");
+  assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "unavailable", "second config error caps the job");
+  assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "unavailable");
+  assert.equal(stub.count(AI), 2, "no further AI calls once capped");
+  const invented = { ...GOOD_BRIEF, sections: GOOD_BRIEF.sections.map((s, i) => (i === 2 ? { ...s, statements: [{ kind: "interpretation", refs: [], text: "Expect 40 visits a day." }] } : s)) };
+  const mixed = setup({ openai: [() => jsonResponse(openAiResponse(invented)), () => jsonResponse({ error: {} }, 400)] });
+  const r = await read(await handleGate(post(body()), mixed.deps));
+  assert.equal(r.status, 200);
+  assert.equal(r.json.briefStatus, "rejected");
+  assert.equal(r.json.brief, null);
+});
+
+test("lease renewal is owner-checked and never consumes an attempt when it fails or is lost", async () => {
+  const failing = setup({ faults: [{ match: /SET lease_until = \?2 WHERE id = \?1 AND lease_token/, error: "D1_ERROR: timeout" }] });
+  assert.equal((await read(await handleGate(post(body()), failing.deps))).json.kind, "system");
+  assert.equal(failing.stub.count(AI), 0);
+  assert.equal((failing.sqlite.prepare("SELECT ai_attempts FROM research_jobs").get() as any).ai_attempts, 0);
+  assert.equal((failing.sqlite.prepare("SELECT count(*) n FROM research_usage WHERE ai_calls > 0").get() as any).n, 0);
+  // Another worker takes the lease while we wait on HubSpot.
+  let steal = () => {};
+  const lost = setup({ hubspot: [() => { steal(); return jsonResponse({ inlineMessage: "ok" }); }] });
+  steal = () => lost.sqlite.prepare("UPDATE research_jobs SET lease_token = 'other-worker'").run();
+  assert.equal((await read(await handleGate(post(body()), lost.deps))).json.kind, "in_progress");
+  assert.equal(lost.stub.count(AI), 0);
+  assert.equal((lost.sqlite.prepare("SELECT ai_attempts FROM research_jobs").get() as any).ai_attempts, 0);
+});
+
+test("concurrent submissions with the same requestId: one 200, the rest 409, one HubSpot, one AI", async () => {
+  const slow = (r: Response) => new Promise<Response>((res) => setTimeout(() => res(r), 30));
+  const { deps, stub } = setup({
+    hubspot: [() => slow(jsonResponse({ inlineMessage: "ok" })), () => slow(jsonResponse({ inlineMessage: "ok" })), () => slow(jsonResponse({ inlineMessage: "ok" }))],
+  });
+  const results = await Promise.all([1, 2, 3].map(async () => read(await handleGate(post(body()), deps))));
+  const statuses = results.map((r) => r.status).sort();
+  assert.deepEqual(statuses, [200, 409, 409]);
+  assert.ok(results.filter((r) => r.status === 409).every((r) => r.json.kind === "in_progress"));
+  assert.equal(stub.count(HUB), 1);
+  assert.equal(stub.count(AI), 1);
 });

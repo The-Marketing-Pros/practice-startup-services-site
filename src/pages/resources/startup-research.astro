@@ -22,6 +22,7 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
   <aside class="rs-panel research-inputs">
    <p class="rs-kicker">01 / Your practice</p>
    <h2>Tell us what you are planning</h2>
+   <p id="preview-unavailable" class="rs-notice" role="status" hidden>The free preview is not available yet. The <a class="rs-link" href="/resources/startup-checklist/">startup checklist</a> and <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
    <form id="research-profile" novalidate autocomplete="off">
     <div class="rs-field"><label for="r-provider">Provider type</label><select id="r-provider" name="provider" required aria-describedby="r-provider-error">{providerTypes.map(o=><option value={o.value}>{o.label}</option>)}</select><p class="research-error" id="r-provider-error" hidden></p></div>
     <div class="rs-field"><label for="r-specialty">Specialty</label><select id="r-specialty" name="specialty" required aria-describedby="r-specialty-error"><option value="">Select your specialty</option>{specialties.map(s=><option value={s.id}>{s.label}</option>)}</select><p class="research-error" id="r-specialty-error" hidden></p></div>
@@ -54,7 +55,7 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
      <p class="rs-kicker">03 / Go deeper</p>
      <h3 id="gate-title">Get your written planning brief and PDF</h3>
      <p>We turn the facts above into a short planning brief for your practice, then package it with your data tables and tailored checklist as a PDF. Every statement is labeled as a fact, an estimate or an interpretation, and the brief uses only the data shown above.</p>
-     <p id="gate-unavailable" class="rs-notice" hidden>The written brief and PDF are not available yet. Your preview above, the <a class="rs-link" href="/resources/startup-checklist/">checklist</a> and the <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+     <p id="gate-unavailable" class="rs-notice" hidden>The written brief and PDF are not available yet. The <a class="rs-link" href="/resources/startup-checklist/">checklist</a> and the <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
      <form id="gate-form" novalidate hidden data-sitekey={sitekey}>
       <div class="rs-field"><label for="g-email">Email</label><input id="g-email" name="email" type="email" maxlength="254" required autocomplete="email" aria-describedby="g-email-help g-email-error" /><small id="g-email-help">Your brief appears on this page. We do not send automated emails.</small><p class="research-error" id="g-email-error" hidden></p></div>
       <div class="research-checks">

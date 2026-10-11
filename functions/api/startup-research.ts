@@ -5,8 +5,8 @@ import { handleAvailability, handleGate, fail, type ResearchEnv } from "../../sr
 
 const log = (event: string, detail: Record<string, unknown>) => console.log(JSON.stringify({ event, ...detail }));
 
-export const onRequestGet: PagesFunction<ResearchEnv> = async ({ env }) =>
-  handleAvailability({ env, fetcher: (i, init) => fetch(i, init) });
+export const onRequestGet: PagesFunction<ResearchEnv> = async ({ request, env }) =>
+  handleAvailability(request, { env, fetcher: (i, init) => fetch(i, init), log });
 
 export const onRequestPost: PagesFunction<ResearchEnv> = async ({ request, env, waitUntil }) =>
   handleGate(request, { env, fetcher: (i, init) => fetch(i, init), waitUntil, log });

@@ -16,18 +16,18 @@ export async function sampleFacts(): Promise<FactsBundle> {
 export const GOOD_BRIEF = {
   sections: [
     { heading: "Your area at a glance", statements: [
-      { text: "Census estimates about 54,321 residents in ZCTA 10016, with a margin of error of 1,987.", kind: "fact", refs: ["acs_population"] },
-      { text: "Roughly 15% of residents are age 65 and over, and the median household income is $142,350.", kind: "fact", refs: ["acs_age65_pct", "acs_median_income"] },
+      { kind: "fact", refs: ["acs_population"], text: "" },
+      { kind: "fact", refs: ["acs_age65_pct", "acs_median_income"], text: "" },
     ] },
     { heading: "Providers already listed nearby", statements: [
-      { text: "The NPI Registry lists 4 orthopaedic surgeons with a practice location in ZIP 10016.", kind: "fact", refs: ["nppes_zip_count"] },
-      { text: "That works out to an estimate of 13,580 residents per matching provider, a rough ratio only.", kind: "estimate", refs: ["est_residents_per_provider"] },
+      { kind: "fact", refs: ["nppes_zip_count"], text: "" },
+      { kind: "estimate", refs: ["est_residents_per_provider"], text: "" },
     ] },
     { heading: "What this could mean for your plan", statements: [
-      { text: "Registry listings do not show capacity, so talk with local referral sources before choosing a location.", kind: "interpretation", refs: [] },
+      { kind: "interpretation", refs: [], text: "Registry listings are not capacity, so confirm referral patterns locally before choosing a location." },
     ] },
     { heading: "Questions to answer next", statements: [
-      { text: "Which hospitals and surgery centers will grant you privileges, and how long does that take?", kind: "interpretation", refs: [] },
+      { kind: "interpretation", refs: [], text: "Which hospitals and surgery centers will grant you privileges, and how long does that take?" },
     ] },
   ],
 };
