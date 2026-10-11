@@ -12,6 +12,8 @@ interface Props {
   description?: string;
   ogImage?: string;
   noIndex?: boolean;
+  /** Overrides robots meta, e.g. "noindex,follow" for campaign landing pages. */
+  robots?: string;
   schema?: Record<string, unknown> | Record<string, unknown>[];
   // When true, the title is used as-is without ' · Practice Startup Services' suffix
   // (used on the homepage where we want a head-term-loaded title without brand padding)
@@ -27,6 +29,7 @@ const {
   description,
   ogImage,
   noIndex = false,
+  robots,
   schema,
   titleAsIs = false,
   datePublished,
@@ -45,6 +48,13 @@ function pickOgImage(path: string, override?: string): string {
   return new URL("/og/og-home.jpg", SITE.url).toString();
 }
 const ogImageUrl = pickOgImage(Astro.url.pathname, ogImage);
+const robotsContent = robots ?? (noIndex ? "noindex,nofollow" : undefined);
+
+// Meta pixel: inert until the owner supplies a dataset ID at build time
+// (PUBLIC_META_PIXEL_ID). Even then it loads only on the production hostname.
+// autoConfig and automatic advanced matching are disabled; no em/ph matching.
+const metaPixelId = (import.meta.env.PUBLIC_META_PIXEL_ID || "").trim();
+const metaPixelEnabled = /^\d{5,20}$/.test(metaPixelId);
 
 // Entity graph: one Organization node + one WebSite node, both with stable @id
 // anchors, referenced from every page's WebPage node. Keeps crawlers and answer
@@ -119,7 +129,7 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
     <meta name="description" content={pageDescription} />
     <link rel="canonical" href={canonical} />
 
-    {noIndex && <meta name="robots" content="noindex,nofollow" />}
+    {robotsContent && <meta name="robots" content={robotsContent} />}
 
     <!-- Display font preload — largest text paint on every page -->
     <link rel="preload" as="font" type="font/woff2" href={archivoWoff2} crossorigin />
@@ -211,6 +221,22 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
         });
       })();
     </script>
+    {metaPixelEnabled && (
+      <script is:inline define:vars={{ metaPixelId }}>
+        (function () {
+          var host = location.hostname;
+          if (host !== "practicestartupservices.com" && host !== "www.practicestartupservices.com") return;
+          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+          n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+          document,'script','https://connect.facebook.net/en_US/fbevents.js');
+          fbq('set', 'autoConfig', false, metaPixelId);
+          fbq('init', metaPixelId);
+          fbq('track', 'PageView');
+        })();
+      </script>
+    )}
   </head>
   <body class="min-h-screen flex flex-col">
     <a
@@ -229,6 +255,16 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
     <SiteFooter />
 
     <Architect />
+
+    <script>
+      // Campaign attribution (first touch 90 days, last touch per session).
+      import { captureAttribution } from "../lib/attribution";
+      try {
+        captureAttribution(location.href, document.referrer, window.localStorage, window.sessionStorage);
+      } catch {
+        /* storage blocked: attribution is best effort */
+      }
+    </script>
 
     <!-- Scroll reveal — inverted pattern (locked agency standard).
          The hidden state only exists once this script runs, in the same tick
