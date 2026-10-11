@@ -6,6 +6,7 @@ import { handleGate, handleAvailability, handlePreview, type ResearchEnv } from 
 import { createD1, type Fault } from "./helpers/d1.ts";
 import { nppesRecord, nppesBody, URBAN_ACS, stubFetch, jsonResponse } from "./fixtures/research.ts";
 import { GOOD_BRIEF, PROFILE, openAiResponse } from "./fixtures/brief.ts";
+import { CONSENT_TEXT } from "../src/lib/research/copy.ts";
 
 const ORIGIN = "https://practicestartupservices.com";
 const NOW = new Date("2026-10-10T15:00:00Z");
@@ -357,13 +358,14 @@ test("HubSpot rejecting the email is a validation error on the email field", asy
   assert.equal((await read(await handleGate(post(body()), cfg.deps))).json.kind, "system");
 });
 
-test("free preview works without a database binding and validates input", async () => {
+const PREVIEW_HOST = "https://abc123.practice-startup-services.pages.dev";
+test("free preview works without a database binding on preview deployments and validates input", async () => {
   const { deps, stub } = setup({ env: { RESEARCH_DB: undefined, RESEARCH_ENABLED: undefined } });
-  const ok = await read(await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${new URLSearchParams(PROFILE as Record<string, string>)}`), deps));
+  const ok = await read(await handlePreview(new Request(`${PREVIEW_HOST}/api/startup-research-preview?${new URLSearchParams(PROFILE as Record<string, string>)}`), deps));
   assert.equal(ok.status, 200);
   assert.equal(ok.json.facts.sections.nppes.status, "ok");
   assert.equal(stub.count(HUB) + stub.count(AI), 0, "the preview never captures a lead or calls the model");
-  const bad = await read(await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${new URLSearchParams({ ...PROFILE, zip: "abc" } as Record<string, string>)}`), deps));
+  const bad = await read(await handlePreview(new Request(`${PREVIEW_HOST}/api/startup-research-preview?${new URLSearchParams({ ...PROFILE, zip: "abc" } as Record<string, string>)}`), deps));
   assert.equal(bad.json.field, "zip");
   const paused = setup({ env: { RESEARCH_PREVIEW_DISABLED: "true" } });
   assert.equal((await read(await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview`), paused.deps))).json.kind, "unavailable");
@@ -377,4 +379,72 @@ test("free preview soft per-IP cap and cache use the database when bound", async
   assert.equal((await handlePreview(req(), deps)).status, 200);
   assert.equal(stub.calls.length, calls, "second preview served from the D1 cache");
   assert.equal((await read(await handlePreview(req(), deps))).json.kind, "rate_limited");
+});
+
+const q = () => new URLSearchParams(PROFILE as Record<string, string>).toString();
+
+test("production previews require an abuse limit; IPs are never hashed with a public key", async () => {
+  const noDb = setup({ env: { RESEARCH_DB: undefined } });
+  const r = await read(await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${q()}`), noDb.deps));
+  assert.equal(r.json.kind, "unavailable", "no DB counter and no confirmed WAF rule on production");
+  const waf = setup({ env: { RESEARCH_DB: undefined, RESEARCH_PREVIEW_WAF_CONFIRMED: "true" } });
+  assert.equal((await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${q()}`), waf.deps)).status, 200);
+  // DB bound but no hash secret: the counter is skipped entirely (no fallback key).
+  const noSecret = setup({ env: { RESEARCH_HASH_SECRET: undefined } });
+  assert.equal((await handlePreview(new Request(`${PREVIEW_HOST}/api/startup-research-preview?${q()}`, { headers: { "CF-Connecting-IP": "198.51.100.7" } }), noSecret.deps)).status, 200);
+  assert.equal((noSecret.sqlite.prepare("SELECT count(*) n FROM research_preview_usage").get() as any).n, 0);
+  assert.equal((await read(await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${q()}`), noSecret.deps))).json.kind, "unavailable");
+});
+
+test("a failed hubspot_status write cannot cause a second HubSpot submission", async () => {
+  const { deps, stub, sqlite } = setup({
+    faults: [{ match: /^UPDATE research_jobs SET hubspot_status = 'submitted', updated_at/, error: "D1_ERROR: write failed", times: 2 }],
+    openai: [() => jsonResponse({ error: { message: "overloaded" } }, 503)],
+  });
+  assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "provider");
+  assert.equal((sqlite.prepare("SELECT hubspot_status FROM research_jobs").get() as any).hubspot_status, "submitted", "release() recorded it");
+  const ok = await read(await handleGate(post(body()), deps));
+  assert.equal(ok.json.briefStatus, "ready");
+  assert.equal(stub.count(HUB), 1);
+});
+
+test("OpenAI 400/401/403/404 is a system error with no retry and the reserved call refunded", async () => {
+  for (const status of [400, 401, 403, 404]) {
+    const { deps, stub, sqlite } = setup({ openai: [() => jsonResponse({ error: { message: "bad" } }, status)] });
+    const r = await read(await handleGate(post(body()), deps));
+    assert.equal(r.json.kind, "system", String(status));
+    assert.equal(stub.count(AI), 1, "no second call in the same request");
+    assert.equal((sqlite.prepare("SELECT ai_calls FROM research_usage").get() as any).ai_calls, 0);
+    assert.equal((sqlite.prepare("SELECT ai_attempts FROM research_jobs").get() as any).ai_attempts, 0);
+  }
+});
+
+test("lease covers the AI calls and is renewed; bodies without Content-Length are stream-capped", async () => {
+  const { deps, sqlite, stub } = setup({ faults: [{ match: /SET status = 'complete'/, error: "D1_ERROR: keep processing", times: 2 }] });
+  await handleGate(post(body()), deps);
+  const lease = (sqlite.prepare("SELECT lease_until FROM research_jobs").get() as any).lease_until;
+  assert.ok(lease >= NOW.getTime() + 240000, "lease is at least 240 s");
+  const big = new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(JSON.stringify(body({ pad: "x".repeat(10000) })))); c.close(); } });
+  const req = new Request(`${ORIGIN}/api/startup-research`, { method: "POST", headers: { Origin: ORIGIN, "Content-Type": "application/json" }, body: big, duplex: "half" } as RequestInit);
+  assert.equal(req.headers.get("content-length"), null);
+  const r = await read(await handleGate(req, deps));
+  assert.equal(r.json.kind, "validation");
+  assert.equal(r.json.message, "Request too large.");
+  void stub;
+});
+
+test("HubSpot receives exactly the consent text shown in the form", async () => {
+  const { deps, stub } = setup();
+  await handleGate(post(body()), deps);
+  const hub = JSON.parse(String(stub.calls.find((c) => HUB.test(c.url))!.init!.body));
+  assert.equal(hub.legalConsentOptions.consent.text, CONSENT_TEXT);
+});
+
+test("CAPI never fires from preview deployments, even with matching IDs", async () => {
+  const { deps, stub, pending } = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "t" }, turnstile: () => jsonResponse({ success: true, hostname: "abc123.practice-startup-services.pages.dev", action: "startup_research" }) });
+  const req = new Request(`${PREVIEW_HOST}/api/startup-research`, { method: "POST", headers: { Origin: PREVIEW_HOST, "Content-Type": "application/json" }, body: JSON.stringify(body()) });
+  const r = await read(await handleGate(req, deps));
+  assert.equal(r.status, 200);
+  await Promise.all(pending);
+  assert.equal(stub.count(/graph\.facebook\.com/), 0);
 });

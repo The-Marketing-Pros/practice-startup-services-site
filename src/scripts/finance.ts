@@ -12,6 +12,7 @@ import {
 import { applyPreset, buildPreset, type PresetInput } from "../lib/planners/presets";
 import { contextSummary } from "../lib/planners/context";
 import { trackToolDownload } from "../lib/measure";
+import { stripParams } from "../lib/attribution";
 import {
   element,
   escapeHtml as esc,
@@ -232,6 +233,13 @@ for (const [id, fn, format] of [
   const mixValue = payer === "cash" ? "cash" : mixParam;
   const mixEl = document.getElementById("preset-mix") as HTMLSelectElement | null;
   if (mixValue && mixEl && [...mixEl.options].some((o) => o.value === mixValue)) mixEl.value = mixValue;
+  const handoff = ["provider", "specialty", "zip", "model", "setting", "payer", "mix", "stage", "state"];
+  if (handoff.some((k) => params.has(k)))
+    try {
+      history.replaceState(history.state, "", stripParams(location.href, handoff));
+    } catch {
+      /* ignore */
+    }
 }
 fill();
 render();

@@ -9,7 +9,7 @@
 //   NPPES_MODE=live CENSUS_MODE=live PORT=8799 node --experimental-strip-types scripts/dev/research-mock-server.ts
 //
 // POST /__scenario {"name": "..."} switches the mocked provider behavior:
-//   ok | verification | hubspot_down | ai_down | ai_invented | db_down | rate_limited | unconfigured
+//   ok | verification | hubspot_down | ai_down | ai_invented | db_down | rate_limited | capacity | no_data | unconfigured
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { join, extname, normalize } from "node:path";
@@ -42,10 +42,10 @@ function briefFor(body: string) {
     const pop = facts.facts.find((f: any) => f.id === "acs_population");
     const zipCount = facts.facts.find((f: any) => f.id === "nppes_zip_count");
     const s: any = { sections: [
-      { heading: "Your area at a glance", statements: pop ? [{ text: `Census estimates ${pop.display} residents in ${pop.geography} (margin of error ${pop.marginOfError.replace("± ", "")}).`, kind: "fact", sourceIds: ["acs"] }] : [{ text: "Census data was unavailable for this ZIP right now.", kind: "interpretation", sourceIds: [] }] },
-      { heading: "Providers already listed nearby", statements: zipCount ? [{ text: `The NPI Registry lists ${zipCount.display} providers with a matching taxonomy at a practice location in ZIP ${facts.zip}.`, kind: "fact", sourceIds: ["nppes"] }] : [{ text: "Provider counts were unavailable for this combination.", kind: "interpretation", sourceIds: [] }] },
-      { heading: "What this could mean for your plan", statements: [{ text: "Registry listings are not capacity, so confirm referral patterns and payer networks locally before choosing a site.", kind: "interpretation", sourceIds: [] }] },
-      { heading: "Questions to answer next", statements: [{ text: `Which payers in ${facts.state || "your state"} are accepting new ${input.INPUTS.providerType.toLowerCase()}s, and how long does enrollment take?`, kind: "interpretation", sourceIds: [] }] },
+      { heading: "Your area at a glance", statements: pop ? [{ text: `Census estimates ${pop.display} residents in ${pop.geography} (margin of error ${pop.marginOfError.replace("± ", "")}).`, kind: "fact", refs: ["acs_population"] }] : [{ text: "Census data was unavailable for this ZIP right now.", kind: "interpretation", refs: [] }] },
+      { heading: "Providers already listed nearby", statements: zipCount ? [{ text: `The NPI Registry lists ${zipCount.display} providers with a matching taxonomy at a practice location in ZIP ${facts.zip}.`, kind: "fact", refs: ["nppes_zip_count"] }] : [{ text: "Provider counts were unavailable for this combination.", kind: "interpretation", refs: [] }] },
+      { heading: "What this could mean for your plan", statements: [{ text: "Registry listings are not capacity, so confirm referral patterns and payer networks locally before choosing a site.", kind: "interpretation", refs: [] }] },
+      { heading: "Questions to answer next", statements: [{ text: `Which payers in ${facts.state || "your state"} are accepting new ${input.INPUTS.providerType.toLowerCase()}s, and how long does enrollment take?`, kind: "interpretation", refs: [] }] },
     ] };
     return s;
   } catch {
@@ -61,18 +61,21 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
   if (url.includes("api.openai.com")) {
     await new Promise((r) => setTimeout(r, 900));
     if (scenario === "ai_down") return jsonResponse({ error: { message: "mock overload" } }, 503);
-    if (scenario === "ai_invented") return jsonResponse(openAiResponse({ sections: [{ heading: "Your area at a glance", statements: [{ text: "About 4,800 people here need this specialty.", kind: "fact", sourceIds: ["acs"] }] }, ...GOOD_BRIEF.sections.slice(1)] }));
+    if (scenario === "ai_invented") return jsonResponse(openAiResponse({ sections: [{ heading: "Your area at a glance", statements: [{ text: "About 4,800 people here need this specialty.", kind: "fact", refs: ["acs_population"] }] }, ...GOOD_BRIEF.sections.slice(1)] }));
     return jsonResponse(openAiResponse(briefFor(String(init?.body))));
   }
   if (url.includes("graph.facebook.com")) return jsonResponse({ events_received: 1 });
   if (url.includes("api.census.gov")) {
+    if (scenario === "no_data") return jsonResponse({ error: "mock outage" }, 500);
     if (CENSUS_MODE === "live") return fetch(url, init);
     const zip = new URL(url).searchParams.get("for")!.split(":")[1];
     return jsonResponse(acsFor(zip));
   }
   if (url.includes("npiregistry.cms.hhs.gov")) {
+    if (scenario === "no_data") return new Response("<html>mock outage</html>", { status: 503, headers: { "Content-Type": "text/html" } });
     if (NPPES_MODE === "live") return fetch(url, init);
     const u = new URL(url);
+    if (Number(u.searchParams.get("skip") || 0) > 0) return jsonResponse(nppesBody([]));
     const zip = u.searchParams.get("postal_code");
     const n = zip === "59301" ? 3 : zip === "10016" ? 27 : 9;
     const city = zip === "59301" ? "MILES CITY" : zip === "10016" ? "NEW YORK" : "SPRINGFIELD";
@@ -100,6 +103,7 @@ function env(): ResearchEnv {
   };
   if (scenario === "unconfigured") return { RESEARCH_DB: d1 };
   if (scenario === "rate_limited") return { ...base, RESEARCH_DAILY_LIMIT: "0" };
+  if (scenario === "capacity") return { ...base, RESEARCH_MAX_AI_CALLS_PER_DAY: "0" };
   if (scenario === "db_down") return { ...base, RESEARCH_DB: createD1({ faults: [{ match: /research_jobs/, error: "D1_ERROR: mock outage" }] }).d1 };
   return base;
 }

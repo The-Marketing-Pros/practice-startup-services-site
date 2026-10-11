@@ -26,6 +26,8 @@ export const ACS_VARIABLES = {
   income: { estimate: "DP03_0062E", moe: "DP03_0062M", label: "Median household income (inflation-adjusted dollars)" },
 } as const;
 export const NPPES_LIMIT = 200;
+/** Bounded pagination with `skip`: at most this many pages per search (600 records). */
+export const NPPES_MAX_PAGES = 3;
 
 export type SourceId = "nppes" | "acs" | "zip3" | "derived";
 export type Source = { id: SourceId; name: string; url: string; vintage: string; retrieved: string; notes: string };
@@ -62,7 +64,7 @@ export type FactsBundle = {
   sources: Source[];
   facts: Fact[];
   estimates: Estimate[];
-  sections: { acs: SectionStatus; nppes: SectionStatus };
+  sections: { acs: SectionStatus; nppes: SectionStatus & { note?: string } };
   caveats: string[];
 };
 
@@ -205,8 +207,9 @@ export function parseNppes(
   return { count: numbers.size, capped: results.length >= NPPES_LIMIT, numbers, cities };
 }
 
-export function nppesUrl(q: TaxonomyQuery | null, where: { zip?: string; city?: string; state?: string }): string {
+export function nppesUrl(q: TaxonomyQuery | null, where: { zip?: string; city?: string; state?: string }, skip = 0): string {
   const p = new URLSearchParams({ version: "2.1", enumeration_type: "NPI-1", address_purpose: "LOCATION", limit: String(NPPES_LIMIT) });
+  if (skip) p.set("skip", String(skip));
   if (q) p.set("taxonomy_description", q.query);
   if (where.zip) p.set("postal_code", where.zip);
   if (where.city) p.set("city", where.city);
@@ -214,10 +217,10 @@ export function nppesUrl(q: TaxonomyQuery | null, where: { zip?: string; city?: 
   return `https://npiregistry.cms.hhs.gov/api/?${p.toString()}`;
 }
 
-async function nppesQuery(fetcher: Fetcher, q: TaxonomyQuery | null, where: { zip?: string; city?: string; state?: string }): Promise<NppesCount> {
+async function nppesQuery(fetcher: Fetcher, q: TaxonomyQuery | null, where: { zip?: string; city?: string; state?: string }, skip = 0): Promise<NppesCount> {
   let r: Response;
   try {
-    r = await fetcher(nppesUrl(q, where), { signal: AbortSignal.timeout(10000), headers: { Accept: "application/json" } });
+    r = await fetcher(nppesUrl(q, where, skip), { signal: AbortSignal.timeout(10000), headers: { Accept: "application/json" } });
   } catch {
     throw new UpstreamError("nppes", "network", "NPPES did not respond.");
   }
@@ -241,10 +244,14 @@ export async function countProviders(
   const cities = new Map<string, number>();
   let capped = false;
   for (const q of queries) {
-    const r = await nppesQuery(fetcher, q, where);
-    capped ||= r.capped;
-    for (const n of r.numbers) all.add(n);
-    for (const [c, n] of r.cities) cities.set(c, (cities.get(c) ?? 0) + n);
+    // Page with `skip` until a page is not full, up to NPPES_MAX_PAGES.
+    for (let page = 0; page < NPPES_MAX_PAGES; page++) {
+      const r = await nppesQuery(fetcher, q, where, page * NPPES_LIMIT);
+      for (const n of r.numbers) all.add(n);
+      for (const [c, n] of r.cities) cities.set(c, (cities.get(c) ?? 0) + n);
+      if (!r.capped) break;
+      if (page === NPPES_MAX_PAGES - 1) capped = true;
+    }
   }
   return { count: all.size, capped, numbers: all, cities };
 }
@@ -263,7 +270,7 @@ export const CAVEATS = {
     "NPPES lists National Provider Identifier registrations. A listing does not show that a provider is actively seeing patients, accepting new patients, or competing for the same patients.",
     "Counts use the practice location address providers reported, which may be out of date. Mailing addresses are excluded.",
     "A provider matches when any taxonomy on their record matches, not only their primary specialty.",
-    `The registry returns at most ${NPPES_LIMIT} records per search. When a search reaches that limit, the count is shown with a plus sign and is a minimum.`,
+    `The registry returns at most ${NPPES_LIMIT} records per request; this page reads up to ${NPPES_LIMIT * NPPES_MAX_PAGES} per search. When a search reaches that limit, the count is shown as "at least" and is a minimum.`,
   ],
   acs: [
     `Census figures are American Community Survey ${ACS_VINTAGE} 5-year estimates. They describe an average over those years, not today.`,
@@ -329,14 +336,16 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
   // NPPES
   let zipCount: NppesCount | null = null;
   let city = "";
+  let nppesRetrieved = day;
+  let cityNote = "";
   if (!queries.length) {
     sections.nppes = { status: "unavailable", message: `NPPES has no individual provider taxonomy that matches ${specialty?.label ?? "this specialty"} for ${optionLabel(providerTypes, profile.provider).toLowerCase()}s, so no provider count is shown.` };
   } else {
     try {
       const taxKey = `${profile.provider}:${profile.specialty}`;
-      const key = `nppes:v1:${zip}:${taxKey}`;
+      const key = `nppes:v2:${zip}:${taxKey}`;
       const hit = await cache.get(key).catch(() => null);
-      let cached: { zip: { count: number; capped: boolean }; city: string; cityCount: { count: number; capped: boolean } | null } | null = hit ? JSON.parse(hit) : null;
+      let cached: { retrieved: string; zip: { count: number; capped: boolean }; city: string; cityCount: { count: number; capped: boolean } | null } | null = hit ? JSON.parse(hit) : null;
       if (!cached) {
         const z = await countProviders(deps.fetcher, queries, { zip });
         city = topCity(z.cities);
@@ -350,23 +359,27 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
           const c = await countProviders(deps.fetcher, queries, { city, state: state.code });
           cityCount = { count: c.count, capped: c.capped };
         }
-        cached = { zip: { count: z.count, capped: z.capped }, city, cityCount };
+        cached = { retrieved: day, zip: { count: z.count, capped: z.capped }, city, cityCount };
         await cache.put(key, JSON.stringify(cached), 7 * 86400).catch(() => {});
       }
       zipCount = { count: cached.zip.count, capped: cached.zip.capped, numbers: new Set(), cities: new Map() };
       city = cached.city;
-      const show = (c: { count: number; capped: boolean }) => (c.capped ? `${fmtInt(c.count)}+` : fmtInt(c.count));
+      nppesRetrieved = cached.retrieved || day;
+      const show = (c: { count: number; capped: boolean }) => (c.capped ? `at least ${fmtInt(c.count)} (registry limit reached)` : fmtInt(c.count));
       facts.push(fact({
         id: "nppes_zip_count", label: `Individual providers listed with a matching taxonomy and a practice location in ZIP ${zip}`,
         value: cached.zip.count, display: show(cached.zip), moe: null, unit: "providers", sourceId: "nppes", geography: `ZIP ${zip}`,
-        capped: cached.zip.capped, note: cached.zip.capped ? "Search reached the registry limit; the true number is at least this." : "",
+        capped: cached.zip.capped, note: cached.zip.capped ? "The search reached the registry limit, so the true number is higher." : "",
       }));
-      if (cached.cityCount && state) {
+      // A capped city count below the ZIP count would mislead; leave it out and say why.
+      const cityMisleading = !!cached.cityCount && cached.cityCount.capped && cached.cityCount.count < cached.zip.count;
+      if (cityMisleading) cityNote = `A count for ${titleCase(city)} is not shown because the registry limit was reached before the city search could be completed.`;
+      if (cached.cityCount && state && !cityMisleading) {
         const cityName = titleCase(city);
         facts.push(fact({
           id: "nppes_city_count", label: `Individual providers listed with a matching taxonomy and a practice location in ${cityName}, ${state.code}`,
           value: cached.cityCount.count, display: show(cached.cityCount), moe: null, unit: "providers", sourceId: "nppes", geography: `${cityName}, ${state.code}`,
-          capped: cached.cityCount.capped, note: cached.cityCount.capped ? "Search reached the registry limit; the true number is at least this." : "City taken from NPPES practice addresses in this ZIP.",
+          capped: cached.cityCount.capped, note: cached.cityCount.capped ? "The search reached the registry limit, so the true number is higher." : "City taken from NPPES practice addresses in this ZIP.",
         }));
       }
     } catch (e) {
@@ -387,7 +400,7 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
       label: "Residents per matching provider (estimate)",
       value,
       display: value === null ? "Not calculated" : fmtInt(value),
-      formula: `${zcta} population (${fmtInt(pop)}) / matching providers with a practice location in ZIP ${zip} (${zipCount.capped ? `${fmtInt(zipCount.count)}+` : fmtInt(zipCount.count)})`,
+      formula: `${zcta} population (${fmtInt(pop)}) / matching providers with a practice location in ZIP ${zip} (${zipCount.capped ? `at least ${fmtInt(zipCount.count)}` : fmtInt(zipCount.count)})`,
       sourceIds: ["acs", "nppes", "derived"],
       note: value === null
         ? zipCount.capped
@@ -397,9 +410,10 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
     });
   }
 
+  if (cityNote && sections.nppes.status === "ok") sections.nppes.note = cityNote;
   const retrieved = day;
   const sources: Source[] = [
-    { id: "nppes", name: "CMS National Plan and Provider Enumeration System (NPPES) NPI Registry API, version 2.1", url: "https://npiregistry.cms.hhs.gov/api-page", vintage: `Live registry, retrieved ${retrieved}`, retrieved, notes: CAVEATS.nppes.join(" ") },
+    { id: "nppes", name: "CMS National Plan and Provider Enumeration System (NPPES) NPI Registry API, version 2.1", url: "https://npiregistry.cms.hhs.gov/api-page", vintage: `Live registry, retrieved ${nppesRetrieved}`, retrieved: nppesRetrieved, notes: CAVEATS.nppes.join(" ") },
     { id: "acs", name: `U.S. Census Bureau, American Community Survey ${ACS_VINTAGE} 5-year estimates, data profiles (DP03, DP05)`, url: `https://api.census.gov/data/${ACS_YEAR}/acs/acs5/profile`, vintage: `ACS ${ACS_VINTAGE} 5-year`, retrieved, notes: CAVEATS.acs.join(" ") },
     { id: "zip3", name: "State inferred from the first three digits of the ZIP code (USPS sectional center)", url: "https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html", vintage: "Static table", retrieved, notes: "A few ZIP prefixes cross state lines; confirm your state." },
     { id: "derived", name: "Calculated on this page from the figures above", url: "", vintage: "", retrieved, notes: "Formulas are shown with each estimate." },

@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { specialties, providerTypes, practiceModels, launchStages, payerMixes } from '../../lib/startup/options';
 import { CONSULT_BOOKING_URL } from '@config/site';
+import { CONSENT_TEXT, MARKETING_TEXT } from '../../lib/research/copy';
 import '@styles/resources.css';
 import '@styles/research.css';
 // Campaign landing page: noindex,follow and excluded from the sitemap (astro.config.mjs).
@@ -57,9 +58,9 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
      <form id="gate-form" novalidate hidden data-sitekey={sitekey}>
       <div class="rs-field"><label for="g-email">Email</label><input id="g-email" name="email" type="email" maxlength="254" required autocomplete="email" aria-describedby="g-email-help g-email-error" /><small id="g-email-help">Your brief appears on this page. We do not send automated emails.</small><p class="research-error" id="g-email-error" hidden></p></div>
       <div class="research-checks">
-       <label class="research-check"><input type="checkbox" name="consent" id="g-consent" required aria-describedby="g-consent-error" /> <span>I request this brief. Practice Startup Services may process my email and practice details to provide it, and a startup specialist from PPS may follow up about my request.</span></label>
+       <label class="research-check"><input type="checkbox" name="consent" id="g-consent" required aria-describedby="g-consent-error" /> <span>{CONSENT_TEXT}</span></label>
        <p class="research-error" id="g-consent-error" hidden></p>
-       <label class="research-check" id="g-marketing-wrap" hidden><input type="checkbox" name="marketing" id="g-marketing" /> <span>Optional: also send me startup resources and product updates from PPS.</span></label>
+       <label class="research-check" id="g-marketing-wrap" hidden><input type="checkbox" name="marketing" id="g-marketing" /> <span>{MARKETING_TEXT}</span></label>
       </div>
       <p class="rs-small">Your email goes to PPS through HubSpot. Your ZIP, specialty, provider type, practice model, payment model and stage, plus the public facts above, are sent to our AI provider (OpenAI) to write the brief. Your email is not sent to the AI. <a class="rs-link" href="/privacy/">Privacy policy</a>.</p>
       <div id="g-verification" class="research-verification"></div>
@@ -70,10 +71,10 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
     </section>
 
     <section class="research-confirm" id="gate-confirm" hidden aria-labelledby="confirm-title" tabindex="-1">
-     <p class="rs-kicker">Request received</p>
-     <h3 id="confirm-title">Your brief is ready.</h3>
+     <p class="rs-kicker">Confirmation</p>
+     <h3 id="confirm-title">Request received.</h3>
      <p>Reference: <strong id="confirm-ref"></strong>. Keep it if you contact us.</p>
-     <p><strong>What happens next:</strong> your brief and PDF are below. A startup specialist from PPS may reach out by email about your request. If you would rather talk now, <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+     <p><strong>What happens next:</strong> <span id="confirm-next">your brief and PDF are below.</span> A startup specialist from PPS may reach out by email about your request. If you would rather talk now, <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
      <p id="confirm-note" class="rs-notice" hidden></p>
      <button class="rs-btn" id="brief-pdf" type="button">Download my research PDF</button>
      <p id="pdf-status" class="rs-status" role="status" aria-live="polite"></p>

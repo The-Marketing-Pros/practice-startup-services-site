@@ -170,6 +170,12 @@ export function validOrigin(v: string): boolean {
     return false;
   }
 }
+/** Remove practice hand-off parameters from a URL, keeping campaign tags and the hash. */
+export function stripParams(href: string, keys: readonly string[]): string {
+  const u = new URL(href);
+  for (const k of keys) u.searchParams.delete(k);
+  return `${u.pathname}${u.search}${u.hash}`;
+}
 export function sanitizePayload(raw: unknown): Record<string, string> {
   const out: Record<string, string> = {};
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;

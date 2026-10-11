@@ -115,3 +115,21 @@ test("only an HTTP 200 JSON ok:true response counts as success (the gate for eve
     assert.equal(o.type === "failure" && o.kind, kind);
   }
 });
+
+test("hand-off parameters are stripped after use; campaign tags and hash stay", async () => {
+  const { stripParams } = await import("../src/lib/attribution.ts");
+  assert.equal(
+    stripParams("https://practicestartupservices.com/resources/startup-checklist/?provider=np&utm_source=instagram&zip=59301&stage=soon#phase-03", ["provider", "zip", "stage"]),
+    "/resources/startup-checklist/?utm_source=instagram#phase-03",
+  );
+});
+
+test("confirmation heading only claims a brief when one is shown", async () => {
+  const { confirmationHeading, briefStatusNote } = await import("../src/lib/research/pdf.ts");
+  assert.equal(confirmationHeading("ready"), "Your brief is ready.");
+  for (const status of ["rejected", "capacity", "insufficient_data", "unavailable"]) {
+    assert.equal(confirmationHeading(status), "Request received. Your data tables and checklist are ready.");
+    assert.ok(briefStatusNote(status).length > 0);
+  }
+  assert.equal(briefStatusNote("ready"), "");
+});

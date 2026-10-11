@@ -416,7 +416,7 @@ export async function financeWorkbook(plan: FinancePlan) {
       "Payer mix: when 'Use payer mix' is 1, net collections per visit = (Commercial share x net + Medicare share x net + Medicaid share x net + Self-pay share x net) / 100. Shares must total 100%. When it is 0, the single net-per-visit input is used.",
     ],
     [
-      "Pre-opening overhead = months of overhead before opening x (rent + software + insurance + marketing + other fixed costs). It is added to startup costs before contingency.",
+      "Pre-opening overhead = months of overhead before opening x (rent + software + insurance + marketing + other fixed costs). It is added to startup costs before contingency. The separate 'Pre-opening payroll & one-time costs' input should exclude those recurring fixed costs so nothing is counted twice.",
     ],
     [
       "Starting assumptions from specialty, practice model, care setting, payer mix and launch stage are illustrative placeholders, not benchmarks or local data. A ZIP code only labels the plan.",
@@ -596,7 +596,7 @@ export async function financePdf(plan: FinancePlan) {
   const preset = new Set(plan.context?.presetFields ?? []);
   for (const [key, label] of financeFields)
     pdf.line(`${label}: ${plan.values[key].toLocaleString("en-US")}${preset.has(key) ? " (starting assumption: replace)" : ""}`);
-  pdf.line(`Pre-opening overhead = ${plan.values.preMonths} months x (rent + software + insurance + marketing + other) = ${cash(r.preOverhead)}. Included in startup costs.`);
+  pdf.line(`Pre-opening overhead = ${plan.values.preMonths} months x (rent + software + insurance + marketing + other) = ${cash(r.preOverhead)}. Included in startup costs. "Pre-opening payroll & one-time costs" excludes these recurring costs, so nothing is counted twice.`);
   pdf.space();
   pdf.line("Payer mix", 14, true);
   const mix = plan.mix ?? newMix();

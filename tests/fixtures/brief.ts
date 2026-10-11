@@ -16,18 +16,18 @@ export async function sampleFacts(): Promise<FactsBundle> {
 export const GOOD_BRIEF = {
   sections: [
     { heading: "Your area at a glance", statements: [
-      { text: "Census estimates about 54,321 residents in ZCTA 10016, with a margin of error of 1,987.", kind: "fact", sourceIds: ["acs"] },
-      { text: "Roughly 15% of residents are age 65 and over, and the median household income is $142,350.", kind: "fact", sourceIds: ["acs"] },
+      { text: "Census estimates about 54,321 residents in ZCTA 10016, with a margin of error of 1,987.", kind: "fact", refs: ["acs_population"] },
+      { text: "Roughly 15% of residents are age 65 and over, and the median household income is $142,350.", kind: "fact", refs: ["acs_age65_pct", "acs_median_income"] },
     ] },
     { heading: "Providers already listed nearby", statements: [
-      { text: "The NPI Registry lists 4 orthopaedic surgeons with a practice location in ZIP 10016.", kind: "fact", sourceIds: ["nppes"] },
-      { text: "That works out to an estimate of 13,580 residents per matching provider, a rough ratio only.", kind: "estimate", sourceIds: ["acs", "nppes", "derived"] },
+      { text: "The NPI Registry lists 4 orthopaedic surgeons with a practice location in ZIP 10016.", kind: "fact", refs: ["nppes_zip_count"] },
+      { text: "That works out to an estimate of 13,580 residents per matching provider, a rough ratio only.", kind: "estimate", refs: ["est_residents_per_provider"] },
     ] },
     { heading: "What this could mean for your plan", statements: [
-      { text: "Registry listings do not show capacity, so talk with local referral sources before choosing a location.", kind: "interpretation", sourceIds: [] },
+      { text: "Registry listings do not show capacity, so talk with local referral sources before choosing a location.", kind: "interpretation", refs: [] },
     ] },
     { heading: "Questions to answer next", statements: [
-      { text: "Which hospitals and surgery centers will grant you privileges, and how long does that take?", kind: "interpretation", sourceIds: [] },
+      { text: "Which hospitals and surgery centers will grant you privileges, and how long does that take?", kind: "interpretation", refs: [] },
     ] },
   ],
 };

@@ -5,7 +5,7 @@
 // confirms, once per reference.
 import type { FactsBundle } from "../lib/research/facts";
 import type { Brief } from "../lib/research/guard";
-import { briefStatusNote, type ResearchResult } from "../lib/research/pdf";
+import { briefStatusNote, confirmationHeading, type ResearchResult } from "../lib/research/pdf";
 import { attributionPayload } from "../lib/attribution";
 import { requestJson, type Outcome } from "../lib/research/client";
 import { trackLead, trackToolDownload, trackToolUse } from "../lib/measure";
@@ -110,7 +110,7 @@ function renderPreview(f: FactsBundle, p: ReturnType<typeof readProfile>) {
       ? sectionError(f.sections.nppes.message)
       : `<p class="rs-small">Matching taxonomy: ${esc(f.labels.taxonomy)}</p><table class="research-table"><tbody>${nppes
           .map((x) => `<tr><th scope="row">${esc(x.label)}${x.note ? `<span class="moe">${esc(x.note)}</span>` : ""}</th><td class="num">${esc(x.display)}</td></tr>`)
-          .join("")}</tbody></table><p class="research-meta"><span class="research-tag fact">Fact</span>CMS NPPES NPI Registry, retrieved ${esc(f.generatedAt.slice(0, 10))}. A listing is a registration, not proof that a provider is seeing patients or competing for the same patients.</p>`;
+          .join("")}</tbody></table>${f.sections.nppes.note ? `<p class="rs-small">${esc(f.sections.nppes.note)}</p>` : ""}<p class="research-meta"><span class="research-tag fact">Fact</span>CMS NPPES NPI Registry, retrieved ${esc(f.sources.find((s) => s.id === "nppes")?.retrieved ?? f.generatedAt.slice(0, 10))}. A listing is a registration, not proof that a provider is seeing patients or competing for the same patients.</p>`;
   const est = f.estimates[0];
   $("estimate-block").hidden = !est;
   if (est)
@@ -326,6 +326,12 @@ function showResult(r: GateSuccess) {
   trackLead({ reference: r.reference, eventId: r.eventId, leadType: "startup_research", contentName: "pss_startup_research" });
   gateForm.hidden = true;
   gateStatus.textContent = "";
+  // The brief must only cite numbers that are on screen: re-render the tables
+  // from the exact facts the server used for this brief.
+  facts = r.facts;
+  renderPreview(r.facts, r.facts.profile as ReturnType<typeof readProfile>);
+  $("confirm-title").textContent = confirmationHeading(r.briefStatus);
+  $("confirm-next").textContent = r.brief ? "your brief and PDF are below." : "your data tables and checklist are above, and the PDF is ready to download.";
   $("confirm-ref").textContent = r.reference;
   const note = briefStatusNote(r.briefStatus);
   $("confirm-note").hidden = !note;

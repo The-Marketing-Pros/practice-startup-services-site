@@ -94,7 +94,7 @@ test("preview facts carry values, margins, vintage, sources and a labeled estima
   assert.equal(f.facts.find((x) => x.id === "acs_median_income")!.display, "$142,350");
   assert.equal(f.facts.find((x) => x.id === "nppes_zip_count")!.display, "4");
   const city = f.facts.find((x) => x.id === "nppes_city_count")!;
-  assert.equal(city.display, "200+");
+  assert.equal(city.display, "at least 200 (registry limit reached)");
   assert.equal(city.capped, true);
   assert.equal(f.labels.city, "New York");
   const est = f.estimates[0];
@@ -105,10 +105,10 @@ test("preview facts carry values, margins, vintage, sources and a labeled estima
   assert.ok(f.caveats.some((c) => /ZIP Code Tabulation Areas/.test(c)));
 });
 
-test("capped ZIP counts show a plus sign and suppress the ratio", async () => {
+test("capped ZIP counts say 'at least N (registry limit reached)' and suppress the ratio", async () => {
   const s = upstream({ acs: RURAL_ACS, nppes: () => nppesBody(Array.from({ length: 200 }, (_, i) => nppesRecord(i + 1, { zip: "59301", city: "MILES CITY", state: "MT", taxonomies: ["Nurse Practitioner, Psych/Mental Health"] }))) });
   const f = await buildFacts(ruralNp, { fetcher: s.fetcher, now: NOW });
-  assert.equal(f.facts.find((x) => x.id === "nppes_zip_count")!.display, "200+");
+  assert.equal(f.facts.find((x) => x.id === "nppes_zip_count")!.display, "at least 200 (registry limit reached)");
   assert.equal(f.estimates[0].value, null);
   assert.match(f.estimates[0].note, /registry limit/);
 });
@@ -162,4 +162,51 @@ test("an NPPES 'no taxonomy codes found' reply is reported as no count, not as a
   const f = await buildFacts(urbanOrtho, { fetcher: s.fetcher, now: NOW });
   assert.equal(f.sections.nppes.status, "unavailable");
   assert.match(f.sections.nppes.message, /did not recognize/);
+});
+
+test("NPPES pagination: bounded skip pages, exact count when the last page is partial", async () => {
+  const pages = [200, 200, 50];
+  const s = upstream({
+    nppes: (url) => {
+      const u = new URL(url);
+      if (!u.searchParams.get("postal_code")) return nppesBody([]);
+      const skip = Number(u.searchParams.get("skip") || 0);
+      const n = pages[skip / 200] ?? 0;
+      return nppesBody(Array.from({ length: n }, (_, i) => nppesRecord(10000 + skip + i, { zip: "10016", city: "NEW YORK", state: "NY", taxonomies: ["Orthopaedic Surgery"] })));
+    },
+  });
+  const f = await buildFacts(urbanOrtho, { fetcher: s.fetcher, now: NOW });
+  const z = f.facts.find((x) => x.id === "nppes_zip_count")!;
+  assert.equal(z.value, 450);
+  assert.equal(z.capped, false);
+  assert.equal(z.display, "450");
+  const zipCalls = s.calls.filter((c) => /npiregistry/.test(c.url) && new URL(c.url).searchParams.get("postal_code"));
+  assert.deepEqual(zipCalls.map((c) => new URL(c.url).searchParams.get("skip")), [null, "200", "400"]);
+});
+
+test("a capped city count below the ZIP count is not shown, with an explanation", async () => {
+  // Every page full for both searches; ZIP pages carry more distinct NPIs than city pages.
+  const s = upstream({
+    nppes: (url) => {
+      const u = new URL(url);
+      const skip = Number(u.searchParams.get("skip") || 0);
+      if (u.searchParams.get("postal_code")) return nppesBody(Array.from({ length: 200 }, (_, i) => nppesRecord(20000 + skip + i, { zip: "10016", city: "NEW YORK", state: "NY", taxonomies: ["Orthopaedic Surgery"] })));
+      return nppesBody(Array.from({ length: 200 }, (_, i) => nppesRecord(30000 + i, { zip: "10001", city: "NEW YORK", state: "NY", taxonomies: ["Orthopaedic Surgery"] })));
+    },
+  });
+  const f = await buildFacts(urbanOrtho, { fetcher: s.fetcher, now: NOW });
+  assert.equal(f.facts.find((x) => x.id === "nppes_zip_count")!.display, "at least 600 (registry limit reached)");
+  assert.equal(f.facts.find((x) => x.id === "nppes_city_count"), undefined);
+  assert.match(f.sections.nppes.note ?? "", /not shown because the registry limit was reached/);
+});
+
+test("cached NPPES results keep and show their original retrieval date", async () => {
+  const store = new Map<string, string>();
+  const cache: Cache = { get: async (k) => store.get(k) ?? null, put: async (k, v) => void store.set(k, v) };
+  const s = upstream({ nppes: () => nppesBody([nppesRecord(1, { zip: "10016", city: "NEW YORK", state: "NY", taxonomies: ["Orthopaedic Surgery"] })]) });
+  await buildFacts(urbanOrtho, { fetcher: s.fetcher, cache, now: new Date("2026-10-03T12:00:00Z") });
+  const later = await buildFacts(urbanOrtho, { fetcher: s.fetcher, cache, now: NOW });
+  const src = later.sources.find((x) => x.id === "nppes")!;
+  assert.equal(src.retrieved, "2026-10-03");
+  assert.match(src.vintage, /retrieved 2026-10-03/);
 });

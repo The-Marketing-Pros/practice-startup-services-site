@@ -11,6 +11,7 @@ import {
 } from "../lib/planners/checklist";
 import { stateForZip, validZip } from "../lib/startup/zip3";
 import { trackToolDownload } from "../lib/measure";
+import { stripParams } from "../lib/attribution";
 import {
   element,
   escapeHtml as esc,
@@ -52,6 +53,12 @@ function applyQueryProfile() {
   }
   if (applied && !params.has("state") && validZip(plan.profile.zip) && !plan.profile.state)
     plan.profile.state = stateForZip(plan.profile.zip)?.name ?? "";
+  // Apply once: a reload or shared link must not overwrite later edits.
+  try {
+    history.replaceState(history.state, "", stripParams(location.href, keys));
+  } catch {
+    /* ignore */
+  }
   return applied;
 }
 function fill() {

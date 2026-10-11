@@ -70,7 +70,7 @@ export const financeFields = [
   ],
   [
     "preopening",
-    "Pre-opening payroll & other costs ($)",
+    "Pre-opening payroll & one-time costs ($)",
     12000,
     0,
     10000000,

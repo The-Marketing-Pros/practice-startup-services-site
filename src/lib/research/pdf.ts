@@ -16,6 +16,11 @@ export type ResearchResult = {
 
 const KIND_LABEL: Record<string, string> = { fact: "Fact", estimate: "Estimate", interpretation: "Interpretation" };
 
+/** Confirmation heading: only claim a brief when one is actually shown. */
+export function confirmationHeading(status: string): string {
+  return status === "ready" ? "Your brief is ready." : "Request received. Your data tables and checklist are ready.";
+}
+
 export function briefStatusNote(status: string): string {
   switch (status) {
     case "ready":
@@ -51,6 +56,9 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
   if (f.sections.nppes.status !== "ok") pdf.line(f.sections.nppes.message);
   if (f.labels.taxonomy) pdf.line(`Matching taxonomy: ${f.labels.taxonomy}`, 9);
   for (const x of f.facts.filter((x) => x.sourceId === "nppes")) pdf.line(`${x.label}: ${x.display}${x.note ? `. ${x.note}` : ""}`);
+  if (f.sections.nppes.note) pdf.line(f.sections.nppes.note, 9);
+  const nppesSource = f.sources.find((s) => s.id === "nppes");
+  if (nppesSource && f.sections.nppes.status === "ok") pdf.line(`NPI Registry data retrieved ${nppesSource.retrieved}.`, 9);
 
   for (const e of f.estimates) {
     pdf.space();
@@ -65,7 +73,7 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
     for (const s of result.brief.sections) {
       pdf.keep(30);
       pdf.line(s.heading, 12, true);
-      for (const st of s.statements) pdf.line(`[${KIND_LABEL[st.kind] ?? st.kind}${st.sourceIds.length ? `: ${st.sourceIds.join(", ")}` : ""}] ${st.text}`);
+      for (const st of s.statements) pdf.line(`[${KIND_LABEL[st.kind] ?? st.kind}] ${st.text}`);
     }
     pdf.line("Written by AI from the facts above only, then checked so every number matches the data. Review before relying on it.", 9);
   } else pdf.line(briefStatusNote(result.briefStatus));

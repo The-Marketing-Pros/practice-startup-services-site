@@ -12,7 +12,8 @@
 import { validateGate, validateProfile, referenceFor, ValidationError, type FailureKind, type GateRequest } from "./contract.ts";
 import { buildFacts, type Cache, type FactsBundle, type Fetcher } from "./facts.ts";
 import { generateBrief, briefInputs, ProviderError } from "./brief.ts";
-import { validateBrief, type Brief } from "./guard.ts";
+import { validateBrief, citableIds, type Brief } from "./guard.ts";
+import { CONSENT_TEXT, MARKETING_TEXT } from "./copy.ts";
 
 export interface ResearchEnv {
   RESEARCH_ENABLED?: string;
@@ -31,6 +32,8 @@ export interface ResearchEnv {
   CENSUS_API_KEY?: string;
   RESEARCH_PREVIEW_DISABLED?: string;
   RESEARCH_PREVIEW_DAILY_PER_IP?: string;
+  /** "true" only after the owner adds a Cloudflare rate-limiting rule for the preview endpoint. */
+  RESEARCH_PREVIEW_WAF_CONFIRMED?: string;
   META_PIXEL_ID?: string;
   /** Must equal META_PIXEL_ID: the published browser pixel (and its privacy text) and CAPI share one switch. */
   PUBLIC_META_PIXEL_ID?: string;
@@ -51,7 +54,9 @@ export const HUBSPOT_PORTAL_ID = "1849537";
 export const TURNSTILE_ACTION = "startup_research";
 export const MAX_BODY_BYTES = 8192;
 export const MAX_AI_ATTEMPTS_PER_REQUEST = 2;
-const LEASE_MS = 120_000;
+// Covers HubSpot + facts + two 60 s AI calls; renewed before each AI call.
+const LEASE_MS = 240_000;
+export const PRODUCTION_HOSTS = ["practicestartupservices.com", "www.practicestartupservices.com"];
 
 const HEADERS = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
 export function json(body: Record<string, unknown>, status = 200): Response {
@@ -146,13 +151,18 @@ export async function handlePreview(request: Request, deps: Deps): Promise<Respo
     return fail("validation");
   }
   const db = env.RESEARCH_DB;
-  if (db) {
-    // Soft per-IP daily cap. Failures here never block the free preview.
+  const limited = !!(db && env.RESEARCH_HASH_SECRET);
+  // Production previews need an abuse limit: the D1 counter (DB + secret) or a
+  // confirmed Cloudflare rate-limiting rule. Preview deployments stay open.
+  if (PRODUCTION_HOSTS.includes(url.hostname) && !limited && env.RESEARCH_PREVIEW_WAF_CONFIRMED !== "true")
+    return fail("unavailable", { message: "The free preview is not available yet. Your checklist and pro forma still work." });
+  if (limited) {
+    // Per-IP daily cap on a keyed hash (never a public fallback key).
     try {
       const day = now().toISOString().slice(0, 10);
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-      const ipHash = await hmac(env.RESEARCH_HASH_SECRET || "preview", `preview|${ip}|${day}`);
-      const row = await db
+      const ipHash = await hmac(env.RESEARCH_HASH_SECRET!, `preview|${ip}|${day}`);
+      const row = await db!
         .prepare("INSERT INTO research_preview_usage (day, ip_hash, n) VALUES (?1, ?2, 1) ON CONFLICT(day, ip_hash) DO UPDATE SET n = n + 1 RETURNING n")
         .bind(day, ipHash)
         .first<{ n: number }>();
@@ -239,10 +249,10 @@ export function hubspotPayload(g: GateRequest, origin: string, env: ResearchEnv,
   }
   const consent: Record<string, unknown> = {
     consentToProcess: true,
-    text: "I request a startup research brief and agree to Practice Startup Services processing my email and practice details to provide it and follow up about my request.",
+    text: CONSENT_TEXT,
   };
   if (g.marketing && env.HUBSPOT_MARKETING_SUBSCRIPTION_ID)
-    consent.communications = [{ value: true, subscriptionTypeId: Number(env.HUBSPOT_MARKETING_SUBSCRIPTION_ID), text: "Send me optional startup resources and product updates from PPS." }];
+    consent.communications = [{ value: true, subscriptionTypeId: Number(env.HUBSPOT_MARKETING_SUBSCRIPTION_ID), text: MARKETING_TEXT }];
   const context: Record<string, string> = { pageUri, pageName: "Startup research brief" };
   if (hutk) context.hutk = hutk;
   return { submittedAt: String(now.getTime()), fields, context, legalConsentOptions: { consent } };
@@ -289,6 +299,8 @@ function sendCapi(request: Request, deps: Deps, eventId: string, db: D1Database,
   const { env } = deps;
   // CAPI runs only for the same dataset the site publishes (and discloses).
   if (!env.META_PIXEL_ID || !env.META_CAPI_TOKEN || env.PUBLIC_META_PIXEL_ID?.trim() !== env.META_PIXEL_ID.trim()) return;
+  // Never from preview deployments or local hosts: production hostnames only.
+  if (!PRODUCTION_HOSTS.includes(new URL(request.url).hostname)) return;
   const version = env.META_GRAPH_VERSION || "v23.0";
   const userData: Record<string, string> = {};
   const ip = request.headers.get("CF-Connecting-IP");
@@ -306,7 +318,7 @@ function sendCapi(request: Request, deps: Deps, eventId: string, db: D1Database,
       event_time: Math.floor(now.getTime() / 1000),
       event_id: eventId,
       action_source: "website",
-      event_source_url: `${new URL(request.url).origin}/resources/startup-research/`,
+      event_source_url: `https://${new URL(request.url).hostname}/resources/startup-research/`,
       user_data: userData,
       custom_data: { content_name: "pss_startup_research", content_category: "startup_research" },
     }],
@@ -329,6 +341,31 @@ function sendCapi(request: Request, deps: Deps, eventId: string, db: D1Database,
   if (deps.waitUntil) deps.waitUntil(task);
 }
 
+/** Read at most `max` bytes; null when the body is larger (works without Content-Length). */
+export async function readCapped(request: Request, max: number): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+  const all = new Uint8Array(size);
+  let o = 0;
+  for (const c of chunks) {
+    all.set(c, o);
+    o += c.byteLength;
+  }
+  return new TextDecoder().decode(all);
+}
+
 export async function handleGate(request: Request, deps: Deps): Promise<Response> {
   try {
     return await gate(request, deps);
@@ -348,8 +385,8 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   if (!(request.headers.get("Content-Type") || "").toLowerCase().startsWith("application/json")) return fail("validation", { field: "form" });
   const declared = Number(request.headers.get("Content-Length") || "0");
   if (declared > MAX_BODY_BYTES) return fail("validation", { field: "form", message: "Request too large." });
-  const raw = await request.text();
-  if (new TextEncoder().encode(raw).byteLength > MAX_BODY_BYTES) return fail("validation", { field: "form", message: "Request too large." });
+  const raw = await readCapped(request, MAX_BODY_BYTES);
+  if (raw === null) return fail("validation", { field: "form", message: "Request too large." });
   let g: GateRequest;
   try {
     g = validateGate(JSON.parse(raw));
@@ -413,8 +450,15 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     return fail("in_progress");
   }
 
+  // Set once HubSpot accepted the lead in THIS call, so every later write
+  // (including release) records it even if the dedicated write failed.
+  let hubspotDone = job.hubspot_status === "submitted";
   const release = async (error: string) => {
-    await db.prepare("UPDATE research_jobs SET status = 'failed', lease_until = 0, last_error = ?2, updated_at = ?3 WHERE id = ?1").bind(g.requestId, error, now().getTime()).run().catch(() => {});
+    await db
+      .prepare("UPDATE research_jobs SET status = 'failed', lease_until = 0, last_error = ?2, updated_at = ?3, hubspot_status = CASE WHEN ?4 = 1 THEN 'submitted' ELSE hubspot_status END WHERE id = ?1")
+      .bind(g.requestId, error, now().getTime(), hubspotDone ? 1 : 0)
+      .run()
+      .catch(() => {});
   };
 
   // 1. Lead capture, once per requestId.
@@ -427,9 +471,10 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
       await release(`hubspot_${f.code}`);
       return f.kind === "validation" ? fail("validation", { field: "email", message: "HubSpot did not accept this email address. Please check it." }) : fail(f.kind);
     }
-    // Record immediately so a later failure never re-submits HubSpot.
-    await db.prepare("UPDATE research_jobs SET hubspot_status = 'submitted', updated_at = ?2 WHERE id = ?1").bind(g.requestId, now().getTime()).run()
-      .catch((e: unknown) => deps.log?.("db_error", { step: "hubspot_status", error: String(e).slice(0, 200) }));
+    hubspotDone = true;
+    // Record immediately (retried once) so a later failure never re-submits HubSpot.
+    const mark = () => db.prepare("UPDATE research_jobs SET hubspot_status = 'submitted', updated_at = ?2 WHERE id = ?1").bind(g.requestId, now().getTime()).run();
+    await mark().catch(() => mark()).catch((e: unknown) => deps.log?.("db_error", { step: "hubspot_status", error: String(e).slice(0, 200) }));
   }
 
   // 2. Facts (server-fetched; client-supplied facts are never trusted).
@@ -444,7 +489,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   // 3. AI brief: at most MAX_AI_ATTEMPTS_PER_REQUEST calls, bounded by the daily cap.
   let brief: Brief | null = null;
   let briefStatus: "ready" | "rejected" | "capacity" | "insufficient_data" | "unavailable" = "unavailable";
-  const hasData = facts.sections.acs.status === "ok" || facts.sections.nppes.status === "ok";
+  const hasData = citableIds(facts).length > 0;
   if (!hasData) briefStatus = "insufficient_data";
   let attempts = job.ai_attempts;
   while (hasData && !brief && attempts < MAX_AI_ATTEMPTS_PER_REQUEST) {
@@ -458,12 +503,21 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     );
     if ((bump.meta?.changes ?? 0) !== 1) break;
     attempts++;
+    await dbStep("renew_lease", deps, () => db.prepare("UPDATE research_jobs SET lease_until = ?2 WHERE id = ?1").bind(g.requestId, now().getTime() + LEASE_MS).run());
     let call;
     try {
       call = await generateBrief(deps.fetcher, { OPENAI_API_KEY: env.OPENAI_API_KEY!, RESEARCH_MODEL: env.RESEARCH_MODEL! }, facts, g.profile);
     } catch (e) {
       const code = e instanceof ProviderError ? e.code : "unknown";
       deps.log?.("ai_provider_error", { code });
+      if (/^http_(400|401|403|404)$/.test(code)) {
+        // Our configuration is wrong (key, model, request): not billed, not retryable.
+        // Refund the reserved daily call and this request's attempt.
+        await db.prepare("UPDATE research_usage SET ai_calls = max(ai_calls - 1, 0) WHERE day = ?1").bind(day).run().catch(() => {});
+        await db.prepare("UPDATE research_jobs SET ai_attempts = max(ai_attempts - 1, 0) WHERE id = ?1").bind(g.requestId).run().catch(() => {});
+        await release(`ai_${code}`);
+        return fail("system");
+      }
       await db.prepare("UPDATE research_usage SET provider_errors = provider_errors + 1 WHERE day = ?1").bind(day).run().catch(() => {});
       if (attempts < MAX_AI_ATTEMPTS_PER_REQUEST) {
         await release(`ai_${code}`);

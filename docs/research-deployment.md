@@ -32,7 +32,8 @@ All server logic is in `src/lib/research/handler.ts` and is type-checked by `npm
 | `RESEARCH_MAX_AI_CALLS_PER_DAY` | var | usage cap | Owner (default 40) | Default 40 calls/day. |
 | `RESEARCH_DAILY_LIMIT` / `RESEARCH_DAILY_PER_EMAIL` / `RESEARCH_DAILY_PER_IP` | vars | request caps | Owner (defaults 50 / 2 / 5) | Defaults apply. |
 | `RESEARCH_PREVIEW_DISABLED` | var `true` | preview kill switch | Owner | Preview on. |
-| `RESEARCH_PREVIEW_DAILY_PER_IP` | var | soft preview cap (needs DB) | Owner (default 60) | Default. |
+| `RESEARCH_PREVIEW_DAILY_PER_IP` | var | preview per-IP daily cap (needs `RESEARCH_DB` + `RESEARCH_HASH_SECRET`) | Owner (default 60) | Default. |
+| `RESEARCH_PREVIEW_WAF_CONFIRMED` | var `true` | production preview without the D1 counter | Owner, ONLY after adding a Cloudflare rate-limiting rule on `/api/startup-research-preview` | On the production hostname the preview returns "not available yet" unless the D1 counter (DB + hash secret) or this confirmation exists. Preview deployments are unaffected. |
 | `PUBLIC_META_PIXEL_ID` | build var AND runtime var (set in both Pages scopes) | browser pixel, privacy text, and the CAPI switch | Owner, when a Meta dataset exists, ONLY after the Meta pre-enable steps below | Pixel absent; privacy page omits Meta text; CAPI off. Pixel loads only on the production hostname. |
 | `META_PIXEL_ID` + `META_CAPI_TOKEN` | var + secret | server Conversions API | Owner | No CAPI call. CAPI also stays off unless `META_PIXEL_ID` equals `PUBLIC_META_PIXEL_ID`, so disclosure and behavior share one switch. The token is sent in the JSON body, never the URL. |
 | `META_GRAPH_VERSION` | var | CAPI version | Owner (default `v23.0`) | Default. |
@@ -53,15 +54,15 @@ All server logic is in `src/lib/research/handler.ts` and is type-checked by `npm
 - Portal 1849537, new dedicated form ("PSS startup research brief"). Required field: `email`.
 - Optional hidden fields, created as contact properties and added to the form, then listed in `HUBSPOT_RESEARCH_FIELDS`: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `utm_id`, `adset_id`, `ad_id`, `placement`, `fbclid`, `gclid`, `ft_utm_source`, `ft_utm_campaign`, `pss_specialty`, `pss_provider_type`, `pss_zip`, `pss_practice_model`, `pss_payment_model`, `pss_launch_stage`, `pss_reference`.
 - Follow-up / autoresponder emails on this form must be OFF (the page says no automated emails are sent; SDRs follow up).
-- Consent: the server sends `consentToProcess: true` with the visible checkbox text. Marketing communications are sent only with a configured subscription type and the separate unchecked box.
+- Consent: the checkbox text and the `legalConsentOptions.consent.text` sent to HubSpot both come from `CONSENT_TEXT` in `src/lib/research/copy.ts` (tested to match). Marketing communications are sent only with a configured subscription type and the separate unchecked box, using `MARKETING_TEXT`.
 - Before launch: one owner-approved test submission in preview to confirm the contact, fields and attribution land correctly (not performed by the implementer).
 
 ## Behavior guarantees (tested)
 
-- Preview: no email, no AI, no HubSpot. Each source fails independently. Counts capped at the 200-record NPPES limit show "N+" and suppress the ratio.
-- Gate order: config check, exact Origin, JSON content type, 8 KB cap, validation, Turnstile (hostname + action), D1 job (idempotent by requestId, quota by email/IP/global), lease, HubSpot once per requestId, server-side facts, AI (max two calls, daily cap), numeric/source guard, persist (retried once; result still returned if persistence fails).
+- Preview: no email, no AI, no HubSpot. Each source fails independently. NPPES is paged with `skip` (up to 3 x 200 records per search); a search that still fills every page shows "at least N (registry limit reached)" and suppresses the ratio; a capped city count lower than the ZIP count is not shown and the page says why. Cached NPPES results keep and show their original retrieval date. On production, the preview requires the D1 per-IP counter (keyed hash, never a public fallback key) or a confirmed Cloudflare rate-limiting rule.
+- Gate order: config check, exact Origin, JSON content type, 8 KB cap (stream-read, so it holds without Content-Length), validation, Turnstile (hostname + action), D1 job (idempotent by requestId, quota by email/IP/global), 240 s lease renewed before each AI call, HubSpot once per requestId (recorded immediately with one retry, and again by any later failure write), server-side facts, AI (max two calls, daily cap), numeric/source guard, persist (retried once; result still returned if persistence fails).
 - Failure kinds: `validation`, `verification`, `rate_limited`, `provider`, `system`, `conflict`, `in_progress`, `unavailable`. Database errors are always `system`.
-- Guard: every number in the brief must appear in the facts shown to the visitor or the inputs; no spelled-out quantities, URLs or markup; facts must cite a source that returned data. Rejected outputs are never shown and are counted in `research_usage.rejected_billed`.
+- Guard: each statement lists the fact/estimate ids it relies on (`refs`); every number must come from the value, display, margin of error or measure label of those cited items (0-1 decimal rounding). Caveats, source names, vintages and the ZIP are never a number source. Interpretations contain no digits except input echoes (`ZIP 12345`, the chosen stage label). `%`/`$` only next to percent/dollar items. Non-ASCII digits, quantity phrases ("a third of", "majority of residents", "3 in 5", "thousands", "percent", "doubled"), URLs and bare domains are rejected. Rejected outputs are never shown and are counted in `research_usage.rejected_billed`. OpenAI 400/401/403/404 is a `system` error, not retried, with the reserved daily call refunded. Server CAPI sends only from the production hostnames.
 - Events: GA4 `generate_lead {lead_type:'startup_research'}` and Meta `Lead {content_name:'pss_startup_research', content_category:'startup_research'}` with `eventID` = server `event_id`, only after a 200 JSON `ok:true`, once per reference. Downloads fire GA4 `pss_tool_download`; previews fire GA4 `pss_tool_use`. Neither is a lead or reaches Meta.
 
 ## Data and retention
@@ -76,7 +77,7 @@ node --experimental-strip-types scripts/dev/research-mock-server.ts            #
 NPPES_MODE=live CENSUS_MODE=live PORT=8800 node --experimental-strip-types scripts/dev/research-mock-server.ts
 ```
 
-`POST /__scenario {"name": "hubspot_down" | "ai_down" | "ai_invented" | "db_down" | "rate_limited" | "verification" | "unconfigured" | "reset"}` switches mocked behavior. This server is never deployed.
+`POST /__scenario {"name": "hubspot_down" | "ai_down" | "ai_invented" | "db_down" | "rate_limited" | "capacity" | "no_data" | "verification" | "unconfigured" | "reset"}` switches mocked behavior. This server is never deployed.
 
 ## Rollback
 
