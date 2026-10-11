@@ -1,0 +1,87 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { specialties, providerTypes, practiceModels, launchStages, payerMixes } from '../../lib/startup/options';
+import { CONSULT_BOOKING_URL } from '@config/site';
+import '@styles/resources.css';
+import '@styles/research.css';
+// Campaign landing page: noindex,follow and excluded from the sitemap (astro.config.mjs).
+const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim();
+---
+<BaseLayout title="Free Startup Research for Your Specialty and ZIP" description="See public data on your ZIP code and who already practices your specialty nearby, plus a startup plan tailored to you. Free, no account needed." robots="noindex,follow">
+<div class="resource-site"><div class="rs-wrap">
+ <section class="rs-hero compact research-hero" aria-labelledby="research-title">
+  <div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup research</span></div>
+  <p class="rs-kicker">Free startup research</p>
+  <h1 class="rs-title" id="research-title">See your area before you sign a lease.</h1>
+  <p class="rs-intro">Public data on your ZIP code and how many providers in your field are already listed nearby, plus a startup plan tailored to your provider type, specialty and launch stage. For physicians, NPs, PAs, therapists and other practice founders.</p>
+  <ul class="research-promise"><li>Free to use</li><li>No email needed for the preview</li><li>Every number shows its source and date</li></ul>
+ </section>
+ <noscript><p class="rs-notice">Enable JavaScript to run the research preview. The <a class="rs-link" href="/resources/startup-checklist/">startup checklist</a> and <a class="rs-link" href="/journey/">launch guides</a> are also available.</p></noscript>
+ <div class="rs-workspace research-ws rs-has-js">
+  <aside class="rs-panel research-inputs">
+   <p class="rs-kicker">01 / Your practice</p>
+   <h2>Tell us what you are planning</h2>
+   <form id="research-profile" novalidate autocomplete="off">
+    <div class="rs-field"><label for="r-provider">Provider type</label><select id="r-provider" name="provider" required aria-describedby="r-provider-error">{providerTypes.map(o=><option value={o.value}>{o.label}</option>)}</select><p class="research-error" id="r-provider-error" hidden></p></div>
+    <div class="rs-field"><label for="r-specialty">Specialty</label><select id="r-specialty" name="specialty" required aria-describedby="r-specialty-error"><option value="">Select your specialty</option>{specialties.map(s=><option value={s.id}>{s.label}</option>)}</select><p class="research-error" id="r-specialty-error" hidden></p></div>
+    <div class="rs-field"><label for="r-zip">Practice ZIP code</label><input id="r-zip" name="zip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required autocomplete="postal-code" aria-describedby="r-zip-help r-zip-error" /><small id="r-zip-help">Where you plan to see patients.</small><p class="research-error" id="r-zip-error" hidden></p></div>
+    <div class="rs-field"><label for="r-model">Practice model</label><select id="r-model" name="model" required aria-describedby="r-model-error">{practiceModels.map(o=><option value={o.value}>{o.label}</option>)}</select><p class="research-error" id="r-model-error" hidden></p></div>
+    <div class="rs-field"><label for="r-setting">Care setting</label><select id="r-setting" name="setting" required><option value="office">In-person office</option><option value="telehealth">Telehealth only</option><option value="hybrid">In-person + telehealth</option></select></div>
+    <div class="rs-field"><label for="r-payer">Payment model</label><select id="r-payer" name="payer" required><option value="insurance">Insurance</option><option value="cash">Cash-pay</option><option value="hybrid">Insurance + cash-pay</option></select></div>
+    <div class="rs-field" id="r-mix-field"><label for="r-mix">Main payers</label><select id="r-mix" name="mix">{payerMixes.map(o=><option value={o.value} selected={o.value==='unsure'}>{o.label}</option>)}</select></div>
+    <div class="rs-field"><label for="r-stage">Launch stage</label><select id="r-stage" name="stage" required aria-describedby="r-stage-error">{launchStages.map(o=><option value={o.value} selected={o.value==='planning'}>{o.label}</option>)}</select><p class="research-error" id="r-stage-error" hidden></p></div>
+    <button class="rs-btn research-cta" id="preview-submit" type="submit">Show my free preview</button>
+    <p class="rs-small">No email needed. Your selections are sent to our server only to look up public data. Do not enter patient information anywhere on this page.</p>
+   </form>
+  </aside>
+  <section class="rs-panel research-results" id="research-results" aria-labelledby="results-title">
+   <p class="rs-kicker">02 / Your preview</p>
+   <h2 id="results-title">Your area, your field, your plan</h2>
+   <p id="preview-status" class="rs-status" role="status" aria-live="polite"></p>
+   <div id="preview-empty" class="research-empty">
+    <p>Your free preview will show:</p>
+    <ul><li>Population, age 65 and over, uninsured share and median household income for your ZIP area, each with its margin of error and Census data years</li><li>How many providers with your taxonomy list a practice location in your ZIP and city in the national NPI Registry</li><li>A startup checklist with the steps your provider type, specialty, state and launch stage add</li></ul>
+   </div>
+   <div id="preview-body" hidden>
+    <section class="research-block" aria-labelledby="acs-title"><h3 id="acs-title">Your area at a glance</h3><div id="acs-content"></div></section>
+    <section class="research-block" aria-labelledby="nppes-title"><h3 id="nppes-title">Providers already listed nearby</h3><div id="nppes-content"></div></section>
+    <section class="research-block" aria-labelledby="estimate-title" id="estimate-block"><h3 id="estimate-title">A rough ratio (estimate)</h3><div id="estimate-content"></div></section>
+    <section class="research-block" aria-labelledby="plan-title"><h3 id="plan-title">Your tailored startup plan</h3><div id="plan-content"></div><p class="research-links"><a class="rs-btn secondary" id="open-checklist" href="/resources/startup-checklist/">Open my full checklist</a><a class="rs-btn secondary" id="open-proforma" href="/resources/pro-forma/">Model my numbers</a></p></section>
+    <details class="research-block research-sources"><summary>Sources, dates and limits</summary><div id="sources-content"></div></details>
+
+    <section class="research-gate" id="gate" aria-labelledby="gate-title">
+     <p class="rs-kicker">03 / Go deeper</p>
+     <h3 id="gate-title">Get your written planning brief and PDF</h3>
+     <p>We turn the facts above into a short planning brief for your practice, then package it with your data tables and tailored checklist as a PDF. Every statement is labeled as a fact, an estimate or an interpretation, and the brief uses only the data shown above.</p>
+     <p id="gate-unavailable" class="rs-notice" hidden>The written brief and PDF are not available yet. Your preview above, the <a class="rs-link" href="/resources/startup-checklist/">checklist</a> and the <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+     <form id="gate-form" novalidate hidden data-sitekey={sitekey}>
+      <div class="rs-field"><label for="g-email">Email</label><input id="g-email" name="email" type="email" maxlength="254" required autocomplete="email" aria-describedby="g-email-help g-email-error" /><small id="g-email-help">Your brief appears on this page. We do not send automated emails.</small><p class="research-error" id="g-email-error" hidden></p></div>
+      <div class="research-checks">
+       <label class="research-check"><input type="checkbox" name="consent" id="g-consent" required aria-describedby="g-consent-error" /> <span>I request this brief. Practice Startup Services may process my email and practice details to provide it, and a startup specialist from PPS may follow up about my request.</span></label>
+       <p class="research-error" id="g-consent-error" hidden></p>
+       <label class="research-check" id="g-marketing-wrap" hidden><input type="checkbox" name="marketing" id="g-marketing" /> <span>Optional: also send me startup resources and product updates from PPS.</span></label>
+      </div>
+      <p class="rs-small">Your email goes to PPS through HubSpot. Your ZIP, specialty, provider type, practice model, payment model and stage, plus the public facts above, are sent to our AI provider (OpenAI) to write the brief. Your email is not sent to the AI. <a class="rs-link" href="/privacy/">Privacy policy</a>.</p>
+      <div id="g-verification" class="research-verification"></div>
+      <p class="research-error" id="g-verification-error" hidden></p>
+      <button class="rs-btn research-cta" id="gate-submit" type="submit">Get my brief and PDF</button>
+     </form>
+     <p id="gate-status" class="rs-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="research-confirm" id="gate-confirm" hidden aria-labelledby="confirm-title" tabindex="-1">
+     <p class="rs-kicker">Request received</p>
+     <h3 id="confirm-title">Your brief is ready.</h3>
+     <p>Reference: <strong id="confirm-ref"></strong>. Keep it if you contact us.</p>
+     <p><strong>What happens next:</strong> your brief and PDF are below. A startup specialist from PPS may reach out by email about your request. If you would rather talk now, <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+     <p id="confirm-note" class="rs-notice" hidden></p>
+     <button class="rs-btn" id="brief-pdf" type="button">Download my research PDF</button>
+     <p id="pdf-status" class="rs-status" role="status" aria-live="polite"></p>
+     <div id="brief-content"></div>
+    </section>
+   </div>
+  </section>
+ </div>
+</div></div>
+<script>import '../../scripts/research';</script>
+</BaseLayout>

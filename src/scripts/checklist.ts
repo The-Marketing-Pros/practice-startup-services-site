@@ -4,9 +4,13 @@ import {
   parseChecklist,
   visibleTasks,
   taskProgress,
+  priorityTasks,
+  anchorDate,
   stages,
   type Profile,
 } from "../lib/planners/checklist";
+import { stateForZip, validZip } from "../lib/startup/zip3";
+import { trackToolDownload } from "../lib/measure";
 import {
   element,
   escapeHtml as esc,
@@ -26,13 +30,49 @@ let plan = restore(key, parseChecklist) || newChecklist();
 let openOnly = false;
 const profile = element<HTMLFormElement>("practice-profile");
 const list = element("checklist-tasks");
+// Practice details handed over from the research page (?provider=&specialty=...).
+// Only profile fields are applied, each validated by parseChecklist; saved
+// progress, owners, dates and notes are never touched.
+function applyQueryProfile() {
+  const params = new URLSearchParams(location.search);
+  const keys = ["provider", "specialty", "zip", "model", "setting", "payer", "mix", "stage", "state"] as const;
+  if (!keys.some((k) => params.has(k))) return false;
+  let applied = false;
+  for (const k of keys) {
+    const v = params.get(k);
+    if (v === null) continue;
+    try {
+      const candidate = structuredClone(plan);
+      candidate.profile[k] = v;
+      plan = parseChecklist(candidate);
+      applied = true;
+    } catch {
+      /* ignore invalid values */
+    }
+  }
+  if (applied && !params.has("state") && validZip(plan.profile.zip) && !plan.profile.state)
+    plan.profile.state = stateForZip(plan.profile.zip)?.name ?? "";
+  return applied;
+}
 function fill() {
   for (const [name, value] of Object.entries(plan.profile)) {
     const input = profile.elements.namedItem(name) as
       | HTMLInputElement
-      | HTMLSelectElement;
-    input.value = value;
+      | HTMLSelectElement
+      | null;
+    if (input) input.value = value;
   }
+  syncFields();
+}
+function syncFields() {
+  element("practice-mix-field").hidden = plan.profile.payer === "cash";
+  const help = element("practice-state-help");
+  const inferred = validZip(plan.profile.zip) ? stateForZip(plan.profile.zip) : null;
+  if (inferred && plan.profile.state && plan.profile.state !== inferred.name)
+    help.textContent = `ZIP ${plan.profile.zip} usually belongs to ${inferred.name}. Check that your state is right.`;
+  else if (inferred && plan.profile.state === inferred.name)
+    help.textContent = `Matches ZIP ${plan.profile.zip}. Adds ${inferred.name}-specific steps. Verify current requirements with your board.`;
+  else help.textContent = "Adds state-specific steps. Verify current state requirements with your board.";
 }
 function summary() {
   const all = visibleTasks(plan);
@@ -58,8 +98,25 @@ function summary() {
   }
 
 }
+function renderTimeline() {
+  const anchor = anchorDate(plan.profile);
+  const note = element("checklist-anchor");
+  note.hidden = !anchor.assumed;
+  if (anchor.assumed)
+    note.textContent = `No target opening date yet, so suggested dates assume you open around ${new Date(`${anchor.date}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}, based on your launch stage. Set your own date to replace this.`;
+  const first = priorityTasks(plan);
+  const box = element("checklist-first");
+  box.hidden = !first.length;
+  if (first.length) {
+    element("checklist-first-intro").textContent = "Their suggested start dates have already passed for your timeline. Longest lead times are listed first.";
+    element("checklist-first-list").innerHTML = first
+      .map((t) => `<li><a href="#done-${esc(t.id)}">${esc(t.title)}</a></li>`)
+      .join("");
+  }
+}
 function render() {
   summary();
+  renderTimeline();
   const all = visibleTasks(plan).filter(
     (t) => !openOnly || !taskProgress(plan, t).done,
   );
@@ -72,7 +129,7 @@ function render() {
           .map((t) => {
             const p = taskProgress(plan, t);
             const help = supportForTask(t.id);
-            return `<article class="rs-task ${p.done ? "done" : ""}" data-task="${t.id}"><div class="rs-task-line"><input type="checkbox" id="done-${t.id}" data-field="done" ${p.done ? "checked" : ""}><label class="rs-task-title" for="done-${t.id}">${esc(t.title)}</label>${t.id.startsWith("custom-") ? `<button class="rs-icon-btn" data-remove="${t.id}" aria-label="Remove ${esc(t.title)}">Remove</button>` : ""}</div><p class="rs-task-desc">${esc(t.detail)}</p>${help ? `<aside class="rs-task-support" aria-label="Optional help with this step"><span>Help with this step</span><strong>${esc(help.name)}</strong><p>${esc(help.description)}</p><a class="rs-link" href="${esc(help.url)}" target="_blank" rel="noopener">${esc(help.label)}<span class="sr-only"> (opens in a new tab)</span></a></aside>` : ""}<details><summary>Owner, due date & notes${p.owner ? ` · ${esc(p.owner)}` : ""}${p.due ? ` · ${esc(p.due)}` : ""}</summary><div class="rs-task-fields"><div class="rs-field"><label for="owner-${t.id}">Owner</label><input id="owner-${t.id}" data-field="owner" value="${esc(p.owner)}" maxlength="100"></div><div class="rs-field"><label for="due-${t.id}">Due date</label><input type="date" id="due-${t.id}" data-field="due" value="${p.due}" min="2000-01-01" max="2100-12-31"></div><div class="rs-field wide"><label for="notes-${t.id}">Notes</label><textarea id="notes-${t.id}" data-field="notes" maxlength="2000" rows="2">${esc(p.notes)}</textarea></div></div></details></article>`;
+            return `<article class="rs-task ${p.done ? "done" : ""}" data-task="${t.id}"><div class="rs-task-line"><input type="checkbox" id="done-${t.id}" data-field="done" ${p.done ? "checked" : ""}><label class="rs-task-title" for="done-${t.id}">${esc(t.title)}</label>${t.id.startsWith("custom-") ? `<button class="rs-icon-btn" data-remove="${t.id}" aria-label="Remove ${esc(t.title)}">Remove</button>` : ""}</div><p class="rs-task-desc">${esc(t.detail)}</p>${t.reason ? `<p class="rs-task-why"><strong>Why this is on your plan:</strong> ${esc(t.reason)}</p>` : ""}${t.link ? `<p class="rs-task-source">Official source: <a href="${esc(t.link.url)}" target="_blank" rel="noopener">${esc(t.link.label)}<span class="sr-only"> (opens in a new tab)</span></a></p>` : ""}${help ? `<aside class="rs-task-support" aria-label="Optional help with this step"><span>Help with this step</span><strong>${esc(help.name)}</strong><p>${esc(help.description)}</p><a class="rs-link" href="${esc(help.url)}" target="_blank" rel="noopener">${esc(help.label)}<span class="sr-only"> (opens in a new tab)</span></a></aside>` : ""}<details><summary>Owner, due date & notes${p.owner ? ` · ${esc(p.owner)}` : ""}${p.due ? ` · ${esc(p.due)}` : ""}</summary><div class="rs-task-fields"><div class="rs-field"><label for="owner-${t.id}">Owner</label><input id="owner-${t.id}" data-field="owner" value="${esc(p.owner)}" maxlength="100"></div><div class="rs-field"><label for="due-${t.id}">Due date</label><input type="date" id="due-${t.id}" data-field="due" value="${p.due}" min="2000-01-01" max="2100-12-31"></div><div class="rs-field wide"><label for="notes-${t.id}">Notes</label><textarea id="notes-${t.id}" data-field="notes" maxlength="2000" rows="2">${esc(p.notes)}</textarea></div></div></details></article>`;
           })
           .join("")}</section>`;
       })
@@ -80,11 +137,22 @@ function render() {
     '<p class="rs-notice">All current tasks are complete. You can add your own tasks below.</p>';
 }
 profile.addEventListener("submit", (e) => e.preventDefault());
+let lastZip = plan.profile.zip;
 profile.addEventListener("change", () => {
   if (!profile.reportValidity()) return;
   const data = new FormData(profile);
   for (const name of Object.keys(plan.profile) as Array<keyof Profile>)
     plan.profile[name] = String(data.get(name) || "");
+  // A new ZIP fills in its state; the visitor can still choose another state.
+  if (plan.profile.zip !== lastZip && validZip(plan.profile.zip)) {
+    const inferred = stateForZip(plan.profile.zip);
+    if (inferred) {
+      plan.profile.state = inferred.name;
+      element<HTMLSelectElement>("practice-state").value = inferred.name;
+    }
+  }
+  lastZip = plan.profile.zip;
+  syncFields();
   store(key, plan);
   render();
 });
@@ -192,15 +260,24 @@ element("reset-plan").addEventListener("click", () => {
   render();
   status("A new checklist is ready.");
 });
-for (const [id, fn] of [
-  ["checklist-xlsx", checklistExcel],
-  ["checklist-pdf", checklistPdf],
+for (const [id, fn, format] of [
+  ["checklist-xlsx", checklistExcel, "xlsx"],
+  ["checklist-pdf", checklistPdf, "pdf"],
 ] as const) {
   const b = element<HTMLButtonElement>(id);
   b.addEventListener("click", () => {
-    if (profile.reportValidity()) exportPlan(b, () => fn(structuredClone(plan)));
+    if (profile.reportValidity())
+      exportPlan(b, async () => {
+        await fn(structuredClone(plan));
+        trackToolDownload("checklist", format);
+      });
   });
 }
+if (applyQueryProfile()) {
+  store(key, plan);
+  status("We filled in your practice details from your research preview. Your saved progress is unchanged.");
+}
+lastZip = plan.profile.zip;
 fill();
 render();
 document.documentElement.classList.add("rs-js");

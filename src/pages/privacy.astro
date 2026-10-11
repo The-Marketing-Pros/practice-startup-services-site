@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-const lastUpdated = "October 8, 2026";
+const lastUpdated = "October 10, 2026";
+// Meta measurement is described only when the pixel is configured at build time.
+const metaPixelEnabled = /^\d{5,20}$/.test((import.meta.env.PUBLIC_META_PIXEL_ID || "").trim());
 ---
 
 <BaseLayout
@@ -61,6 +63,19 @@ const lastUpdated = "October 8, 2026";
         <p>If you register for the free LaborGenie license offer, we collect your email and practice name through HubSpot, our customer relationship management provider. We use them to record your request and contact you about access. Your submission also includes the form and page context and the preferences you select. License access is arranged by PPS; submitting the form does not automatically activate an account.</p>
         <p>You can separately choose marketing emails from PPS about startup resources and products, including the upcoming EHR, LaborGenie, and UnfairCPA. This choice is optional and is not required to request the license. You can unsubscribe from marketing emails at any time. No signup on this site creates an UnfairCPA account.</p>
 
+        <h2>Free startup research.</h2>
+        <p><strong>Free preview.</strong> When you run the research preview, your provider type, specialty, ZIP code, practice model, care setting, payment model and launch stage are sent to our server to look up public data from the CMS NPI Registry and the U.S. Census Bureau. No email is needed. We cache the public data we retrieve; the cache contains no personal information.</p>
+        <p><strong>Written brief.</strong> If you request the written brief, your email address goes to PPS through HubSpot, together with the page address, any campaign tags described below, and the practice details you selected (when our form is set up to receive them). We use it to record your request and so a startup specialist can follow up about it. Optional marketing emails are a separate choice and are not required for the brief. Your practice details and the public facts shown on the page (not your email) are sent to OpenAI, our AI provider, to write the brief. A Cloudflare Turnstile check helps prevent automated abuse. To prevent duplicate requests and enforce daily limits, we store a one-way hashed form of your email and IP address and a copy of the brief you received. The brief appears on the page and in a PDF you download; this site does not send automated emails.</p>
+
+        <h2>Campaign attribution.</h2>
+        <p>If you arrive from an ad or a link with campaign tags (such as utm_source or an ad click identifier), we store those tags, the page you landed on, and the address of the site that referred you in your browser. The first visit is kept for up to 90 days and the most recent for your browser session. They are sent with any request you submit so we know which campaign brought you. We never send what you type into forms or planners to analytics or advertising tools.</p>
+        {metaPixelEnabled && (
+          <>
+            <h2>Meta measurement.</h2>
+            <p>We use the Meta Pixel to measure how our Instagram and Facebook ads perform. It records page views and, when you successfully request a research brief, a lead event. When you request a brief, our server may also send Meta that lead event with your IP address, browser type and Meta cookie identifiers so the two can be matched. We do not send your email address, phone number, or anything you type to Meta. You can manage ad preferences in your Meta account settings.</p>
+          </>
+        )}
+
         <h2>What we don't collect.</h2>
         <p>
           We do not collect or store any protected health information (PHI). This site is for
@@ -76,7 +91,7 @@ const lastUpdated = "October 8, 2026";
         </p>
         <p>
           We use a small number of service providers to operate the site (hosting, email delivery,
-          CRM, analytics). Each provider has access only to the information they need to do their
+          CRM, analytics, and an AI provider for the optional research brief). Each provider has access only to the information they need to do their
           job and is bound by their own confidentiality terms.
         </p>
 
@@ -107,7 +122,7 @@ const lastUpdated = "October 8, 2026";
         <p>
           We use a small number of cookies: one to maintain your visitor session on the site,
           and a small set used by our hosting provider (Cloudflare) for performance and security.
-          Our site includes Google Analytics and Google Ads measurement. The registration form also uses HubSpot and its spam-prevention service. These providers may use cookies or similar technologies for measurement, form delivery, and spam prevention.
+          Our site includes Google Analytics and Google Ads measurement{metaPixelEnabled ? ", and Meta Pixel measurement" : ""}. The registration form also uses HubSpot and its spam-prevention service, and the research brief form uses Cloudflare Turnstile. These providers may use cookies or similar technologies for measurement, form delivery, and spam prevention.
         </p>
 
         <h2>Children.</h2>
