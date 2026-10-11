@@ -48,6 +48,16 @@ Prior findings carried from the research worktree, with dispositions:
 | Specialty list mapped many specialties to Other | Fixed: 34 specialties with NPPES-verified taxonomies; urgent care and Other show no count rather than a proxy | `taxonomy search terms are the NPPES-verified forms...` |
 | "Rejects uncited research" passed for the wrong reason | Replaced: guard tests assert specific reason codes | `facts must cite a known source that returned data...` |
 
+## V1 round 2: cross-brand follow-up (supersedes round 1 for the changed files)
+
+Head: `a76b4fe` (code change after the round-1 evidence commit `94acbb4`; round 1 is historical for these files). Diff 860e08d..a76b4fe excluding docs/reviews, SHA-256 `0c3c52b69b35dafd7998ae8246c3890a7b33c90e4cae4087844238e4aac3e3ec`.
+
+Changes: server CAPI runs only when `META_PIXEL_ID` equals `PUBLIC_META_PIXEL_ID`; CAPI token moved from the URL to the JSON body; server-side attribution drops (ft_)landing_page values that are not same-site paths and (ft_)referrer values that are not bare http(s) origins; privacy Meta section names the categories the pixel sends for all visitors; deployment doc adds the required Automatic Advanced Matching OFF step and a post-deploy `facebook.com/tr` `ud[]`/`udff[]` check.
+
+Checks on `a76b4fe`: `npm run check` 0 errors/0 warnings/4 hints; `npx tsc --noEmit` clean; `npm run test:planners` 79/79 (CAPI and attribution tests extended); `npm run build` 71 pages; CI gate unittest OK; `git diff --check` clean.
+
+Preview deployment (round-1 head `94acbb4`, https://1c91cf75.practice-startup-services.pages.dev), read-only: `GET /api/startup-research` returns `available:false`; `POST` returns 503 `unavailable`; preview endpoint returns live NPPES counts (59301 NP psych: 4 ZIP / 4 city; 10016 orthopaedics: 69 ZIP / 156+ city) and the honest Census "API key is not configured" section; research page shows the gate as not available; checklist and pro forma accept the research hand-off parameters. No page errors at 390px or 1280px.
+
 ## R1: independent agent review
 
 Pending. Not requested by the implementer. No passing review is claimed.
