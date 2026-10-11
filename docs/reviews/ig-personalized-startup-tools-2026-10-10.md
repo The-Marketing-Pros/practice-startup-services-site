@@ -58,9 +58,39 @@ Checks on `a76b4fe`: `npm run check` 0 errors/0 warnings/4 hints; `npx tsc --noE
 
 Preview deployment (round-1 head `94acbb4`, https://1c91cf75.practice-startup-services.pages.dev), read-only: `GET /api/startup-research` returns `available:false`; `POST` returns 503 `unavailable`; preview endpoint returns live NPPES counts (59301 NP psych: 4 ZIP / 4 city; 10016 orthopaedics: 69 ZIP / 156+ city) and the honest Census "API key is not configured" section; research page shows the gate as not available; checklist and pro forma accept the research hand-off parameters. No page errors at 390px or 1280px.
 
-## R1: independent agent review
+## R1: independent agent review (received)
 
-Pending. Not requested by the implementer. No passing review is claimed.
+Independent agent reviewer assigned by the orchestrating agent; actual reviewer identity and model as reported by the coordinator (not recorded by the implementer). Date 2026-10-10. Reviewed head `1fe0b48` against base `860e08d`. Verdict: **CHANGES REQUIRED**. This verdict is historical: code changed afterwards in `0f12137`.
+
+| ID | Severity | Finding (summary) | Disposition in `0f12137` | Test / evidence |
+| --- | --- | --- | --- | --- |
+| F1 | HIGH | Allowed-number pool built from all grounding text; probes "About 90% ... within 5 years", "3 in 5", "200% since 2020", full-width digits, "census.gov/data" passed | Fixed: `refs` per statement; numbers only from cited items (value/display/MOE/measure label); caveats, source names, vintages, ZIP excluded; interpretations digit-free except input echoes; %/$ unit check; NFKC + non-ASCII digit rejection; bare-domain ban | `reviewer probes that previously passed are now rejected`, `caveats, source names, vintages and the ZIP are never a number source`, `% and $ must sit next to numbers...`, `interpretations carry no numbers except echoes...`; negative control (interpretations given all ids) failed 2 tests |
+| F2 | MED | Number-word ban rejected normal language | Fixed: quantity patterns only; banned forms listed in instructions | `ordinary planning language passes; quantity phrases are rejected` |
+| F3 | MED | "Your brief is ready." shown for every status | Fixed: heading and next-step text by status | `confirmation heading only claims a brief when one is shown`; browser screenshots `research-*-10-status-*` (5 statuses x 2 widths) |
+| F4 | | Brief could cite numbers not on screen | Fixed: `showResult` re-renders tables from `r.facts` | Browser check: brief numbers missing from tables = 0 in all 10 runs |
+| F5 | | Failed `hubspot_status` write allowed a HubSpot re-submit | Fixed: write retried once; `release()` and the final save record it | `a failed hubspot_status write cannot cause a second HubSpot submission`; negative control failed it |
+| F6 | | Preview abuse limits; public fallback hash key | Fixed: production previews need the keyed D1 counter or `RESEARCH_PREVIEW_WAF_CONFIRMED=true` (after a Cloudflare rate-limit rule); counter skipped without the secret | `production previews require an abuse limit...` |
+| F7 | | Privacy omitted the preview counter; consent text differed; doc line wrong | Fixed: privacy sentence; `CONSENT_TEXT`/`MARKETING_TEXT` shared; doc corrected | `HubSpot receives exactly the consent text shown in the form` |
+| F8 | | NPPES date, capped wording, capped city below ZIP | Fixed: retrieval date cached and shown; "at least N (registry limit reached)"; bounded `skip` pagination (3 pages); misleading city count suppressed with note | `NPPES pagination...`, `a capped city count below the ZIP count is not shown...`, `cached NPPES results keep and show their original retrieval date` |
+| F9 | | Hand-off params re-applied on reload | Fixed: `history.replaceState` strips them (UTMs kept) in checklist and pro forma | `hand-off parameters are stripped after use...`; browser: URL becomes `?utm_source=instagram` |
+| F10 | | Pre-opening "other" costs double counted | Fixed: input relabeled "Pre-opening payroll & one-time costs"; guidance in UI, method notes, Excel, PDF | screenshot `proforma-*-05-preopening-label` |
+| F11 | | CAPI could fire from preview deployments | Fixed: production hostnames only | `CAPI never fires from preview deployments...` |
+| F12 | | OpenAI 4xx config errors burned reserved calls | Fixed: 400/401/403/404 -> `system`, no retry, daily call and attempt refunded | `OpenAI 400/401/403/404 is a system error...` |
+| F13 | | Lease too short; no stream cap without Content-Length | Fixed: 240 s lease renewed before each AI call; stream-capped body read | `lease covers the AI calls and is renewed; bodies without Content-Length are stream-capped` |
+
+## V1 round 3 (implementer, after R1)
+
+Head `0f12137` (base `860e08d`). Diff 860e08d..0f12137 excluding docs/reviews SHA-256 `a9521e84942a5403a366b2bb718071304a23e00be5cf88945eb5d78c6523416d`; round-3 delta 1fe0b48..0f12137 SHA-256 `97938a7c9bc9cb6b7666af4ae11ade03a64bb23dc51a828600462bfe4d8a40cc`. Implementer: Claude Opus 5.5. Not independent.
+
+Checks on `0f12137`: `npm run check` 0 errors/0 warnings/4 existing hints (108 files); `npx tsc --noEmit` clean; `npm run test:planners` 93/93; `npm run build` 71 pages; CI-gate unittest OK; `git diff --check` clean. Negative controls: removing the F5 release fix and widening interpretations to all ids failed 3 tests; restored, all pass.
+
+Browser (local, mocked Turnstile/HubSpot/OpenAI/Meta, 390px and 1280px): confirmation for `ready`, `rejected`, `capacity`, `insufficient_data`, `unavailable` shows the status-correct heading and note, one lead event each, and no brief number missing from the on-screen tables; the full error-class journey re-run (0 lead events on every failure, 1 on success, 0 after reload); hand-off params stripped; pre-opening label updated.
+
+Limitations unchanged: no real OpenAI output tested against the new guard; gated step unverified on preview; R2 / re-review of `0f12137` pending.
+
+## R2 / re-review
+
+Pending for `0f12137`. No passing independent review is claimed.
 
 ## CI and integration
 
