@@ -124,9 +124,25 @@ All suggestions implemented, including the optional lease-token condition. Tests
 
 Checks on `a32e2a0`: `npm run check` 0 errors/0 warnings/4 existing hints; `npx tsc --noEmit` clean; `npm run test:planners` 100/100; `npm run build` 71 pages; CI-gate unittest OK; `git diff --check` clean. Browser smoke (local, mocked providers, 390/1280): all 5 confirmation statuses correct, one lead event each, no brief number missing from the tables.
 
+## R1 round 4 (received)
+
+Same independent agent channel, reviewed `a32e2a0`. Verdict: **CLEAR**. Low findings: the Roman-numeral rule (single L and C) and broad `-fold`/standalone `majority` rules rejected common medical wording (Medicare Part C, Type II diabetes, C-sections, Hepatitis C, Title X, IV sedation, X ray, majority-owned); `saved:false` was never shown to the visitor.
+
+## V1 round 6 (coordinator, after R1 round 4)
+
+Head `07f06b1`. Implemented by the coordinating Claude Code session (Claude Opus 5.5), not independent: L and C removed from the Roman rule, `-fold` limited to quantity words, medical and ownership names added to the idiom list, download notice when `saved:false`. Test `round-4: medical and practice names are not mistaken for numbers`. Checks: `npm run test:planners` 101/101, `npm run check` 0 errors/0 warnings, `npm run build` 71 pages, CI-gate unittest OK, `git diff --check` clean.
+
+## R1 round 5 (received)
+
+Reviewed `07f06b1` (delta SHA-256 `3ff00aa10165dfbc11a02ca15182c86372e50e6a00ad2547c06e34825391ac64`). Verdict: **CLEAR**. Idioms cannot smuggle numbers or quantities (surrounding digits and quantity phrases are still rejected). Nit: `-fold` list stopped at ten.
+
+## V1 round 7 (coordinator) and R1 round 6 (received)
+
+Head `084d7fe` adds twenty through ninety to the `-fold` list with two test strings; `npm run test:planners` 101/101. R1 round 6 reviewed `084d7fe5aef7a063e88f20f5fb9cd3b83195995b`: **CLEAR**, `gh pr checks 27` all pass on run 38103846649.
+
 ## R2 / re-review
 
-R1 round 3 returned CLEAR for `10b2721`. The round-5 follow-up (`a32e2a0`) has not been independently reviewed.
+Final reviewed source: `084d7fe5aef7a063e88f20f5fb9cd3b83195995b`, independent R1 round 6 CLEAR. This record is added afterwards as an evidence-only commit. Reviewer and implementers are the same model family (Claude), not separate providers. No real OpenAI, HubSpot or Meta call has been made; the first real brief must be an owner-approved preview test.
 
 ## CI and integration
 
