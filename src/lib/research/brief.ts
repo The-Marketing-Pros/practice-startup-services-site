@@ -8,12 +8,8 @@ import { groundingView, citableIds } from "./guard.ts";
 import type { ResearchProfile } from "./contract.ts";
 import { optionLabel, launchStages, practiceModels } from "../startup/options.ts";
 
-export const BRIEF_HEADINGS = [
-  "Your area at a glance",
-  "Providers already listed nearby",
-  "What this could mean for your plan",
-  "Questions to answer next",
-];
+import { BRIEF_HEADINGS } from "./guard.ts";
+export { BRIEF_HEADINGS };
 
 export function briefInputs(p: ResearchProfile, bundle: FactsBundle) {
   return {
@@ -70,7 +66,7 @@ Rules:
 - Each statement has "kind", "refs" and "text".
 - "fact": pick one or more ids from FACTS.facts in "refs" and leave "text" empty (""). Our system writes the sentence from those items, so you never type their numbers.
 - "estimate": pick ids from FACTS.estimates in "refs" and leave "text" empty ("").
-- "interpretation": "refs" is empty and "text" is your planning implication in words only. It must contain NO numbers or digits, NO number words (two and up, such as "two", "fourteen", "twenty-five", "hundred", "thousand", "dozen", "couple", "several", "few"), NO fractions or shares ("half", "a third", "three-quarters", "majority of", "minority of"), NO units ("percent", "pct", "dollars", "%", "$"), NO multipliers ("doubled", "twice") and NO website addresses or domain names. You may repeat the visitor's ZIP code as "ZIP" followed by the code, and their launch stage label.
+- "interpretation": "refs" is empty and "text" is your planning implication in words only. It must contain NO numbers or digits, NO number words (two and up, such as "two", "fourteen", "twenty-five", "hundred", "thousand", "dozen", "couple", "several", "few"), NO fractions or shares ("half", "a third", "three-quarters", "majority of", "minority of"), NO units ("percent", "pct", "dollars", "%", "$"), NO multipliers ("doubled", "twice", "fivefold", "quintupled"), NO quantity nouns ("zero", "pair of", "trio", "score of", "handful of", "majority", "minority"), NO large or ranked ordinals ("hundredth", "twentieth", "second-largest", "third-fastest"), NO Roman numerals ("II", "IV", "X") and NO website addresses or domain names. Words like "most", "one-on-one", "third-party", "double-check", "double-booked", "half-day" and "two-way" are fine. You may repeat the visitor's ZIP code as "ZIP" followed by the code, and their launch stage label.
 - If a FACTS section status is not "ok", write an interpretation saying that data was unavailable. Never substitute other knowledge.
 - Provider counts are registry listings, not proof of capacity, demand or competition. Do not claim unmet demand, saturation, reimbursement rates, rents, salaries or legal requirements.
 - No medical, legal or tax advice. Point the reader to their licensing board, payers or advisers to confirm requirements.

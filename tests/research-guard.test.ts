@@ -39,6 +39,7 @@ const REVIEWER_STRINGS = [
   "The majority of residents have commercial coverage.",
   "Demand doubled recently.",
   "Twenty-five clinics opened.",
+  "A majority decision is expected.",
 ];
 
 test("every reviewer string is rejected as an interpretation", async () => {
@@ -86,11 +87,62 @@ test("ordinary planning interpretations pass (idioms allowlisted, 'most of' allo
     "Ask third-party payers how they credential new practices.",
     "Have every application double-checked before you submit it.",
     "Ask which quarter each payer reviews new applications.",
-    "A majority decision among partners should be written into the owners' agreement.",
     "Before signing a lease near ZIP 10016, confirm referral patterns with local surgeons.",
     "Review co-signing and guarantee terms with your lender; compare rates.Co-signing terms vary.",
+    "Avoid double-booked appointments by setting clear scheduling rules.",
+    "A half-day clinic schedule can help while payers finish enrollment.",
+    "Use two-way messaging so patients can reach the front desk.",
+    "Ask whether payers cover IV therapy before buying equipment.",
+    "Order an X-ray unit only after confirming registration rules.",
   ])
     assert.deepEqual(interpretationProblems(ok, facts, inputs), [], ok);
+});
+
+test("round-3 reviewer pass-through strings are rejected", async () => {
+  const facts = await sampleFacts();
+  const inputs = briefInputs(PROFILE, facts);
+  for (const [text, code] of [
+    ["Demand grew fivefold.", "multiplier"],
+    ["Visits quintupled and staffing sextupled.", "multiplier"],
+    ["There are zero competitors here.", "quantity_noun"],
+    ["A score of clinics opened.", "quantity_noun"],
+    ["A pair of surgeons retired.", "quantity_noun"],
+    ["A trio of practices merged.", "quantity_noun"],
+    ["A handful of providers accept new patients.", "quantity_noun"],
+    ["The majority prefer evening hours.", "fraction"],
+    ["A minority are uninsured.", "fraction"],
+    ["This is the hundredth clinic in the county.", "ordinal"],
+    ["It ranks twentieth statewide.", "ordinal"],
+    ["It is the second-largest market in the state.", "ordinal"],
+    ["The area is the third fastest growing.", "ordinal"],
+    ["Phase II growth is expected.", "roman"],
+    ["Demand rose IV times.", "roman"],
+    ["Clinics grew X times.", "roman"],
+    ["Ⅳ new clinics opened.", "roman"],
+  ] as const) {
+    const problems = interpretationProblems(text, facts, inputs);
+    assert.ok(problems.includes(code), `${text} -> ${problems.join(",")}`);
+    assert.equal((await run(text)).r.ok, false, text);
+  }
+});
+
+test("headings must be one of the fixed headings (server-side check behind the schema)", async () => {
+  const facts = await sampleFacts();
+  const b = clone(GOOD_BRIEF);
+  b.sections[0].heading = "Your area has demand";
+  assert.ok(reasons(validateBrief(b, facts, {})).includes("s0:heading"));
+});
+
+test("refs are de-duplicated and capped at four per statement", async () => {
+  const facts = await sampleFacts();
+  const b = clone(GOOD_BRIEF);
+  b.sections[0].statements = [{ kind: "fact", refs: ["acs_population", "acs_population", "acs_age65_pct", "acs_uninsured_pct", "acs_median_income", "nppes_zip_count", "nppes_city_count"], text: "" }];
+  const r = validateBrief(b, facts, briefInputs(PROFILE, facts));
+  assert.ok(r.ok);
+  if (!r.ok) return;
+  const st = r.brief.sections[0].statements[0];
+  assert.deepEqual(st.refs, ["acs_population", "acs_age65_pct", "acs_uninsured_pct", "acs_median_income"]);
+  assert.equal(st.text.split("Source:").length - 1, 4);
 });
 
 test("the stage label is an echo only when the visitor chose it", async () => {

@@ -21,7 +21,15 @@ export type Statement = { text: string; kind: StatementKind; refs: string[] };
 export type BriefSection = { heading: string; statements: Statement[] };
 export type Brief = { sections: BriefSection[] };
 
-const IDIOMS = /\b(one-on-one|third-party|third-parties|double-check(?:ed|ing|s)?|first-pass)\b/gi;
+export const BRIEF_HEADINGS = [
+  "Your area at a glance",
+  "Providers already listed nearby",
+  "What this could mean for your plan",
+  "Questions to answer next",
+];
+export const MAX_REFS_PER_STATEMENT = 4;
+
+const IDIOMS = /\b(one-on-one|third-party|third-parties|double-check(?:ed|ing|s)?|double-book(?:ed|ing|s)?|half-days?|two-way|first-pass|IV\s+(?:therapy|infusions?|hydration|fluids))\b/gi;
 const CARDINALS =
   "two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fourty|fifty|sixty|seventy|eighty|ninety";
 // Each pattern is a reason code; any hit rejects an interpretation.
@@ -32,9 +40,14 @@ export const INTERPRETATION_BANS: Array<[string, RegExp]> = [
   ["fraction", /\b(half|halves|halfs|thirds|quarters|fifths|tenths|-tenths)\b/i],
   ["fraction", /\b(a|one)\s+(third|quarter|fifth|tenth)\b/i],
   ["fraction", /\b(third|quarter|fifth|tenth)s?\s+of\b/i],
-  ["fraction", /\b(majority|minority|plurality)\s+of\b/i],
+  ["fraction", /\b(majority|minority|plurality)\b/i],
+  ["quantity_noun", /\b(zero|trio|score\s+of|pair\s+of|handful\s+of)\b/i],
+  ["ordinal", /\b\w*(hundredth|thousandth|millionth|billionth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth|fortieth|fiftieth|sixtieth|seventieth|eightieth|ninetieth)s?\b/i],
+  ["ordinal", /\b(second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)[-\s]+(largest|biggest|highest|fastest|smallest|lowest|busiest|best|worst|most|least|oldest|youngest)\b/i],
+  // Roman numerals II and up (case-sensitive; "X-ray" excluded).
+  ["roman", /\b(II|III|IV|VI|VII|VIII|IX|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|XXX|XL|L|C)\b|\b[VX]\b(?!-)/],
   ["unit", /\b(percent|percentage|per\s?cent|pct|dollars?|bucks|cents?)\b|[%$]/i],
-  ["multiplier", /\b(doubled?|tripled?|quadrupled?|(?:ten|hundred)fold|fold\s+increase)\b/i],
+  ["multiplier", /\b(doubled?|tripled?|quadrupled?|(?:quin|sex)tupled?|\w+fold|fold\s+increase)\b/i],
   ["url", /(https?:|:\/\/|www\.|javascript:|\b[a-z0-9-]+\.(gov|com|org|net|edu|us|info)\b(?:\/|\s|$|[.,;)]))/i],
   ["markup", /[<>]|\]\(/],
 ];
@@ -109,15 +122,17 @@ export function validateBrief(raw: unknown, bundle: FactsBundle, inputs: Record<
       reasons.push(`s${i}:structure`);
       return;
     }
-    if (typeof s.heading !== "string" || !s.heading.trim() || s.heading.length > 90) reasons.push(`s${i}:heading`);
-    else for (const code of interpretationProblems(s.heading, bundle, inputs)) reasons.push(`s${i}:heading:${code}`);
+    // Second line of defense behind the schema enum: only our fixed headings.
+    if (typeof s.heading !== "string" || !BRIEF_HEADINGS.includes(s.heading)) reasons.push(`s${i}:heading`);
     if (s.statements.length < 1 || s.statements.length > 6) reasons.push(`s${i}:statement_count`);
     const statements: Statement[] = [];
     s.statements.forEach((st, j) => {
       const where = `s${i}.${j}`;
       if (!st || typeof st !== "object") return void reasons.push(`${where}:structure`);
-      const refs = Array.isArray(st.refs) && st.refs.every((r) => typeof r === "string") ? st.refs : null;
-      if (!refs) return void reasons.push(`${where}:refs`);
+      const rawRefs = Array.isArray(st.refs) && st.refs.every((r) => typeof r === "string") ? st.refs : null;
+      if (!rawRefs) return void reasons.push(`${where}:refs`);
+      // De-duplicate and cap so one statement cannot balloon into a data dump.
+      const refs = [...new Set(rawRefs)].slice(0, MAX_REFS_PER_STATEMENT);
       if (st.kind === "fact") {
         if (!refs.length || refs.some((r) => !facts.has(r))) return void reasons.push(`${where}:fact_refs`);
         // Model text is discarded; the sentence is rendered from the cited items.

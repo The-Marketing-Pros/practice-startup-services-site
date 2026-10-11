@@ -136,10 +136,21 @@ export function previewAllowed(hostname: string, env: ResearchEnv): { ok: boolea
   return { ok: true, reason: "" };
 }
 
+// Log a blocked production preview at most once per isolate (no PII, no noise).
+let previewBlockedLogged = false;
+export function resetPreviewBlockedLog(): void {
+  previewBlockedLogged = false;
+}
+function logPreviewBlocked(deps: Deps, where: string): void {
+  if (previewBlockedLogged) return;
+  previewBlockedLogged = true;
+  deps.log?.("preview_blocked_unconfigured", { where });
+}
+
 export function handleAvailability(request: Request, deps: Deps): Response {
   const { env } = deps;
   const preview = previewAllowed(new URL(request.url).hostname, env);
-  if (preview.reason === "unconfigured") deps.log?.("preview_blocked_unconfigured", { where: "availability" });
+  if (preview.reason === "unconfigured") logPreviewBlocked(deps, "availability");
   return json({
     ok: true,
     available: gateConfigured(env),
@@ -157,7 +168,7 @@ export async function handlePreview(request: Request, deps: Deps): Promise<Respo
   const allowed = previewAllowed(url.hostname, env);
   if (allowed.reason === "disabled") return fail("unavailable", { message: "The free preview is paused. Your checklist and pro forma still work." });
   if (allowed.reason === "unconfigured") {
-    deps.log?.("preview_blocked_unconfigured", { where: "preview" });
+    logPreviewBlocked(deps, "preview");
     return fail("unavailable", { message: "The free preview is not available yet. Your checklist and pro forma still work." });
   }
   let profile;
@@ -470,8 +481,8 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   let hubspotDone = job.hubspot_status === "submitted";
   const release = async (error: string) => {
     await db
-      .prepare("UPDATE research_jobs SET status = 'failed', lease_until = 0, last_error = ?2, updated_at = ?3, hubspot_status = CASE WHEN ?4 = 1 THEN 'submitted' ELSE hubspot_status END WHERE id = ?1")
-      .bind(g.requestId, error, now().getTime(), hubspotDone ? 1 : 0)
+      .prepare("UPDATE research_jobs SET status = 'failed', lease_until = 0, last_error = ?2, updated_at = ?3, hubspot_status = CASE WHEN ?4 = 1 THEN 'submitted' ELSE hubspot_status END WHERE id = ?1 AND lease_token = ?5")
+      .bind(g.requestId, error, now().getTime(), hubspotDone ? 1 : 0, leaseToken)
       .run()
       .catch(() => {});
   };
@@ -584,20 +595,21 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   // 4. Persist; retry once. If both fail the visitor still gets the result
   // (already paid for) and the client keeps it for this session.
   const save = () =>
-    db.prepare("UPDATE research_jobs SET status = 'complete', result_json = ?2, hubspot_status = 'submitted', lease_until = 0, updated_at = ?3 WHERE id = ?1")
-      .bind(g.requestId, JSON.stringify(result), now().getTime())
+    db.prepare("UPDATE research_jobs SET status = 'complete', result_json = ?2, hubspot_status = 'submitted', lease_until = 0, updated_at = ?3 WHERE id = ?1 AND lease_token = ?4")
+      .bind(g.requestId, JSON.stringify(result), now().getTime(), leaseToken)
       .run();
   let saved = true;
   try {
-    await save();
+    saved = ((await save()).meta?.changes ?? 0) === 1;
   } catch {
     try {
-      await save();
+      saved = ((await save()).meta?.changes ?? 0) === 1;
     } catch (e) {
       saved = false;
       deps.log?.("db_error", { step: "complete", error: String(e).slice(0, 200) });
     }
   }
+  if (!saved) deps.log?.("result_not_saved", { reason: "write_failed_or_lease_lost" });
   if (job.capi_status === "none") sendCapi(request, deps, job.event_id, db, g.requestId, t);
   return json({ ...result, saved, replay: false });
 }

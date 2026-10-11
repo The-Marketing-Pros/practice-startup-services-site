@@ -2,7 +2,7 @@
 // Turnstile, HubSpot, OpenAI, NPPES, Census and Meta. No network.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { handleGate, handleAvailability, handlePreview, type ResearchEnv } from "../src/lib/research/handler.ts";
+import { handleGate, handleAvailability, handlePreview, resetPreviewBlockedLog, type ResearchEnv } from "../src/lib/research/handler.ts";
 import { createD1, type Fault } from "./helpers/d1.ts";
 import { nppesRecord, nppesBody, URBAN_ACS, stubFetch, jsonResponse } from "./fixtures/research.ts";
 import { GOOD_BRIEF, PROFILE, openAiResponse } from "./fixtures/brief.ts";
@@ -459,6 +459,7 @@ test("availability reports the real previewAvailable for the hostname (same rule
     [{ RESEARCH_PREVIEW_DISABLED: "true" }, PREVIEW_HOST, false],
   ];
   for (const [env, host, expected] of cases) {
+    resetPreviewBlockedLog();
     const logs: string[] = [];
     const { deps } = setup({ env });
     const d = { ...deps, log: (e: string) => void logs.push(e) };
@@ -510,4 +511,26 @@ test("concurrent submissions with the same requestId: one 200, the rest 409, one
   assert.ok(results.filter((r) => r.status === 409).every((r) => r.json.kind === "in_progress"));
   assert.equal(stub.count(HUB), 1);
   assert.equal(stub.count(AI), 1);
+});
+
+test("preview_blocked_unconfigured is logged once per isolate, not per request", async () => {
+  resetPreviewBlockedLog();
+  const logs: string[] = [];
+  const { deps } = setup({ env: { RESEARCH_DB: undefined } });
+  const d = { ...deps, log: (e: string) => void logs.push(e) };
+  for (let i = 0; i < 5; i++) {
+    handleAvailability(new Request(`${ORIGIN}/api/startup-research`), d);
+    await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${q()}`), d);
+  }
+  assert.equal(logs.filter((e) => e === "preview_blocked_unconfigured").length, 1);
+});
+
+test("release and save only write while this request still holds the lease", async () => {
+  let steal = () => {};
+  const { deps, sqlite } = setup({ openai: [() => { steal(); return jsonResponse(openAiResponse(GOOD_BRIEF)); }] });
+  steal = () => sqlite.prepare("UPDATE research_jobs SET lease_token = 'other-worker'").run();
+  const r = await read(await handleGate(post(body()), deps));
+  assert.equal(r.status, 200, "the visitor still gets the paid result");
+  assert.equal(r.json.saved, false);
+  assert.equal((sqlite.prepare("SELECT status FROM research_jobs").get() as any).status, "processing", "no write over another worker's lease");
 });
