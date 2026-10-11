@@ -116,6 +116,8 @@ test("round-4: medical and practice names are not mistaken for numbers", async (
   for (const [text, code] of [
     ["Demand grew twofold.", "multiplier"],
     ["Visits will rise manyfold.", "multiplier"],
+    ["Demand rose twentyfold.", "multiplier"],
+    ["Revenue grew fiftyfold.", "multiplier"],
     ["This is Phase III of the market.", "roman"],
     ["The majority are insured.", "fraction"],
   ] as const)

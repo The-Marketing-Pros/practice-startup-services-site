@@ -50,7 +50,7 @@ export const INTERPRETATION_BANS: Array<[string, RegExp]> = [
   // Single letters L and C are left out: they are far more often names (Part C, Hepatitis C) than numbers.
   ["roman", /\b(II|III|IV|VI|VII|VIII|IX|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|XXX|XL)\b|\b[VX]\b(?!-)/],
   ["unit", /\b(percent|percentage|per\s?cent|pct|dollars?|bucks|cents?)\b|[%$]/i],
-  ["multiplier", /\b(doubled?|tripled?|quadrupled?|(?:quin|sex)tupled?|(?:two|three|four|five|six|seven|eight|nine|ten|hundred|thousand|many|several|multi)fold|fold\s+increase)\b/i],
+  ["multiplier", /\b(doubled?|tripled?|quadrupled?|(?:quin|sex)tupled?|(?:two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|many|several|multi)fold|fold\s+increase)\b/i],
   ["url", /(https?:|:\/\/|www\.|javascript:|\b[a-z0-9-]+\.(gov|com|org|net|edu|us|info)\b(?:\/|\s|$|[.,;)]))/i],
   ["markup", /[<>]|\]\(/],
 ];
