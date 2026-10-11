@@ -88,9 +88,33 @@ Browser (local, mocked Turnstile/HubSpot/OpenAI/Meta, 390px and 1280px): confirm
 
 Limitations unchanged: no real OpenAI output tested against the new guard; gated step unverified on preview; R2 / re-review of `0f12137` pending.
 
+## R1 round 2 (received)
+
+Same independent agent channel, reviewed `0f12137` (base `860e08d`). Verdict: **CHANGES REQUIRED**. F2-F13 confirmed fixed. Historical: code changed afterwards in `10b2721`.
+
+| ID | Finding | Disposition in `10b2721` | Test / evidence |
+| --- | --- | --- | --- |
+| Blocker 1 (F1 residual) | Regex hardening kept losing: cardinal words ("Fourteen providers..."), fractions ("Three-quarters... nearly half"), "a couple/several", wrong-measure reuse ("3.9% ... age 65", "1,987 residents", "65 new patients"), "dollars", "pct", "522 providers" without "at least"; false rejections of "one-on-one" and "Most of the residents" | Design change: fact/estimate sentences rendered by code from cited items (model text discarded); interpretations words only with explicit bans and an idiom allowlist; schema/instructions/PDF updated | `every reviewer string is rejected as an interpretation`; `model text can never carry a number into a fact or estimate...` (asserts every reviewer string is discarded and the output equals the rendered sentence); `rendered fact sentences use exactly the strings shown in the tables`; `ordinary planning interpretations pass...`; negative control (keeping model text) failed the discard test |
+| Blocker 2 (R2-N1) | Availability ignored production preview gating; form failed after filling; misleading gate copy | `handleAvailability(request)` uses `previewAllowed` (same rule as the preview); up-front notice + disabled form; `preview_blocked_unconfigured` log; copy fixed; launch blocker documented | `availability reports the real previewAvailable for the hostname...` (negative control failed it); screenshots `research-*-11-preview-unavailable-notice` |
+| R2-N2 | Config-error retries uncapped; 4xx after a rejected output returned system | `config_errors` per job (second -> `unavailable`, logged once); 4xx after a rejection completes with the fallback | `AI config errors are capped per job; after a rejected output a 4xx finishes with the fallback` |
+| F7 nit | Privacy claimed a counter on the WAF-only path | "When enabled, ..." | build output |
+| F13 nits | Renewal not owner-checked; renewal failure consumed an attempt | `lease_token` on claim; renewal `WHERE id AND lease_token` before reserving a call; failed or lost renewal consumes nothing | `lease renewal is owner-checked and never consumes an attempt...` |
+| Domain false positive | "rates.Co-signing" | Domain needs scheme, www, slash or a known TLD | `ordinary planning interpretations pass...` |
+| Concurrency | No same-requestId concurrency test | Added | `concurrent submissions with the same requestId: one 200, the rest 409, one HubSpot, one AI` |
+
+Migration note: `migrations/0001_research.sql` gained `lease_token` and `config_errors`. It has never been applied anywhere (owner action pending), so the first migration is edited in place rather than adding 0002.
+
+## V1 round 4 (implementer, after R1 round 2)
+
+Head `10b2721` (base `860e08d`). Diff excluding docs/reviews SHA-256 `c2161c24715000bbaef07cbefdc7ee89c4ce741bb0abfc72e83d5d9797cf8c41`; round-4 delta 3df460b..10b2721 SHA-256 `799e015cb0c6a5e837257a9518926c9a07a91197de0f3fcc247d90734f141aa0`. Implementer: Claude Opus 5.5. Not independent.
+
+Checks on `10b2721`: `npm run check` 0 errors/0 warnings/4 existing hints; `npx tsc --noEmit` clean; `npm run test:planners` 95/95; `npm run build` 71 pages; CI-gate unittest OK; `git diff --check` clean. Negative controls: keeping model text in facts and reverting availability to the old rule failed 2 tests; restored, all pass.
+
+Browser (local, mocked Turnstile/HubSpot/OpenAI/Meta, 390px and 1280px): production-gated preview shows the up-front notice with the form disabled; 5 confirmation statuses correct with rendered fact/estimate sentences and no brief number missing from the tables; full error-class journey re-run (0 lead events on failures, 1 on success, 0 after reload).
+
 ## R2 / re-review
 
-Pending for `0f12137`. No passing independent review is claimed.
+Pending for `10b2721`. No passing independent review is claimed.
 
 ## CI and integration
 
