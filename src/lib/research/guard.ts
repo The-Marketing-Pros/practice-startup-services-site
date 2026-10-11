@@ -29,7 +29,9 @@ export const BRIEF_HEADINGS = [
 ];
 export const MAX_REFS_PER_STATEMENT = 4;
 
-const IDIOMS = /\b(one-on-one|third-party|third-parties|double-check(?:ed|ing|s)?|double-book(?:ed|ing|s)?|half-days?|two-way|first-pass|IV\s+(?:therapy|infusions?|hydration|fluids))\b/gi;
+// Domain terms that look like quantities but name things: Medicare parts, diabetes types,
+// hepatitis strains, Title X, C-sections, IV care, X-rays, ownership structures.
+const IDIOMS = /\b(one-on-one|third-party|third-parties|double-check(?:ed|ing|s)?|double-book(?:ed|ing|s)?|half-days?|two-way|first-pass|IV\s+(?:therapy|infusions?|hydration|fluids|sedation|access|medications?)|Part\s+[A-D]|Type\s+(?:1|2|I|II)\s+diabetes|Hepatitis\s+[A-E]|Title\s+X|C-sections?|X[\s-]rays?|majority-owned|minority-owned)\b/gi;
 const CARDINALS =
   "two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fourty|fifty|sixty|seventy|eighty|ninety";
 // Each pattern is a reason code; any hit rejects an interpretation.
@@ -45,9 +47,10 @@ export const INTERPRETATION_BANS: Array<[string, RegExp]> = [
   ["ordinal", /\b\w*(hundredth|thousandth|millionth|billionth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth|fortieth|fiftieth|sixtieth|seventieth|eightieth|ninetieth)s?\b/i],
   ["ordinal", /\b(second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)[-\s]+(largest|biggest|highest|fastest|smallest|lowest|busiest|best|worst|most|least|oldest|youngest)\b/i],
   // Roman numerals II and up (case-sensitive; "X-ray" excluded).
-  ["roman", /\b(II|III|IV|VI|VII|VIII|IX|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|XXX|XL|L|C)\b|\b[VX]\b(?!-)/],
+  // Single letters L and C are left out: they are far more often names (Part C, Hepatitis C) than numbers.
+  ["roman", /\b(II|III|IV|VI|VII|VIII|IX|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|XXX|XL)\b|\b[VX]\b(?!-)/],
   ["unit", /\b(percent|percentage|per\s?cent|pct|dollars?|bucks|cents?)\b|[%$]/i],
-  ["multiplier", /\b(doubled?|tripled?|quadrupled?|(?:quin|sex)tupled?|\w+fold|fold\s+increase)\b/i],
+  ["multiplier", /\b(doubled?|tripled?|quadrupled?|(?:quin|sex)tupled?|(?:two|three|four|five|six|seven|eight|nine|ten|hundred|thousand|many|several|multi)fold|fold\s+increase)\b/i],
   ["url", /(https?:|:\/\/|www\.|javascript:|\b[a-z0-9-]+\.(gov|com|org|net|edu|us|info)\b(?:\/|\s|$|[.,;)]))/i],
   ["markup", /[<>]|\]\(/],
 ];

@@ -98,6 +98,30 @@ test("ordinary planning interpretations pass (idioms allowlisted, 'most of' allo
     assert.deepEqual(interpretationProblems(ok, facts, inputs), [], ok);
 });
 
+test("round-4: medical and practice names are not mistaken for numbers", async () => {
+  const facts = await sampleFacts();
+  const inputs = briefInputs(PROFILE, facts);
+  for (const ok of [
+    "Ask which Medicare Part C plans are common before you enroll.",
+    "Plan follow-up visits for patients with Type II diabetes.",
+    "Confirm hospital privileges before offering C-sections.",
+    "Screening for Hepatitis C can shape your lab contracts.",
+    "Ask whether Title X clinics already serve the area.",
+    "Price IV sedation separately from office visits.",
+    "Budget for X ray shielding before the build-out.",
+    "Decide whether the practice will be majority-owned by clinicians.",
+    "Unfold the plan in stages and scaffold your hiring.",
+  ])
+    assert.deepEqual(interpretationProblems(ok, facts, inputs), [], ok);
+  for (const [text, code] of [
+    ["Demand grew twofold.", "multiplier"],
+    ["Visits will rise manyfold.", "multiplier"],
+    ["This is Phase III of the market.", "roman"],
+    ["The majority are insured.", "fraction"],
+  ] as const)
+    assert.ok(interpretationProblems(text, facts, inputs).some(p => p.includes(code)), text);
+});
+
 test("round-3 reviewer pass-through strings are rejected", async () => {
   const facts = await sampleFacts();
   const inputs = briefInputs(PROFILE, facts);

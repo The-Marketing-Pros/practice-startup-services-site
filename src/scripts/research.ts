@@ -332,6 +332,8 @@ function showResult(r: GateSuccess) {
   renderPreview(r.facts, r.facts.profile as ReturnType<typeof readProfile>);
   $("confirm-title").textContent = confirmationHeading(r.briefStatus);
   $("confirm-next").textContent = r.brief ? "your brief and PDF are below." : "your data tables and checklist are above, and the PDF is ready to download.";
+  // The result is shown either way; say so when our copy could not be stored.
+  if (r.saved === false) $("confirm-next").textContent += " We could not store a copy on our side, so please download your PDF now.";
   $("confirm-ref").textContent = r.reference;
   const note = briefStatusNote(r.briefStatus);
   $("confirm-note").hidden = !note;
