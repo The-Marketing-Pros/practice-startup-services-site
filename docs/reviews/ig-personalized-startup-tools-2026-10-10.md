@@ -112,9 +112,21 @@ Checks on `10b2721`: `npm run check` 0 errors/0 warnings/4 existing hints; `npx 
 
 Browser (local, mocked Turnstile/HubSpot/OpenAI/Meta, 390px and 1280px): production-gated preview shows the up-front notice with the form disabled; 5 confirmation statuses correct with rendered fact/estimate sentences and no brief number missing from the tables; full error-class journey re-run (0 lead events on failures, 1 on success, 0 after reload).
 
+## R1 round 3 (received)
+
+Same independent agent channel, reviewed `10b2721` (base `860e08d`). Verdict: **CLEAR**. F1 fixed by design; R2-N1 and R2-N2 fixed. Suggested final hardening (non-blocking): extra interpretation bans (-fold words, quintupled/sextupled, zero, score/pair/handful of, trio, standalone majority/minority, large/teen ordinals, ranked superlatives, Roman numerals II+) and idioms (double-book, half-day, two-way); server-side heading check; refs de-dup and cap; REQUIRED D1 pre-apply check because 0001 was edited in place; optional lease-token condition on release/save; rate-limited `preview_blocked_unconfigured` log. The CLEAR verdict covers `10b2721` only; the follow-up below changed code and is not covered by it.
+
+## V1 round 5 (implementer, after R1 round 3)
+
+Head `a32e2a0` (base `860e08d`). Diff excluding docs/reviews SHA-256 `f552123ac884cb971153389b6ad29c1287330fa9ce836e98dfde0ca79d694219`; round-5 delta 2223ab2..a32e2a0 SHA-256 `5eb133f2c600fe0cc0eff897b032d08f6af391dbddbc49662170f3e0891d31d2`. Implementer: Claude Opus 5.5. Not independent.
+
+All suggestions implemented, including the optional lease-token condition. Tests: `round-3 reviewer pass-through strings are rejected`, `ordinary planning interpretations pass...` (new idioms), `headings must be one of the fixed headings...`, `refs are de-duplicated and capped at four per statement`, `preview_blocked_unconfigured is logged once per isolate...`, `release and save only write while this request still holds the lease`. Docs: D1 pre-apply step in `docs/research-deployment.md`.
+
+Checks on `a32e2a0`: `npm run check` 0 errors/0 warnings/4 existing hints; `npx tsc --noEmit` clean; `npm run test:planners` 100/100; `npm run build` 71 pages; CI-gate unittest OK; `git diff --check` clean. Browser smoke (local, mocked providers, 390/1280): all 5 confirmation statuses correct, one lead event each, no brief number missing from the tables.
+
 ## R2 / re-review
 
-Pending for `10b2721`. No passing independent review is claimed.
+R1 round 3 returned CLEAR for `10b2721`. The round-5 follow-up (`a32e2a0`) has not been independently reviewed.
 
 ## CI and integration
 
