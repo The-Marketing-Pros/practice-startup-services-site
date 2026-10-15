@@ -8,7 +8,7 @@ import { competitorNote, competitorUrl } from "../lib/research/competitors";
 import type { Brief } from "../lib/research/guard";
 import { briefStatusNote, confirmationHeading, type ResearchResult } from "../lib/research/pdf";
 import { attributionPayload } from "../lib/attribution";
-import { requestJson, type Outcome } from "../lib/research/client";
+import { requestJson, gateFailureMessage, type Outcome } from "../lib/research/client";
 import { trackLead, trackToolDownload, trackToolUse } from "../lib/measure";
 import { newChecklist, visibleTasks, priorityTasks, type Checklist } from "../lib/planners/checklist";
 import { personalTaskIds } from "../lib/planners/personal-tasks";
@@ -280,7 +280,7 @@ gateForm.addEventListener("submit", async (e) => {
     fieldError("g-verification", "Complete the verification check again.");
     gateStatus.textContent = MESSAGES.verification;
   } else {
-    gateStatus.textContent = (kind === "provider" && f?.message) || MESSAGES[kind] || MESSAGES.system;
+    gateStatus.textContent = gateFailureMessage(f, MESSAGES[kind] || MESSAGES.system);
     if (kind === "unavailable") {
       gateAvailable = false;
       syncGate();

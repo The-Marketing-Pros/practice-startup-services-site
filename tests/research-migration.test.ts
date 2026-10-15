@@ -17,7 +17,7 @@ test("HubSpot attempt migration preserves populated jobs and saved report conten
   assert.equal(after.length, before.length);
   after.forEach((row, i) => {
     const { hubspot_attempted, ...original } = row;
-    assert.equal(hubspot_attempted, 0);
+    assert.equal(hubspot_attempted, row.id === "pending" ? 1 : 0);
     assert.deepEqual(original, { ...before[i] });
   });
   db.close();

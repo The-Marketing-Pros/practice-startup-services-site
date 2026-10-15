@@ -7,6 +7,7 @@ import { createD1, type Fault } from "./helpers/d1.ts";
 import { nppesRecord, nppesBody, URBAN_ACS, stubFetch, jsonResponse } from "./fixtures/research.ts";
 import { GOOD_BRIEF, PROFILE, openAiResponse } from "./fixtures/brief.ts";
 import { CONSENT_TEXT } from "../src/lib/research/copy.ts";
+import { classifyResponse, gateFailureMessage } from "../src/lib/research/client.ts";
 
 const ORIGIN = "https://practicestartupservices.com";
 const NOW = new Date("2026-10-10T15:00:00Z");
@@ -575,6 +576,13 @@ test("ambiguous HubSpot response loss and server errors never resubmit the lead"
       assert.equal(result.status, 500);
       assert.equal(result.json.reference, "PSS-11111111");
       assert.match(result.json.message, /could not confirm/);
+      const browserOutcome = classifyResponse(result.status, "application/json", JSON.stringify(result.json));
+      assert.equal(browserOutcome.type, "failure");
+      if (browserOutcome.type === "failure") {
+        const visibleMessage = gateFailureMessage(browserOutcome, "Please try again.");
+        assert.match(visibleMessage, /contact PSS/);
+        assert.match(visibleMessage, /PSS-11111111/);
+      }
     }
     assert.equal(stub.count(HUB), 1);
     assert.equal(stub.count(AI), 0);
