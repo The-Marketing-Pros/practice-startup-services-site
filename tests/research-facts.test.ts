@@ -226,10 +226,13 @@ test("Census authentication failure is not cached and recovers when a key is sup
     }
     return jsonResponse(nppesBody([]));
   };
-  const missing = await buildFacts(urbanOrtho, { fetcher, cache, now: NOW });
+  const logs: unknown[] = [];
+  const missing = await buildFacts(urbanOrtho, { fetcher, cache, censusKey: "invalid-secret", now: NOW, log: (event, detail) => logs.push({ event, ...detail }) });
   assert.equal(missing.sections.acs.status, "error");
+  assert.deepEqual(logs, [{ event: "census_unavailable", code: "key_required" }]);
+  assert.ok(!JSON.stringify(logs).includes("invalid-secret"));
   assert.equal(missing.facts.some((fact) => fact.sourceId === "acs"), false);
-  const recovered = await buildFacts(urbanOrtho, { fetcher, cache, censusKey: "test-key", now: NOW });
+  const recovered = await buildFacts(urbanOrtho, { fetcher, cache, censusKey: " test-key\n", now: NOW });
   assert.equal(recovered.sections.acs.status, "ok");
   assert.equal(recovered.facts.find((fact) => fact.id === "acs_population")?.value, 54321);
   await buildFacts(urbanOrtho, { fetcher, cache, censusKey: "test-key", now: NOW });

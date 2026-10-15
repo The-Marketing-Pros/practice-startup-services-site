@@ -7,6 +7,11 @@ export type Outcome =
   | { type: "success"; body: Record<string, unknown> }
   | { type: "failure"; kind: FailureKind; message?: string; field?: string };
 
+/** Preserve actionable server instructions; render the returned value as text. */
+export function gateFailureMessage(failure: Extract<Outcome, { type: "failure" }>, fallback: string): string {
+  return ((failure.kind === "provider" || failure.kind === "system") && failure.message) || fallback;
+}
+
 /**
  * Success only for HTTP 200 + JSON content type + `ok: true`. A non-JSON body
  * (an HTML error page, a proxy timeout) is never parsed as data.
