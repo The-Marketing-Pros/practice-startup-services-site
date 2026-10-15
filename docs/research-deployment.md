@@ -18,7 +18,7 @@ All server logic is in `src/lib/research/handler.ts` and is type-checked by `npm
 
 | Name | Type | Required for | Who sets | While unset |
 | --- | --- | --- | --- | --- |
-| `CENSUS_API_KEY` | secret | Census figures in the preview | Owner (free key: https://api.census.gov/data/key_signup.html) | Verified 2026-10-10: the Census API now redirects keyless requests to a "missing key" page. The preview shows "Census data is not available right now" and still shows NPPES counts and the checklist. |
+| `CENSUS_API_KEY` | secret | Census figures in the preview | Owner (free key: https://api.census.gov/data/key_signup.html) | Verified 2026-10-10: the Census API now redirects keyless requests to a "missing key" page. The preview shows "Area demographics are temporarily unavailable" and labels the result as partial, while still showing available NPPES counts and the checklist. |
 | `RESEARCH_DB` | D1 binding | gate (required), preview cache + soft IP cap (optional) | Owner: create a dedicated D1 database, apply `migrations/0001_research.sql`, bind as `RESEARCH_DB` | Preview works uncached. Gate unavailable. |
 | `RESEARCH_ENABLED` | var `true` | gate kill switch | Owner | Gate unavailable. Set to anything else to stop all paid calls instantly. |
 | `RESEARCH_HASH_SECRET` | secret | email/IP hashing | Owner (random 32+ bytes) | Gate unavailable. |
@@ -92,3 +92,12 @@ NPPES_MODE=live CENSUS_MODE=live PORT=8800 node --experimental-strip-types scrip
 ## Rollback
 
 Set `RESEARCH_ENABLED` to anything but `true` (gate off) and/or `RESEARCH_PREVIEW_DISABLED=true` (preview off); no redeploy needed. Full rollback: revert the merge commit. The checklist and pro forma read older backups, and new fields are optional, so reverting does not break saved plans except that personalized task progress (`p-*` IDs) is ignored by the old parser.
+
+
+## Census configuration follow-up (2026-10-15)
+
+Wrangler secret-name inspection found no `CENSUS_API_KEY` in either the preview or production environment of the `practice-startup-services` Pages project. No Census value was found in the current process environment or relevant project configuration. Census now requires an activated free key for data queries; obtain it through https://api.census.gov/data/key_signup.html. Configuration remains pending receipt of that key. The visitor-copy change does not restore Census data.
+
+Store the activated key as a server-side Pages secret named `CENSUS_API_KEY` in the intended environment, then redeploy that environment so the Functions receive it. Do not use a `PUBLIC_` variable, commit the key, include it in screenshots, or paste it into shell arguments. Verify a live preview for a ZIP with an ACS ZCTA returns `sections.acs.status: ok` and the four sourced demographic facts before marking this issue resolved. Do not enable the paid research gate as part of this fix.
+
+The local verification server now accepts `CENSUS_API_KEY` from its process environment when `CENSUS_MODE=live`; other providers remain controlled by its existing mock settings. Local mock success is not live acceptance.
