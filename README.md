@@ -47,7 +47,7 @@ Tailwind class names are unchanged.
 
 ## Outstanding blockers
 
-- ~~**CRM scheduling URL** (`{{SCHEDULE_URL}}`)~~ — resolved: production scheduler URL wired in `src/data/site.ts` (`scheduleUrl`).
+- ~~**CRM scheduling URL** (`{{SCHEDULE_URL}}`)~~ — resolved: official PPS scheduler URL in `src/config/site.ts`, re-exported as `SITE.scheduleUrl`. Startup consulting preselects the startup category.
 - **OG cards + raster favicons** — still rendered in the pre-refresh navy brand; regenerate in the charcoal/brass system (raster tooling required; `favicon.svg` is already updated).
 - **Testimonials** — `src/data/testimonials.ts` is integrity-gated; nothing renders until a real, permissioned quote is set to `status: "published"`.
 
