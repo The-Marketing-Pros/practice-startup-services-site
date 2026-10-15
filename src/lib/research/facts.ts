@@ -133,7 +133,8 @@ export function parseAcs(body: unknown): AcsResult | null {
 export function acsUrl(zip: string, key?: string): string {
   const vars = ["NAME", ...Object.values(ACS_VARIABLES).flatMap((v) => [v.estimate, v.moe])].join(",");
   const u = `https://api.census.gov/data/${ACS_YEAR}/acs/acs5/profile?get=${vars}&for=zip%20code%20tabulation%20area:${zip}`;
-  return key ? `${u}&key=${encodeURIComponent(key)}` : u;
+  const cleanKey = key?.trim();
+  return cleanKey ? `${u}&key=${encodeURIComponent(cleanKey)}` : u;
 }
 
 export async function fetchAcs(zip: string, fetcher: Fetcher, key?: string): Promise<AcsResult | null> {
@@ -283,7 +284,7 @@ function fact(f: Omit<Fact, "moeDisplay" | "capped" | "note"> & Partial<Pick<Fac
   return { capped: false, note: "", moeDisplay: "", ...f };
 }
 
-export type BuildDeps = { fetcher: Fetcher; cache?: Cache; censusKey?: string; now?: Date };
+export type BuildDeps = { fetcher: Fetcher; cache?: Cache; censusKey?: string; now?: Date; log?: (event: string, detail: Record<string, unknown>) => void };
 
 /** Fetch, cache and assemble the preview facts. Each section fails independently. */
 export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Promise<FactsBundle> {
@@ -313,7 +314,9 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
       await cache.put(key, JSON.stringify(acs), 30 * 86400).catch(() => {});
     }
     if (!acs) sections.acs = { status: "unavailable", message: `No Census ZIP Code Tabulation Area matches ${zip}. This is common for PO box and single-building ZIP codes.` };
-  } catch {
+  } catch (error) {
+    // Emit only our own error code, never request URLs, keys or response bodies.
+    deps.log?.("census_unavailable", { code: error instanceof UpstreamError ? error.code : "unknown" });
     sections.acs = { status: "error", message: "Area demographics are temporarily unavailable. You can still explore the other sections below or try again later." };
   }
   const zcta = `ZCTA ${zip}`;
