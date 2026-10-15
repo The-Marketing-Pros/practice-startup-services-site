@@ -1,0 +1,119 @@
+---
+import { STARTUP_CONSULT_BOOKING_URL } from '@config/site';
+import { phases } from '@data/phases';
+import '@styles/learning.css';
+
+const support = [
+  { number: '01', title: 'A plan for your practice', body: 'Clarify your practice model, priorities, location, and launch sequence. Turn the work ahead into decisions, owners, and next steps.' },
+  { number: '02', title: 'Numbers you can work with', body: 'Build a startup budget and pro forma around your assumptions. Understand working capital, operating costs, and the time between opening and getting paid.' },
+  { number: '03', title: 'Payers in the picture early', body: 'Coordinate credentialing and enrollment with the rest of your launch. Keep application requirements, follow-up, and payer effective dates visible.' },
+  { number: '04', title: 'People and systems that fit', body: 'Work through staffing, EHR, billing, and vendor decisions together, with a focus on how your practice will operate day to day.' },
+  { number: '05', title: 'A coordinated opening', body: 'Connect your patient access, website, team preparation, and office workflows. Identify what needs to be ready before your first patient.' },
+  { number: '06', title: 'Support as you find your rhythm', body: 'Plan how you will review operations, revenue, and the next priorities after opening. Agree on the support and scope that fit your practice.' },
+];
+---
+
+<div class="learning">
+  <section class="learn-hero">
+    <div class="learn-wrap">
+      <nav class="consult-breadcrumb" aria-label="Breadcrumb">
+        <a href="/services/">PPS services</a><span aria-hidden="true">/</span><span>Practice startup consulting</span>
+      </nav>
+      <div class="learn-hero-grid">
+        <div>
+          <div class="learn-eyebrow">Practice startup consulting</div>
+          <h1 class="learn-title">Your practice,<br />taking shape.<br /><em>A team to help you launch.</em></h1>
+          <p class="learn-intro">You bring the vision for your practice. PPS helps connect the budget, payer enrollment, people, and systems in a launch plan built around you.</p>
+          <div class="learn-actions">
+            <a class="learn-btn" href={STARTUP_CONSULT_BOOKING_URL}>Schedule a consultation <span aria-hidden="true">&nbsp;→</span></a>
+            <a class="learn-btn secondary" href="#consulting-support">Explore how we help</a>
+          </div>
+          <p class="learn-note">A free first conversation with Physician Practice Specialists.</p>
+          <div class="learn-people">
+            <div class="learn-faces" aria-hidden="true">
+              <img src="/images/team/lindsay-pauly.webp" alt="" width="42" height="42" />
+              <img src="/images/team/tonya-barry.webp" alt="" width="42" height="42" />
+              <img src="/images/team/marisa-martell.webp" alt="" width="42" height="42" />
+            </div>
+            <span>Real PPS people, working toward your opening day.</span>
+          </div>
+        </div>
+        <aside class="learn-roadmap" aria-label="Your practice launch roadmap">
+          <div class="learn-eyebrow">The way forward</div>
+          <h2>One connected plan.<br />Seven stages of your launch.</h2>
+          <ol>{phases.map(phase => (
+            <li><a href={`/journey/${phase.slug}/`}><span class="learn-roadmap-number">{phase.id}</span><span class="learn-roadmap-label">{phase.title}</span></a></li>
+          ))}</ol>
+          <p class="learn-roadmap-foot">Start where you are. Your specialty, location, and outside dependencies shape the pace.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="learn-section" id="consulting-support">
+    <div class="learn-wrap">
+      <div class="learn-heading"><div>
+        <div class="learn-eyebrow">Bring the moving parts together</div>
+        <h2>Practical help for the decisions ahead.</h2>
+        <p>From the first business questions to daily operations, build a scope around the work your practice needs.</p>
+      </div></div>
+      <div class="learn-grid">
+        {support.map(item => (
+          <article class="learn-card"><span class="learn-tag" aria-hidden="true">{item.number}</span><h3>{item.title}</h3><p>{item.body}</p></article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="learn-section">
+    <div class="learn-wrap learn-split">
+      <div>
+        <div class="learn-eyebrow">A conversation before a commitment</div>
+        <h2>Start with where you are. Work out what comes next.</h2>
+        <p class="learn-intro">Whether you are exploring the idea or already preparing to open, bring your questions to PPS. We will talk through your priorities and the support that makes sense.</p>
+        <div class="learn-actions"><a class="learn-btn" href={STARTUP_CONSULT_BOOKING_URL}>Talk to a startup specialist</a></div>
+      </div>
+      <div class="learn-panel consult-first-call">
+        <h3>Make your first conversation useful.</h3>
+        <ol class="learn-list">
+          <li><strong>Share your starting point.</strong> Your specialty, state, practice model, and target opening date.</li>
+          <li><strong>Bring the open questions.</strong> Budget, payer enrollment, staffing, systems, or the next decision holding you up.</li>
+          <li><strong>Discuss the right scope.</strong> Review the work, responsibilities, timing, and fees before deciding how to proceed.</li>
+        </ol>
+        <p class="learn-note">Already have a checklist or pro forma? Bring it along. Early assumptions are a useful starting point.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="learn-section">
+    <div class="learn-wrap">
+      <div class="learn-heading"><div>
+        <div class="learn-eyebrow">Keep making progress</div>
+        <h2>Useful tools, wherever you are in the process.</h2>
+        <p>Start your plan now, then bring it to the conversation.</p>
+      </div></div>
+      <div class="learn-grid">
+        <article class="learn-card"><span class="learn-tag">Free planning tool</span><h3>Your launch checklist</h3><p>Organize tasks, owners, and target dates around your practice.</p><a class="learn-link" href="/resources/startup-checklist/">Build my checklist</a></article>
+        <article class="learn-card"><span class="learn-tag">Free planning tool</span><h3>Your startup numbers</h3><p>Explore costs, revenue assumptions, and working capital in the pro forma builder.</p><a class="learn-link" href="/resources/pro-forma/">Build my pro forma</a></article>
+        <article class="learn-card"><span class="learn-tag">Practical guidance</span><h3>Your launch roadmap</h3><p>Explore the seven stages and the work to consider at each step.</p><a class="learn-link" href="/journey/">Explore the launch guides</a></article>
+      </div>
+      <div class="consult-guides"><a class="learn-link" href="/specialty/">Guides for your specialty</a><a class="learn-link" href="/states/">Guides for your state</a></div>
+    </div>
+  </section>
+
+  <section class="learn-section">
+    <div class="learn-wrap"><div class="learn-support">
+      <div><h2>Your practice. Your plan. People beside you.</h2><p>Tell us what you are building. Let’s work through the next steps together.</p></div>
+      <a class="learn-btn" href={STARTUP_CONSULT_BOOKING_URL}>Schedule a consultation</a>
+    </div></div>
+  </section>
+</div>
+
+<style>
+  .consult-breadcrumb{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:#52627b;margin-bottom:32px;align-items:center}
+  .consult-breadcrumb a{text-decoration:underline;text-underline-offset:4px;min-height:44px;display:inline-flex;align-items:center}
+  .consult-first-call h3{font-size:24px;line-height:1.25;margin-bottom:20px}
+  .consult-first-call ol{list-style:decimal}
+  .consult-first-call strong{color:#142647}
+  .consult-guides{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:24px}
+</style>

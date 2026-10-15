@@ -23,9 +23,9 @@ export const services: Service[] = [
     name: "Practice Startup Consulting",
     crewLabel: "Build crew for end-to-end practice launch",
     scopeBadge: "end-to-end",
-    outcomeHeadline: "From decision to first patient without the expensive mistakes.",
+    outcomeHeadline: "Your practice, taking shape. A team to help you launch.",
     outcomeSub:
-      "End-to-end advisory through the full 7-phase launch. We've done this before. You'll get the order of operations right the first time.",
+      "Plan your independent practice with PPS. Connect your budget, payer enrollment, people, and systems in a launch plan built around you.",
     primaryPhase: "02",
     secondaryPhases: ["01", "03", "05", "06"],
     whatsIncluded: [

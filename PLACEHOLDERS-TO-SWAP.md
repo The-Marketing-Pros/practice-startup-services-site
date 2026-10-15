@@ -3,9 +3,7 @@
 Temporary values wired into the site so previews work. Each must be replaced
 with the real value before (or at) launch. Replace, then delete the row.
 
-| # | What | Where | Temp value | Replace with |
-|---|------|-------|------------|--------------|
-| 1 | **Consultation booking URL** | `src/config/site.ts` → `CONSULT_BOOKING_URL` (single source of truth — consumed by Hero, FinalCta, nav header, mobile menu, and About) | `https://prompt-platform-bay.vercel.app/book/meet-metolius` | The real CRM meeting link for Practice Startup Services. |
+No outstanding booking placeholder. On 2026-10-15, `src/config/site.ts` was updated to the official PPS scheduling page at `https://physicianpracticespecialists.com/schedule-meeting/`. The consulting page uses its verified `?category=startup` selection.
 
 ## Notes
 

@@ -269,11 +269,14 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
     <!-- Scroll reveal — inverted pattern (locked agency standard).
          The hidden state only exists once this script runs, in the same tick
          that the observer attaches. No JS → everything stays visible. -->
-    <script is:inline>
+    <script is:inline define:vars={{ consultBookingUrl: SITE.scheduleUrl }}>
       (function () {
         document.addEventListener("click", function (event) {
-          var link = event.target && event.target.closest && event.target.closest('a[href*="prompt-platform-bay.vercel.app/book/meet-metolius"]');
+          var link = event.target && event.target.closest && event.target.closest('a[href]');
           if (!link || window.__ppsConsultationClickConversionFired) return;
+          var destination = new URL(link.href);
+          var booking = new URL(consultBookingUrl);
+          if (destination.origin !== booking.origin || destination.pathname !== booking.pathname) return;
           window.__ppsConsultationClickConversionFired = true;
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({ event: "consultation_booking_click", brand: "PPS" });
