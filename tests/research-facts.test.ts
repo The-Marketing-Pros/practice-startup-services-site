@@ -116,7 +116,8 @@ test("capped ZIP counts say 'at least N (registry limit reached)' and suppress t
 test("each section fails independently: Census key redirect, Census no ZCTA, NPPES non-JSON", async () => {
   const keyMissing = await buildFacts(urbanOrtho, { fetcher: upstream({ acsRedirect: "https://api.census.gov/data/missing_key.html" }).fetcher, now: NOW });
   assert.equal(keyMissing.sections.acs.status, "error");
-  assert.match(keyMissing.sections.acs.message, /API key/);
+  assert.match(keyMissing.sections.acs.message, /temporarily unavailable/);
+  assert.doesNotMatch(keyMissing.sections.acs.message, /API key|configur/i);
   assert.equal(keyMissing.sections.nppes.status, "ok");
   assert.equal(keyMissing.estimates.length, 0);
   const noZcta = await buildFacts(urbanOrtho, { fetcher: upstream({ acsStatus: 204 }).fetcher, now: NOW });
@@ -209,4 +210,28 @@ test("cached NPPES results keep and show their original retrieval date", async (
   const src = later.sources.find((x) => x.id === "nppes")!;
   assert.equal(src.retrieved, "2026-10-03");
   assert.match(src.vintage, /retrieved 2026-10-03/);
+});
+
+
+test("Census authentication failure is not cached and recovers when a key is supplied", async () => {
+  const stored = new Map<string, string>();
+  const cache: Cache = { get: async (key) => stored.get(key) ?? null, put: async (key, value) => { stored.set(key, value); } };
+  let censusCalls = 0;
+  const fetcher = async (url: string) => {
+    if (url.includes("api.census.gov")) {
+      censusCalls++;
+      if (new URL(url).searchParams.get("key") !== "test-key")
+        return new Response(null, { status: 302, headers: { Location: "https://api.census.gov/data/missing_key.html" } });
+      return jsonResponse(URBAN_ACS);
+    }
+    return jsonResponse(nppesBody([]));
+  };
+  const missing = await buildFacts(urbanOrtho, { fetcher, cache, now: NOW });
+  assert.equal(missing.sections.acs.status, "error");
+  assert.equal(missing.facts.some((fact) => fact.sourceId === "acs"), false);
+  const recovered = await buildFacts(urbanOrtho, { fetcher, cache, censusKey: "test-key", now: NOW });
+  assert.equal(recovered.sections.acs.status, "ok");
+  assert.equal(recovered.facts.find((fact) => fact.id === "acs_population")?.value, 54321);
+  await buildFacts(urbanOrtho, { fetcher, cache, censusKey: "test-key", now: NOW });
+  assert.equal(censusCalls, 2, "only successful Census data should be reused from cache");
 });

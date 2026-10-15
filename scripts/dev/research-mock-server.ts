@@ -90,6 +90,7 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
 
 function env(): ResearchEnv {
   const base: ResearchEnv = {
+    CENSUS_API_KEY: process.env.CENSUS_API_KEY,
     RESEARCH_ENABLED: "true",
     RESEARCH_DB: d1,
     RESEARCH_HASH_SECRET: "local-dev-only",

@@ -313,9 +313,8 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
       await cache.put(key, JSON.stringify(acs), 30 * 86400).catch(() => {});
     }
     if (!acs) sections.acs = { status: "unavailable", message: `No Census ZIP Code Tabulation Area matches ${zip}. This is common for PO box and single-building ZIP codes.` };
-  } catch (e) {
-    const code = e instanceof UpstreamError ? e.code : "unknown";
-    sections.acs = { status: "error", message: code === "key_required" ? "Census data is not available right now (the site's Census API key is not configured)." : "Census data is temporarily unavailable. Try again later." };
+  } catch {
+    sections.acs = { status: "error", message: "Area demographics are temporarily unavailable. You can still explore the other sections below or try again later." };
   }
   const zcta = `ZCTA ${zip}`;
   if (acs) {

@@ -149,7 +149,9 @@ profileForm.addEventListener("submit", async (e) => {
     profileKey = JSON.stringify(p);
     if (result && JSON.stringify(result.facts.profile) !== profileKey) resetResult();
     renderPreview(facts, p);
-    previewStatus.textContent = "Your preview is ready below.";
+    previewStatus.textContent = Object.values(facts.sections).some((section) => section.status !== "ok")
+      ? "Your preview is ready below, with some public data unavailable. See the notes in each section."
+      : "Your preview is ready below.";
     if (window.matchMedia("(max-width: 900px)").matches) $("research-results").scrollIntoView({ block: "start" });
     trackToolUse("research_preview");
     syncGate();
