@@ -8,6 +8,7 @@ export type Fault = { match: RegExp; error: string; times?: number; method?: "fi
 export function createD1(opts: { faults?: Fault[]; hideFirstSelects?: number } = {}) {
   const db = new DatabaseSync(":memory:");
   db.exec(readFileSync(new URL("../../migrations/0001_research.sql", import.meta.url), "utf8"));
+  db.exec(readFileSync(new URL("../../migrations/0002_competitor_search.sql", import.meta.url), "utf8"));
   const faults = opts.faults ?? [];
   let hide = opts.hideFirstSelects ?? 0;
   const statements: string[] = [];

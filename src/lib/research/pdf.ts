@@ -4,6 +4,7 @@
 import { pdfDocument } from "../planners/downloads.ts";
 import type { FactsBundle } from "./facts.ts";
 import type { Brief } from "./guard.ts";
+import { competitorNote, competitorUrl, type CompetitorResearch } from "./competitors.ts";
 import type { Task } from "../planners/checklist.ts";
 
 export type ResearchResult = {
@@ -12,6 +13,7 @@ export type ResearchResult = {
   facts: FactsBundle;
   brief: Brief | null;
   briefStatus: string;
+  competitors?: CompetitorResearch;
 };
 
 const KIND_LABEL: Record<string, string> = { fact: "Fact", estimate: "Estimate", interpretation: "Interpretation" };
@@ -79,6 +81,22 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
   } else pdf.line(briefStatusNote(result.briefStatus));
 
   pdf.space();
+  if (result.competitors) {
+    pdf.line("Potential competitors to investigate", 14, true);
+    pdf.line(competitorNote(result.competitors), 9);
+    if (result.competitors.retrieved) pdf.line(`Brave Search | Retrieved ${result.competitors.retrieved.slice(0, 10)} | Query: ${result.competitors.query}`, 9);
+    for (const item of result.competitors.items) {
+      const url = competitorUrl(item.url);
+      if (!url) continue;
+      pdf.keep(32);
+      pdf.line(item.title, 11, true);
+      if (item.description) pdf.line(`Search excerpt: ${item.description}`, 9);
+      pdf.link(url, url);
+      pdf.space();
+    }
+    pdf.line("Before positioning your practice, compare services, geography, payer participation and appointment access directly with each practice.", 9);
+    pdf.space();
+  }
   pdf.line("Your tailored startup checklist", 14, true);
   pdf.line(plan.summary, 9);
   pdf.line(`${plan.total} tasks in your plan. Steps added for your situation:`);

@@ -13,6 +13,7 @@ import { validateGate, validateProfile, referenceFor, ValidationError, type Fail
 import { buildFacts, type Cache, type FactsBundle, type Fetcher } from "./facts.ts";
 import { generateBrief, briefInputs, ProviderError } from "./brief.ts";
 import { validateBrief, citableIds, type Brief } from "./guard.ts";
+import { researchCompetitors } from "./competitors.ts";
 import { CONSENT_TEXT, MARKETING_TEXT } from "./copy.ts";
 
 export interface ResearchEnv {
@@ -30,6 +31,8 @@ export interface ResearchEnv {
   RESEARCH_DAILY_PER_EMAIL?: string;
   RESEARCH_DAILY_PER_IP?: string;
   CENSUS_API_KEY?: string;
+  BRAVE_SEARCH_API_KEY?: string;
+  RESEARCH_MAX_SEARCH_CALLS_PER_DAY?: string;
   RESEARCH_PREVIEW_DISABLED?: string;
   RESEARCH_PREVIEW_DAILY_PER_IP?: string;
   /** "true" only after the owner adds a Cloudflare rate-limiting rule for the preview endpoint. */
@@ -582,6 +585,19 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     }
   }
 
+  // Search only after the gated brief attempt, never from the free preview.
+  // A missing migration/key, exhausted budget or outage leaves other sections usable.
+  const competitors = await researchCompetitors(facts, {
+    fetcher: deps.fetcher, apiKey: env.BRAVE_SEARCH_API_KEY,
+    cache: d1Cache(db, now), now: now(), log: deps.log,
+    reserve: async () => {
+      const searchDay = now().toISOString().slice(0, 10);
+      await db.prepare("INSERT INTO research_search_usage (day) VALUES (?1) ON CONFLICT(day) DO NOTHING").bind(searchDay).run();
+      const reserved = await db.prepare("UPDATE research_search_usage SET calls = calls + 1 WHERE day = ?1 AND calls < ?2")
+        .bind(searchDay, int(env.RESEARCH_MAX_SEARCH_CALLS_PER_DAY, 40, 1000)).run();
+      return (reserved.meta?.changes ?? 0) === 1;
+    },
+  });
   const result = {
     ok: true,
     requestId: g.requestId,
@@ -591,6 +607,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     facts,
     brief,
     briefStatus,
+    competitors,
   };
   // 4. Persist; retry once. If both fail the visitor still gets the result
   // (already paid for) and the client keeps it for this session.

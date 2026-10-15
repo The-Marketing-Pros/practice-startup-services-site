@@ -17,6 +17,7 @@ type Opts = {
   hideFirstSelects?: number;
   turnstile?: () => Response;
   hubspot?: Array<() => Response | Promise<Response>>;
+  brave?: () => Response;
   openai?: Array<() => Response | Promise<Response>>;
 };
 
@@ -28,6 +29,7 @@ function setup(o: Opts = {}) {
     { match: /turnstile\/v0\/siteverify/, respond: o.turnstile ?? (() => jsonResponse({ success: true, hostname: "practicestartupservices.com", action: "startup_research" })) },
     { match: /api\.hsforms\.com/, respond: () => (hub.shift() ?? (() => jsonResponse({ inlineMessage: "Thanks" })))() },
     { match: /api\.openai\.com/, respond: () => (ai.shift() ?? (() => jsonResponse(openAiResponse(GOOD_BRIEF))))() },
+    { match: /api\.search\.brave\.com/, respond: o.brave ?? (() => jsonResponse({ web: { results: [{ title: "Example Clinic", url: "https://clinic.example.org/", description: "Sample orthopedic practice" }] } })) },
     { match: /api\.census\.gov/, respond: () => jsonResponse(URBAN_ACS) },
     { match: /npiregistry/, respond: () => jsonResponse(nppesBody([1, 2, 3, 4].map((n) => nppesRecord(n, { zip: "10016", city: "NEW YORK", state: "NY", taxonomies: ["Orthopaedic Surgery"] })))) },
     { match: /graph\.facebook\.com/, respond: () => jsonResponse({ events_received: 1 }) },
@@ -533,4 +535,33 @@ test("release and save only write while this request still holds the lease", asy
   assert.equal(r.status, 200, "the visitor still gets the paid result");
   assert.equal(r.json.saved, false);
   assert.equal((sqlite.prepare("SELECT status FROM research_jobs").get() as any).status, "processing", "no write over another worker's lease");
+});
+
+
+test("competitor search runs only in gated reports, persists on replay and honors its daily cap", async () => {
+  const s = setup({env:{BRAVE_SEARCH_API_KEY:'test-brave',RESEARCH_MAX_SEARCH_CALLS_PER_DAY:'1'}});
+  await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${new URLSearchParams(PROFILE)}`),s.deps);
+  assert.equal(s.stub.count(/api\.search\.brave/),0);
+  const first = await read(await handleGate(post(body()),s.deps));
+  assert.equal(first.json.competitors.status,'ok');
+  assert.equal(first.json.competitors.items[0].url,'https://clinic.example.org/');
+  const repeated = await read(await handleGate(post(body()),s.deps));
+  assert.deepEqual(repeated.json.competitors,first.json.competitors);
+  assert.equal(s.stub.count(/api\.search\.brave/),1);
+  const second = await read(await handleGate(post(body({requestId:'22222222-2222-4222-8222-222222222222',profile:{...PROFILE,zip:'10017'}})),s.deps));
+  assert.equal(second.status,200);
+  assert.equal(second.json.competitors.status,'unavailable');
+  assert.equal(s.stub.count(/api\.search\.brave/),1);
+});
+test("missing search migration or provider outage does not lose an otherwise complete report", async () => {
+  for (const opts of [
+    {faults:[{match:/research_search_usage/,error:'missing table'}]},
+    {brave:()=>jsonResponse({},503)},
+  ]) {
+    const s=setup({...opts,env:{BRAVE_SEARCH_API_KEY:'test-brave'}});
+    const r=await read(await handleGate(post(body()),s.deps));
+    assert.equal(r.status,200);
+    assert.equal(r.json.briefStatus,'ready');
+    assert.equal(r.json.competitors.status,'unavailable');
+  }
 });

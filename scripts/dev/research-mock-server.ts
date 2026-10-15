@@ -58,6 +58,9 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
   if (url.includes("turnstile/v0/siteverify"))
     return scenario === "verification" ? jsonResponse({ success: false, "error-codes": ["invalid-input-response"] }) : jsonResponse({ success: true, hostname: "localhost", action: "startup_research" });
   if (url.includes("api.hsforms.com")) return scenario === "hubspot_down" ? jsonResponse({ status: "error", message: "mock outage" }, 503) : jsonResponse({ inlineMessage: "Thanks (mock)" });
+  if (url.includes("api.search.brave.com")) return jsonResponse({ web: { results: [
+    { title: "Sample Family Practice (test fixture)", url: "https://example.org/sample-practice", description: "Synthetic competitor search excerpt for local verification only." },
+  ] } });
   if (url.includes("api.openai.com")) {
     await new Promise((r) => setTimeout(r, 900));
     if (scenario === "ai_down") return jsonResponse({ error: { message: "mock overload" } }, 503);
@@ -91,6 +94,7 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
 function env(): ResearchEnv {
   const base: ResearchEnv = {
     CENSUS_API_KEY: process.env.CENSUS_API_KEY,
+    BRAVE_SEARCH_API_KEY: "local-fixture-only",
     RESEARCH_ENABLED: "true",
     RESEARCH_DB: d1,
     RESEARCH_HASH_SECRET: "local-dev-only",

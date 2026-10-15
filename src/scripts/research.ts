@@ -4,6 +4,7 @@
 // parsed only when they are JSON; success events fire only after the server
 // confirms, once per reference.
 import type { FactsBundle } from "../lib/research/facts";
+import { competitorNote, competitorUrl } from "../lib/research/competitors";
 import type { Brief } from "../lib/research/guard";
 import { briefStatusNote, confirmationHeading, type ResearchResult } from "../lib/research/pdf";
 import { attributionPayload } from "../lib/attribution";
@@ -299,6 +300,7 @@ function resetResult() {
   }
   $("gate-confirm").hidden = true;
   $("brief-content").innerHTML = "";
+  $("competitor-content").innerHTML = "";
 }
 
 function renderBrief(brief: Brief | null, status: string) {
@@ -341,6 +343,11 @@ function showResult(r: GateSuccess) {
   $("confirm-note").hidden = !note;
   $("confirm-note").textContent = note;
   renderBrief(r.brief, r.briefStatus);
+  const competitors = r.competitors;
+  $("competitor-content").innerHTML = competitors ? `<section class="research-brief"><h3>Potential competitors to investigate</h3><p>${esc(competitorNote(competitors))}</p>${competitors.retrieved ? `<p class="rs-small">Brave Search · Retrieved ${esc(competitors.retrieved.slice(0, 10))}<br>Search: ${esc(competitors.query)}</p>` : ''}${competitors.items.map((item) => {
+    const url = competitorUrl(item.url);
+    return url ? `<section><h4><a class="rs-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}<span class="sr-only"> (opens in a new tab)</span></a></h4>${item.description ? `<p><span class="research-tag">Search excerpt</span>${esc(item.description)}</p>` : ''}</section>` : '';
+  }).join('')}<p class="rs-small">Compare services, geography, payer participation and appointment access directly with each practice before making positioning decisions.</p></section>` : '';
   const confirm = $("gate-confirm");
   confirm.hidden = false;
   confirm.focus();
