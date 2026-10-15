@@ -134,8 +134,8 @@ test("idempotent replay returns the stored result without new HubSpot or AI call
   assert.equal(stub.count(AI), 1);
 });
 
-test("HubSpot outage is a provider error; the retry reuses the job (no new quota) and submits once", async () => {
-  const { deps, stub, sqlite } = setup({ env: { RESEARCH_DAILY_PER_EMAIL: "1" }, hubspot: [() => jsonResponse({ status: "error" }, 503)] });
+test("HubSpot rate-limit rejection permits a retry without consuming new job quota", async () => {
+  const { deps, stub, sqlite } = setup({ env: { RESEARCH_DAILY_PER_EMAIL: "1" }, hubspot: [() => jsonResponse({ status: "error" }, 429)] });
   const fail = await read(await handleGate(post(body()), deps));
   assert.equal(fail.status, 502);
   assert.equal(fail.json.kind, "provider");
@@ -564,4 +564,42 @@ test("missing search migration or provider outage does not lose an otherwise com
     assert.equal(r.json.briefStatus,'ready');
     assert.equal(r.json.competitors.status,'unavailable');
   }
+});
+
+
+test("ambiguous HubSpot response loss and server errors never resubmit the lead", async () => {
+  for (const response of [() => { throw new Error("response lost after upstream accepted"); }, () => jsonResponse({}, 503)]) {
+    const { deps, stub, sqlite } = setup({ hubspot: [response] });
+    for (let retry = 0; retry < 3; retry++) {
+      const result = await read(await handleGate(post(body()), deps));
+      assert.equal(result.status, 500);
+      assert.equal(result.json.reference, "PSS-11111111");
+      assert.match(result.json.message, /could not confirm/);
+    }
+    assert.equal(stub.count(HUB), 1);
+    assert.equal(stub.count(AI), 0);
+    assert.equal((sqlite.prepare("SELECT hubspot_attempted FROM research_jobs").get() as any).hubspot_attempted, 1);
+    // An operator confirms receipt from HubSpot; the same request resumes.
+    sqlite.exec("UPDATE research_jobs SET hubspot_status = 'submitted'");
+    const recovered = await read(await handleGate(post(body()), deps));
+    assert.equal(recovered.json.briefStatus, "ready");
+    assert.equal(stub.count(HUB), 1);
+  }
+});
+
+test("failed write-ahead marker prevents any outbound lead submission", async () => {
+  const { deps, stub } = setup({ faults: [{ match: /SET hubspot_attempted = 1/, error: "D1 unavailable" }] });
+  const result = await read(await handleGate(post(body()), deps));
+  assert.equal(result.status, 500);
+  assert.equal(stub.count(HUB), 0);
+});
+
+test("expired lease after a process crash cannot repeat an unacknowledged submission", async () => {
+  const { deps, stub, sqlite } = setup();
+  await handleGate(post(body()), deps);
+  sqlite.exec("UPDATE research_jobs SET hubspot_status = 'pending', result_json = NULL, status = 'processing', lease_until = 0");
+  const result = await read(await handleGate(post(body()), deps));
+  assert.equal(result.status, 500);
+  assert.match(result.json.message, /could not confirm/);
+  assert.equal(stub.count(HUB), 1);
 });

@@ -6,8 +6,8 @@
 //   validation | verification | rate_limited | provider | system |
 //   conflict | in_progress | unavailable
 // Idempotency: the client sends one requestId per logical submission. The
-// same requestId returns the stored result; HubSpot is submitted at most once
-// per requestId; AI is called at most twice per requestId (one regeneration).
+// same requestId returns the stored result; ambiguous HubSpot attempts are
+// never automatically repeated; AI is called at most twice per requestId.
 
 import { validateGate, validateProfile, referenceFor, ValidationError, type FailureKind, type GateRequest } from "./contract.ts";
 import { buildFacts, type Cache, type FactsBundle, type Fetcher } from "./facts.ts";
@@ -216,6 +216,7 @@ type JobRow = {
   status: string;
   lease_until: number;
   hubspot_status: string;
+  hubspot_attempted: number;
   ai_attempts: number;
   ai_rejected: number;
   event_id: string;
@@ -224,7 +225,11 @@ type JobRow = {
   config_errors: number;
 };
 
-const SELECT_JOB = "SELECT id, identity_hash, context_hash, status, lease_until, hubspot_status, ai_attempts, ai_rejected, event_id, capi_status, result_json, config_errors FROM research_jobs WHERE id = ?1";
+const SELECT_JOB = "SELECT id, identity_hash, context_hash, status, lease_until, hubspot_status, ai_attempts, ai_rejected, event_id, capi_status, result_json, config_errors, hubspot_attempted FROM research_jobs WHERE id = ?1";
+
+function captureUnconfirmed(reference: string): Response {
+  return fail("system", { reference, message: `We could not confirm your request was received. Please contact PSS with reference ${reference} so we can check it. Your free preview is still available.` });
+}
 
 async function dbStep<T>(label: string, deps: Deps, fn: () => Promise<T>): Promise<T> {
   try {
@@ -301,19 +306,21 @@ async function submitHubspot(g: GateRequest, request: Request, deps: Deps, now: 
   }
   if (r.ok) return;
   const text = await r.text().catch(() => "");
-  if (r.status === 400 && /INVALID_EMAIL|BLOCKED_EMAIL/i.test(text)) throw new HubspotFailure("validation", "invalid_email");
-  if (r.status >= 500 || r.status === 429) throw new HubspotFailure("provider", `http_${r.status}`);
+  if (r.status === 400 && /INVALID_EMAIL|BLOCKED_EMAIL/i.test(text)) throw new HubspotFailure("validation", "invalid_email", true);
+  if (r.status >= 500 || r.status === 408 || r.status === 429) throw new HubspotFailure("provider", `http_${r.status}`, r.status === 429);
   // Other 4xx means our form configuration is wrong: an agency-side error.
-  throw new HubspotFailure("system", `http_${r.status}`);
+  throw new HubspotFailure("system", `http_${r.status}`, r.status >= 400 && r.status < 500);
 }
 
 class HubspotFailure extends Error {
   kind: FailureKind;
   code: string;
-  constructor(kind: FailureKind, code: string) {
+  rejected: boolean;
+  constructor(kind: FailureKind, code: string, rejected = false) {
     super(code);
     this.kind = kind;
     this.code = code;
+    this.rejected = rejected;
   }
 }
 
@@ -465,6 +472,10 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   }
   if (job.identity_hash !== identity || job.context_hash !== context) return fail("conflict");
   if (job.status === "complete" && job.result_json) return replay(job);
+  if (job.hubspot_status !== "submitted" && job.hubspot_attempted) {
+    if (job.status === "processing" && job.lease_until >= t.getTime()) return fail("in_progress");
+    return captureUnconfirmed(reference);
+  }
 
   // Claim a short lease (with an owner token) so concurrent retries cannot double-submit.
   const leaseToken = crypto.randomUUID();
@@ -490,14 +501,25 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
       .catch(() => {});
   };
 
-  // 1. Lead capture, once per requestId.
+  // 1. Write-ahead marker: a timeout, crash or failed acknowledgement write
+  // cannot lead to a duplicate form submission on retry. Only a definitive
+  // rejection permits another outbound attempt; ambiguity needs reconciliation.
   if (job.hubspot_status !== "submitted") {
+    const attempt = await dbStep("hubspot_attempt", deps, () => db.prepare("UPDATE research_jobs SET hubspot_attempted = 1 WHERE id = ?1 AND lease_token = ?2 AND hubspot_attempted = 0 AND hubspot_status = 'pending'").bind(g.requestId, leaseToken).run());
+    if ((attempt.meta?.changes ?? 0) !== 1) {
+      await release("hubspot_unconfirmed");
+      return captureUnconfirmed(reference);
+    }
     try {
       await submitHubspot(g, request, deps, t);
     } catch (e) {
       const f = e instanceof HubspotFailure ? e : new HubspotFailure("system", "unknown");
       deps.log?.("hubspot_failed", { code: f.code });
+      if (f.rejected) {
+        await dbStep("hubspot_rejected", deps, () => db.prepare("UPDATE research_jobs SET hubspot_attempted = 0 WHERE id = ?1 AND lease_token = ?2").bind(g.requestId, leaseToken).run());
+      }
       await release(`hubspot_${f.code}`);
+      if (!f.rejected) return captureUnconfirmed(reference);
       return f.kind === "validation" ? fail("validation", { field: "email", message: "HubSpot did not accept this email address. Please check it." }) : fail(f.kind);
     }
     hubspotDone = true;
