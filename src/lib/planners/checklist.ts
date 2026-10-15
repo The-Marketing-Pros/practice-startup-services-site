@@ -1,3 +1,6 @@
+import { personalTasks, personalTaskIds, stageHides, baseTaskLinks, type OfficialLink } from "./personal-tasks.ts";
+import { specialtyIds, practiceModels, launchStages, payerMixes } from "../startup/options.ts";
+import { validZip } from "../startup/zip3.ts";
 export const stages = [
   "Decide",
   "Plan",
@@ -13,12 +16,22 @@ export const states =
   );
 export type Profile = {
   name: string;
+  /** Specialty id from src/lib/startup/options.ts, or "" when not chosen. */
+  specialty: string;
+  /** Practice ZIP, used to infer the state for wording. "" when not given. */
+  zip: string;
   state: string;
   provider: string;
   setting: string;
   payer: string;
   opening: string;
   staff: string;
+  /** solo | group | membership | hospital, or "" when not chosen. */
+  model: string;
+  /** Main payers for insurance practices: commercial | medicare | medicaid | both | unsure, or "". */
+  mix: string;
+  /** exploring | planning | soon | opening, or "" when not chosen. */
+  stage: string;
 };
 export type Task = {
   id: string;
@@ -27,6 +40,10 @@ export type Task = {
   detail: string;
   weeks: number;
   when?: "insurance" | "office" | "telehealth" | "staff" | "np-pa";
+  /** Why a personalized task is on this visitor's plan. */
+  reason?: string;
+  /** Official source for the step, when one is confirmed. */
+  link?: OfficialLink;
 };
 export type Progress = {
   done: boolean;
@@ -286,33 +303,82 @@ export function newChecklist(): Checklist {
     kind: "checklist",
     profile: {
       name: "",
+      specialty: "",
+      zip: "",
       state: "",
       provider: "physician",
       setting: "office",
       payer: "insurance",
       opening: "",
       staff: "yes",
+      model: "",
+      mix: "",
+      stage: "",
     },
     progress: {},
     custom: [],
   };
 }
+const lateStage = (p: Profile) => p.stage === "soon" || p.stage === "opening";
 export function visibleTasks(plan: Checklist): Task[] {
   const p = plan.profile;
-  return [
-    ...tasks.filter(
-      (t) =>
-        !t.when ||
-        {
-          insurance: p.payer !== "cash",
-          office: p.setting !== "telehealth",
-          telehealth: p.setting !== "office",
-          staff: p.staff === "yes",
-          "np-pa": ["np", "pa"].includes(p.provider),
-        }[t.when],
-    ),
+  const all = [
+    ...tasks
+      .filter(
+        (t) =>
+          !t.when ||
+          {
+            insurance: p.payer !== "cash",
+            office: p.setting !== "telehealth",
+            telehealth: p.setting !== "office",
+            staff: p.staff === "yes",
+            "np-pa": ["np", "pa"].includes(p.provider),
+          }[t.when],
+      )
+      .filter((t) => !stageHides(p, t.id, t.phase))
+      .map((t) => (baseTaskLinks[t.id] ? { ...t, link: baseTaskLinks[t.id] } : t)),
+    ...personalTasks(p),
     ...plan.custom,
-  ].sort((a, b) => a.phase - b.phase);
+  ];
+  // Close to opening, the longest lead times lead each phase.
+  return all.sort((a, b) => a.phase - b.phase || (lateStage(p) ? b.weeks - a.weeks : 0));
+}
+/** Days added to "today" when a stage implies an opening window but no date is set. */
+const stageWindowDays: Record<string, number> = { planning: 365, soon: 182, opening: 30 };
+function isoDay(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+/**
+ * The date suggested due dates count back from: the target opening date when
+ * set; otherwise an assumed window from the launch stage (planning: about a
+ * year, soon: about six months, opening: about a month); otherwise none.
+ */
+export function anchorDate(profile: Profile, today: Date = new Date()): { date: string; assumed: boolean } {
+  if (validDate(profile.opening)) return { date: profile.opening, assumed: false };
+  const days = stageWindowDays[profile.stage];
+  if (!days) return { date: "", assumed: false };
+  const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 12));
+  d.setUTCDate(d.getUTCDate() + days);
+  return { date: isoDay(d), assumed: true };
+}
+/**
+ * Open tasks whose suggested start has already passed (relative to today),
+ * longest lead first (phases 3 and later only for "soon"/"opening" stages). Shown as "Start these first" for late-stage launches or
+ * whenever an opening date makes a task overdue.
+ */
+export function priorityTasks(plan: Checklist, today: Date = new Date(), limit = 6): Task[] {
+  const now = isoDay(today);
+  // Close to opening, Decide/Plan items are treated as already underway; the
+  // lane is reserved for steps with outside lead times (forms, payers, space).
+  const minPhase = lateStage(plan.profile) ? 2 : 0;
+  return visibleTasks(plan)
+    .filter((t) => t.phase >= minPhase)
+    .filter((t) => {
+      const p = taskProgress(plan, t, today);
+      return !p.done && !!p.due && p.due < now;
+    })
+    .sort((a, b) => b.weeks - a.weeks)
+    .slice(0, limit);
 }
 export function validDate(value: unknown): value is string {
   return (
@@ -330,7 +396,7 @@ export function suggestedDate(opening: string, weeks: number): string {
   d.setUTCDate(d.getUTCDate() - weeks * 7);
   return d.toISOString().slice(0, 10);
 }
-export function taskProgress(plan: Checklist, t: Task) {
+export function taskProgress(plan: Checklist, t: Task, today: Date = new Date()) {
   const saved = plan.progress[t.id] || {
     done: false,
     owner: "",
@@ -339,7 +405,7 @@ export function taskProgress(plan: Checklist, t: Task) {
   };
   return {
     ...saved,
-    due: saved.due ?? suggestedDate(plan.profile.opening, t.weeks),
+    due: saved.due ?? suggestedDate(anchorDate(plan.profile, today).date, t.weeks),
   };
 }
 export function parseChecklist(raw: unknown): Checklist {
@@ -359,8 +425,15 @@ export function parseChecklist(raw: unknown): Checklist {
   )
     throw Error("This is not a supported checklist backup.");
   const p = x.profile;
+  const optional = (v: unknown, allowed: readonly string[]) =>
+    v === undefined || v === "" || (typeof v === "string" && allowed.includes(v));
   if (
     !text(p.name, 100) ||
+    !optional(p.specialty, specialtyIds) ||
+    !(p.zip === undefined || p.zip === "" || validZip(p.zip)) ||
+    !optional(p.model, practiceModels.map((o) => o.value)) ||
+    !optional(p.mix, payerMixes.map((o) => o.value)) ||
+    !optional(p.stage, launchStages.map((o) => o.value)) ||
     !(p.state === "" || states.includes(p.state)) ||
     !["physician", "np", "pa", "therapist", "other"].includes(p.provider) ||
     !["office", "telehealth", "hybrid"].includes(p.setting) ||
@@ -393,7 +466,7 @@ export function parseChecklist(raw: unknown): Checklist {
   if (new Set(custom.map((t) => t.id)).size !== custom.length)
     throw Error("The backup contains duplicate tasks.");
   const progress: Record<string, Progress> = {};
-  const allowed = new Set([...tasks, ...custom].map((t) => t.id));
+  const allowed = new Set([...tasks.map((t) => t.id), ...personalTaskIds, ...custom.map((t) => t.id)]);
   for (const [id, v] of Object.entries(x.progress)) {
     if (!allowed.has(id)) continue;
     if (
@@ -411,12 +484,17 @@ export function parseChecklist(raw: unknown): Checklist {
     kind: "checklist",
     profile: {
       name: p.name,
+      specialty: p.specialty || "",
+      zip: p.zip || "",
       state: p.state,
       provider: p.provider,
       setting: p.setting,
       payer: p.payer,
       opening: p.opening,
       staff: p.staff,
+      model: p.model || "",
+      mix: p.mix || "",
+      stage: p.stage || "",
     },
     custom,
     progress,

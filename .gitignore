@@ -28,3 +28,7 @@ Thumbs.db
 # misc
 *.log
 .cache/
+
+# wrangler local state
+.wrangler/
+.dev.vars

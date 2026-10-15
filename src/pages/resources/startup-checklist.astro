@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import PlannerStorage from '@components/PlannerStorage.astro';
 import StartupRegistration from '@components/StartupRegistration.astro';
 import { states, stages } from '../../lib/planners/checklist';
+import { specialties, practiceModels, launchStages, payerMixes } from '../../lib/startup/options';
 import '@styles/resources.css';
 import '@styles/checklist-workspace.css';
 ---
@@ -14,7 +15,7 @@ import '@styles/checklist-workspace.css';
     <div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup checklist</span></div>
     <p class="rs-kicker">An independent practice starts here</p>
     <h1 id="checklist-title">Build your<br/><span>startup checklist.</span></h1>
-    <p class="rs-intro">Your next chapter, one clear step at a time. Shape a plan around your practice, track the work, and take it with you.</p>
+    <p class="rs-intro">Your next chapter, one clear step at a time. Tell us your provider type, specialty, ZIP and launch stage, and the plan changes with you: tasks, order, dates and state steps.</p>
     <div class="launch-promise"><span>Free to use</span><span>No account needed</span><span>Yours to edit</span></div>
     <div class="launch-people"><div class="rs-faces" aria-hidden="true"><img src="/images/team/lindsay-pauly.webp" width="42" height="42" alt=""/><img src="/images/team/tonya-barry.webp" width="42" height="42" alt=""/><img src="/images/team/marisa-martell.webp" width="42" height="42" alt=""/></div><p>Built by PPS.<br/><a href="https://physicianpracticespecialists.com/about-us/">Real people behind your plan.</a></p></div>
    </div>
@@ -31,9 +32,14 @@ import '@styles/checklist-workspace.css';
    <aside class="rs-panel launch-profile rs-no-print"><p class="rs-kicker">01 / Make it yours</p><h2>Your practice</h2><p class="rs-small launch-profile-intro">A few details. A plan that fits.</p><form id="practice-profile" class="rs-profile-fields" autocomplete="off">
     <div class="rs-field"><label for="practice-name">Practice name</label><input id="practice-name" name="name" maxlength="100" placeholder="My new practice" /></div>
     <div class="rs-field"><label for="practice-provider">Provider type</label><select id="practice-provider" name="provider"><option value="physician">Physician (MD / DO)</option><option value="np">Nurse practitioner</option><option value="pa">Physician assistant</option><option value="therapist">Therapist / behavioral health</option><option value="other">Other provider</option></select></div>
-    <div class="rs-field"><label for="practice-state">State</label><select id="practice-state" name="state"><option value="">Select your state</option>{states.map(s=><option value={s}>{s}</option>)}</select><small>For your plan’s context. Verify current state requirements with your board.</small></div>
+    <div class="rs-field"><label for="practice-specialty">Specialty</label><select id="practice-specialty" name="specialty"><option value="">Select your specialty</option>{specialties.map(s=><option value={s.id}>{s.label}</option>)}</select><small>Adds specialty-specific steps.</small></div>
+    <div class="rs-field"><label for="practice-zip">Practice ZIP code</label><input id="practice-zip" name="zip" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" autocomplete="postal-code" aria-describedby="practice-zip-help" /><small id="practice-zip-help">Fills in your state from the ZIP prefix. You can change it.</small></div>
+    <div class="rs-field"><label for="practice-state">State</label><select id="practice-state" name="state"><option value="">Select your state</option>{states.map(s=><option value={s}>{s}</option>)}</select><small id="practice-state-help">Adds state-specific steps. Verify current state requirements with your board.</small></div>
+    <div class="rs-field"><label for="practice-model">Practice model</label><select id="practice-model" name="model"><option value="">Select a model</option>{practiceModels.map(o=><option value={o.value}>{o.label}</option>)}</select></div>
     <div class="rs-field"><label for="practice-setting">Care setting</label><select id="practice-setting" name="setting"><option value="office">In-person office</option><option value="telehealth">Telehealth only</option><option value="hybrid">In-person + telehealth</option></select></div>
     <div class="rs-field"><label for="practice-payer">Payment model</label><select id="practice-payer" name="payer"><option value="insurance">Insurance</option><option value="cash">Cash-pay</option><option value="hybrid">Insurance + cash-pay</option></select></div>
+    <div class="rs-field" id="practice-mix-field"><label for="practice-mix">Main payers</label><select id="practice-mix" name="mix"><option value="">Select your main payers</option>{payerMixes.map(o=><option value={o.value}>{o.label}</option>)}</select><small>Adds Medicare and Medicaid enrollment steps when they apply.</small></div>
+    <div class="rs-field"><label for="practice-stage">Launch stage</label><select id="practice-stage" name="stage"><option value="">Select your stage</option>{launchStages.map(o=><option value={o.value}>{o.label}</option>)}</select><small>Changes which steps come first.</small></div>
     <div class="rs-field"><label for="practice-staff">Hiring employees?</label><select id="practice-staff" name="staff"><option value="yes">Yes</option><option value="no">No, solo for now</option></select></div>
     <div class="rs-field"><label for="practice-opening">Target opening date</label><input type="date" id="practice-opening" name="opening" min="2000-01-01" max="2100-12-31" /><small>Creates suggested dates. Your edited task dates stay as you set them.</small></div>
    </form><PlannerStorage /></aside>
@@ -41,11 +47,13 @@ import '@styles/checklist-workspace.css';
     <p class="rs-small" id="checklist-export-help">Keep updating tasks, owners, dates, and progress in the Excel spreadsheet (.xlsx). Use the PDF to print or share a snapshot of your plan. You can also keep editing your checklist here.</p>
     <div class="rs-status" id="planner-status" role="status"></div>
     <div class="rs-progress launch-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
+    <p class="rs-notice" id="checklist-anchor" hidden></p>
+    <section class="launch-first" id="checklist-first" aria-labelledby="checklist-first-title" hidden><h3 id="checklist-first-title">Start these first</h3><p class="rs-small" id="checklist-first-intro"></p><ol id="checklist-first-list"></ol></section>
     <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant. PPS services, LaborGenie, and UnfairCPA appear beside relevant steps and in your downloads. These are optional ways to get help.</p>
     <div class="rs-tabs"><button id="show-all" aria-pressed="true">All tasks</button><button id="show-open" aria-pressed="false">To do</button><a class="rs-text-btn" href="#custom-task">Add my own task</a></div>
     <div id="checklist-tasks"></div>
     <form id="custom-task" class="rs-form-section rs-no-print"><h3>Add something specific to your practice</h3><div class="rs-fields"><div class="rs-field"><label for="custom-title">Task name</label><input id="custom-title" maxlength="160" required placeholder="e.g., Order exterior signage" /></div><div class="rs-field"><label for="custom-phase">Phase</label><select id="custom-phase">{stages.map((s,i)=><option value={i}>{i+1}. {s}</option>)}</select></div></div><button class="rs-btn secondary" type="submit">Add task</button></form>
-    <p class="rs-small" style="margin-top:24px">Next up: <a class="rs-link" href="/resources/pro-forma/">Build your startup pro forma</a> or <a class="rs-link" href="/resources/hipaa-training/">claim your free LaborGenie license</a>.</p>
+    <p class="rs-small" style="margin-top:24px">Next up: <a class="rs-link" href="/resources/pro-forma/">Build your startup pro forma</a>, <a class="rs-link" href="/resources/startup-research/">see free research on your ZIP and specialty</a>, or <a class="rs-link" href="/resources/hipaa-training/">claim your free LaborGenie license</a>.</p>
    </section>
   </div>
   <StartupRegistration />

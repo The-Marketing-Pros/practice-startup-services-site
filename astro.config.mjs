@@ -41,7 +41,8 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
     sitemap({
-      filter: (page) => !page.includes("/scan/results"),
+      // Campaign landing pages are noindex,follow and stay out of the sitemap.
+      filter: (page) => !page.includes("/scan/results") && !page.includes("/resources/startup-research/"),
       serialize: (item) => (LASTMOD ? { ...item, lastmod: LASTMOD } : item),
     }),
   ],
