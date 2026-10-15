@@ -101,3 +101,20 @@ Wrangler secret-name inspection found no `CENSUS_API_KEY` in either the preview 
 Store the activated key as a server-side Pages secret named `CENSUS_API_KEY` in the intended environment, then redeploy that environment so the Functions receive it. Do not use a `PUBLIC_` variable, commit the key, include it in screenshots, or paste it into shell arguments. Verify a live preview for a ZIP with an ACS ZCTA returns `sections.acs.status: ok` and the four sourced demographic facts before marking this issue resolved. Do not enable the paid research gate as part of this fix.
 
 The local verification server now accepts `CENSUS_API_KEY` from its process environment when `CENSUS_MODE=live`; other providers remain controlled by its existing mock settings. Local mock success is not live acceptance.
+
+
+## Competitor research (2026-10-15)
+
+The shared homepage/resources hub features the startup market-research tool. Final gated reports optionally append Brave Search evidence to the on-page result and PDF. This is a distinct section of potential competitors, not a verified competitor census or model-generated business claims. The numeric AI brief is unchanged and does not receive search snippets. Search sends only specialty, ZIP, inferred city when available, and state; never email, consent, payer details or the visitor's IP. Privacy and form disclosures describe this.
+
+Configuration required before live acceptance:
+
+- Apply `migrations/0001_research.sql` using its existing pre-apply checks, then `migrations/0002_competitor_search.sql` to the same `RESEARCH_DB`. The second migration creates only `research_search_usage`; it does not alter existing rows or tables.
+- Set server secret `BRAVE_SEARCH_API_KEY` in the intended Pages environment. Do not use `PUBLIC_`, commit the value, or put it in shell arguments. The existing key location was requested from the owner; it has not been configured in PSS.
+- Optional runtime `RESEARCH_MAX_SEARCH_CALLS_PER_DAY`: defaults to 40, accepts 0–1000; 0 prevents new paid search requests. Each attempted provider call reserves a slot atomically before the request. Provider failures consume the slot. Missing quota table fails closed for search while preserving the rest of the report. Removing the key disables the entire competitor section's lookup, including cached results.
+- All existing gated-report prerequisites still apply (D1, consent, Turnstile, HubSpot, model configuration). This change does not enable those services or deploy a migration.
+- Redeploy the selected environment, then verify a labeled report with live Brave results, matching source URLs/search date, stored-result replay and the downloaded PDF. No live lead, paid provider call or production deployment was performed in this follow-up.
+
+Search runs only after the gated brief attempt, at most once per handler execution; completed requests replay stored results without another call. The global daily cap also bounds repeated retries after storage failures. Successful public search results are cached for 24 hours by exact query, preserving the original retrieval date; saved reports retain their original evidence. Verify your existing Brave subscription permits the intended storage/use before enabling. The integration requests ten web results, deduplicates hostnames, removes known directories/social networks and unsafe URLs, and displays at most five source excerpts. It does not crawl arbitrary returned URLs, certify a practice's location or current services, assess market share, or infer demand from search ranking. Search errors and empty responses have explicit on-page/PDF states.
+
+The development server uses a synthetic Brave fixture (`Sample Family Practice (test fixture)`); local result screenshots are not evidence of live competitor discovery.

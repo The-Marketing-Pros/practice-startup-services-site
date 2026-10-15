@@ -91,7 +91,7 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
       pdf.keep(32);
       pdf.line(item.title, 11, true);
       if (item.description) pdf.line(`Search excerpt: ${item.description}`, 9);
-      pdf.link(url, url);
+      pdf.link("Practice website", url);
       pdf.space();
     }
     pdf.line("Before positioning your practice, compare services, geography, payer participation and appointment access directly with each practice.", 9);
