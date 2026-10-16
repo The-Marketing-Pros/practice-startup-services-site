@@ -1,0 +1,19 @@
+<!-- Dedicated PSS source. Never initialize the PPS website's pixel here. -->
+<script is:inline>
+  (function (w, d) {
+    // Preview builds and local verification must not pollute production events.
+    if (location.hostname !== "practicestartupservices.com" &&
+        location.hostname !== "www.practicestartupservices.com") return;
+    if (w.oaiq) return;
+    var q = function () { q.q.push(arguments); };
+    q.q = [];
+    w.oaiq = q;
+    var script = d.createElement("script");
+    script.async = true;
+    script.src = "https://bzrcdn.openai.com/sdk/oaiq.min.js";
+    d.head.appendChild(script);
+    q("init", { pixelId: "R5NpCwe1ExEDMYvfTv7AAj" });
+    // Initialization is diagnostic only; page views are explicit and never leads.
+    q("measure", "page_viewed", { type: "contents" });
+  })(window, document);
+</script>
