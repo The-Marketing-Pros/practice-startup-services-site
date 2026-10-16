@@ -54,11 +54,11 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
 
     <section class="research-gate" id="gate" aria-labelledby="gate-title">
      <p class="rs-kicker">03 / Go deeper</p>
-     <h3 id="gate-title">Get your written planning brief and PDF</h3>
-     <p>We turn the facts above into a short planning brief for your practice, then package it with your data tables and tailored checklist as a PDF. Every statement is labeled as a fact, an estimate or an interpretation, and the brief uses only the data shown above. When available, a separate competitor section includes websites found through Brave Search, with source links and a search date. These are leads to investigate, not verified competitors.</p>
+     <h3 id="gate-title">Request your complete startup report</h3>
+     <p>Submit the form below to request a report prepared for your practice. A PPS startup specialist will review the report and follow up by email. The completed report is provided through our team, not displayed on this page. It includes a planning brief, your data tables and tailored checklist as a PDF. Every statement is labeled as a fact, an estimate or an interpretation, and the brief uses only the data shown above. When available, a separate competitor section includes websites found through Brave Search, with source links and a search date. These are leads to investigate, not verified competitors.</p>
      <p id="gate-unavailable" class="rs-notice" hidden>The written brief and PDF are not available yet. The <a class="rs-link" href="/resources/startup-checklist/">checklist</a> and the <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
      <form id="gate-form" novalidate hidden data-sitekey={sitekey}>
-      <div class="rs-field"><label for="g-email">Email</label><input id="g-email" name="email" type="email" maxlength="254" required autocomplete="email" aria-describedby="g-email-help g-email-error" /><small id="g-email-help">Your brief appears on this page. We do not send automated emails.</small><p class="research-error" id="g-email-error" hidden></p></div>
+      <div class="rs-field"><label for="g-email">Email</label><input id="g-email" name="email" type="email" maxlength="254" required autocomplete="email" aria-describedby="g-email-help g-email-error" /><small id="g-email-help">Our team will use this email to follow up with your report. The full report will not appear on this page.</small><p class="research-error" id="g-email-error" hidden></p></div>
       <div class="research-checks">
        <label class="research-check"><input type="checkbox" name="consent" id="g-consent" required aria-describedby="g-consent-error" /> <span>{CONSENT_TEXT}</span></label>
        <p class="research-error" id="g-consent-error" hidden></p>
@@ -67,7 +67,7 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
       <p class="rs-small">Your email goes to PPS through HubSpot. Your ZIP, specialty, provider type, practice model, payment model and stage, plus the public facts above, are sent to our AI provider (OpenAI) to write the brief. Your email is not sent to the AI. For competitor research, your specialty and practice location are sent to Brave Search; your email is not. <a class="rs-link" href="/privacy/">Privacy policy</a>.</p>
       <div id="g-verification" class="research-verification"></div>
       <p class="research-error" id="g-verification-error" hidden></p>
-      <button class="rs-btn research-cta" id="gate-submit" type="submit">Get my brief and PDF</button>
+      <button class="rs-btn research-cta" id="gate-submit" type="submit">Request my report</button>
      </form>
      <p id="gate-status" class="rs-status" role="status" aria-live="polite"></p>
     </section>
@@ -76,12 +76,7 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
      <p class="rs-kicker">Confirmation</p>
      <h3 id="confirm-title">Request received.</h3>
      <p>Reference: <strong id="confirm-ref"></strong>. Keep it if you contact us.</p>
-     <p><strong>What happens next:</strong> <span id="confirm-next">your brief and PDF are below.</span> A startup specialist from PPS may reach out by email about your request. If you would rather talk now, <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
-     <p id="confirm-note" class="rs-notice" hidden></p>
-     <button class="rs-btn" id="brief-pdf" type="button">Download my research PDF</button>
-     <p id="pdf-status" class="rs-status" role="status" aria-live="polite"></p>
-     <div id="brief-content"></div>
-     <div id="competitor-content"></div>
+     <p><strong>What happens next:</strong> <span id="confirm-next">a PPS startup specialist will review your report and follow up by email.</span> If you would rather talk now, <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
     </section>
    </div>
   </section>

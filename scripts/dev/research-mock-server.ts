@@ -58,6 +58,11 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
   const url = String(input);
   if (url.includes("turnstile/v0/siteverify"))
     return scenario === "verification" ? jsonResponse({ success: false, "error-codes": ["invalid-input-response"] }) : jsonResponse({ success: true, hostname: "localhost", action: "startup_research" });
+  if (url.startsWith("https://practicestartupservices.com/fonts/")) return new Response(await readFile(join(DIST, new URL(url).pathname)));
+  if (url.includes("api.hubapi.com")) {
+    if (scenario === "delivery_down") return jsonResponse({},503);
+    return jsonResponse(url.includes("/files/") ? {id:"21",access:"PRIVATE"} : url.includes("/owners/") ? {id:"31",userId:7} : url.includes("/contacts/") ? {id:"11",properties:{hubspot_owner_id:"31"}} : {id:"41"});
+  }
   if (url.includes("api.hsforms.com")) return scenario === "hubspot_down" ? jsonResponse({ status: "error", message: "mock outage" }, 503) : jsonResponse({ inlineMessage: "Thanks (mock)" });
   if (url.includes("api.search.brave.com")) return jsonResponse({ web: { results: [
     { title: "Sample Family Practice (test fixture)", url: "https://example.org/sample-practice", description: "Synthetic competitor search excerpt for local verification only." },
@@ -105,6 +110,8 @@ function env(): ResearchEnv {
   const base: ResearchEnv = {
     CENSUS_API_KEY: process.env.CENSUS_API_KEY,
     BRAVE_SEARCH_API_KEY: "local-fixture-only",
+    HUBSPOT_PRIVATE_APP_TOKEN: "local-fixture-only",
+    HUBSPOT_RESEARCH_FALLBACK_OWNER_ID: "31",
     RESEARCH_ENABLED: "true",
     RESEARCH_DB: d1,
     RESEARCH_HASH_SECRET: "local-dev-only",

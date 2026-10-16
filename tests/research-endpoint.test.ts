@@ -29,6 +29,7 @@ function setup(o: Opts = {}) {
   const stub = stubFetch([
     { match: /turnstile\/v0\/siteverify/, respond: o.turnstile ?? (() => jsonResponse({ success: true, hostname: "practicestartupservices.com", action: "startup_research" })) },
     { match: /api\.hsforms\.com/, respond: () => (hub.shift() ?? (() => jsonResponse({ inlineMessage: "Thanks" })))() },
+    { match: /api\.hubapi\.com/, respond: (url) => jsonResponse(url.includes('/files/') ? {id:'21',access:'PRIVATE'} : url.includes('/owners/') ? {id:'31',userId:7} : url.includes('/contacts/') ? {id:'11',properties:{hubspot_owner_id:'31'}} : {id:'41'}) },
     { match: /api\.openai\.com/, respond: () => (ai.shift() ?? (() => jsonResponse(openAiResponse(GOOD_BRIEF))))() },
     { match: /api\.search\.brave\.com/, respond: o.brave ?? (() => jsonResponse({ web: { results: [{ title: "Example Clinic", url: "https://clinic.example.org/", description: "Sample orthopedic practice" }] } })) },
     { match: /api\.census\.gov/, respond: () => jsonResponse(URBAN_ACS) },
@@ -36,6 +37,8 @@ function setup(o: Opts = {}) {
     { match: /graph\.facebook\.com/, respond: () => jsonResponse({ events_received: 1 }) },
   ]);
   const env: ResearchEnv = {
+    HUBSPOT_PRIVATE_APP_TOKEN: "test-private-token",
+    HUBSPOT_RESEARCH_FALLBACK_OWNER_ID: "31",
     RESEARCH_ENABLED: "true",
     RESEARCH_DB: d1,
     RESEARCH_HASH_SECRET: "test-hash-secret",
@@ -48,6 +51,7 @@ function setup(o: Opts = {}) {
   const pending: Promise<unknown>[] = [];
   let uuidN = 0;
   const deps = {
+    renderReport: async () => new TextEncoder().encode("%PDF-test").buffer,
     env,
     fetcher: stub.fetcher,
     now: () => NOW,
@@ -55,7 +59,8 @@ function setup(o: Opts = {}) {
     waitUntil: (p: Promise<unknown>) => void pending.push(p),
     log: () => {},
   };
-  return { deps, stub, sqlite, pending };
+  const report = (rid = RID) => JSON.parse((sqlite.prepare("SELECT result_json FROM research_jobs WHERE id = ?").get(rid) as any).result_json);
+  return { deps, stub, sqlite, pending, report };
 }
 
 const RID = "11111111-1111-4111-8111-111111111111";
@@ -90,16 +95,16 @@ test("availability and unconfigured gate report unavailable without calling any 
   assert.equal((await read(handleAvailability(new Request(`${ORIGIN}/api/startup-research`), off.deps))).json.available, false);
 });
 
-test("success captures the lead once, returns a guarded brief, facts and a stable event id", async () => {
-  const { deps, stub, sqlite } = setup();
+test("success captures lead, privately delivers report and returns only a receipt", async () => {
+  const { deps, stub, sqlite, report } = setup();
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.status, 200);
   assert.equal(r.json.ok, true);
-  assert.equal(r.json.briefStatus, "ready");
+  assert.equal(report().briefStatus, "ready");
   assert.equal(r.json.reference, "PSS-11111111");
-  assert.equal(r.json.brief.sections.length, 4);
-  assert.equal(r.json.facts.zip, "10016");
-  assert.equal(r.json.saved, true);
+  assert.equal(report().brief.sections.length, 4);
+  assert.equal(report().facts.zip, "10016");
+  assert.deepEqual(Object.keys(r.json).sort(), ["deliveryStatus","eventId","ok","reference","replay","requestId"].sort());
   assert.equal(stub.count(HUB), 1);
   assert.equal(stub.count(AI), 1);
   // HubSpot payload: email only by default, UTMs on pageUri, consent text, no extra fields.
@@ -130,7 +135,9 @@ test("idempotent replay returns the stored result without new HubSpot or AI call
   assert.equal(again.status, 200);
   assert.equal(again.json.replay, true);
   assert.equal(again.json.eventId, first.json.eventId);
-  assert.deepEqual(again.json.brief, first.json.brief);
+  assert.equal(first.json.brief, undefined);
+  assert.equal(again.json.brief, undefined);
+  assert.equal(stub.count(/api\.hubapi\.com\/crm\/v3\/objects\/tasks/), 1);
   assert.equal(stub.count(HUB), 1);
   assert.equal(stub.count(AI), 1);
 });
@@ -142,18 +149,20 @@ test("HubSpot rate-limit rejection permits a retry without consuming new job quo
   assert.equal(fail.json.kind, "provider");
   assert.equal(stub.count(AI), 0, "no paid AI call before the lead is captured");
   const ok = await read(await handleGate(post(body()), deps));
+  assert.equal(ok.status,200);
   assert.equal(ok.status, 200, "per-email cap of 1 is not consumed by the retry");
   assert.equal(stub.count(HUB), 2);
   assert.equal((sqlite.prepare("SELECT count(*) n FROM research_jobs").get() as any).n, 1);
 });
 
 test("an AI provider failure after lead capture never re-submits HubSpot on retry", async () => {
-  const { deps, stub } = setup({ openai: [() => jsonResponse({ error: { message: "overloaded" } }, 500)] });
+  const { deps, stub, report } = setup({ openai: [() => jsonResponse({ error: { message: "overloaded" } }, 500)] });
   const fail = await read(await handleGate(post(body()), deps));
   assert.equal(fail.status, 502);
   assert.equal(fail.json.kind, "provider");
   const ok = await read(await handleGate(post(body()), deps));
-  assert.equal(ok.json.briefStatus, "ready");
+  assert.equal(ok.status,200);
+  assert.equal(report().briefStatus, "ready");
   assert.equal(stub.count(HUB), 1, "HubSpot submitted exactly once per requestId");
   assert.equal(stub.count(AI), 2);
 });
@@ -261,11 +270,11 @@ test("request hygiene: exact origin, JSON content type, body cap, malformed JSON
 
 test("numeric guard rejection: never shown, counted as billed, one regeneration only, then fallback", async () => {
   const invented = { ...GOOD_BRIEF, sections: GOOD_BRIEF.sections.map((s, i) => (i === 0 ? { ...s, statements: [{ kind: "interpretation", refs: [], text: "About 3,200 locals need surgery." }] } : s)) };
-  const { deps, stub, sqlite } = setup({ openai: [() => jsonResponse(openAiResponse(invented)), () => jsonResponse(openAiResponse(invented))] });
+  const { deps, stub, sqlite, report } = setup({ openai: [() => jsonResponse(openAiResponse(invented)), () => jsonResponse(openAiResponse(invented))] });
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.status, 200, "the lead was captured; the visitor gets the deterministic deliverable");
-  assert.equal(r.json.brief, null);
-  assert.equal(r.json.briefStatus, "rejected");
+  assert.equal(report().brief, null);
+  assert.equal(report().briefStatus, "rejected");
   assert.ok(!JSON.stringify(r.json).includes("3,200"));
   assert.equal(stub.count(AI), 2, "stops after one regeneration");
   const usage = sqlite.prepare("SELECT ai_calls, rejected_billed FROM research_usage").get() as any;
@@ -277,27 +286,28 @@ test("numeric guard rejection: never shown, counted as billed, one regeneration 
 });
 
 test("first output rejected, regeneration accepted", async () => {
-  const { deps, sqlite } = setup({ openai: [() => jsonResponse(openAiResponse(GOOD_BRIEF, "incomplete")), () => jsonResponse(openAiResponse(GOOD_BRIEF))] });
+  const { deps, sqlite, report } = setup({ openai: [() => jsonResponse(openAiResponse(GOOD_BRIEF, "incomplete")), () => jsonResponse(openAiResponse(GOOD_BRIEF))] });
   const r = await read(await handleGate(post(body()), deps));
-  assert.equal(r.json.briefStatus, "ready");
+  assert.equal(r.status, 200);
+  assert.equal(report().briefStatus, "ready");
   assert.equal((sqlite.prepare("SELECT rejected_billed FROM research_usage").get() as any).rejected_billed, 1);
 });
 
 test("daily AI cap: no model call, lead still captured, honest fallback status", async () => {
-  const { deps, stub } = setup({ env: { RESEARCH_MAX_AI_CALLS_PER_DAY: "0" } });
+  const { deps, stub, report } = setup({ env: { RESEARCH_MAX_AI_CALLS_PER_DAY: "0" } });
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.status, 200);
-  assert.equal(r.json.briefStatus, "capacity");
+  assert.equal(report().briefStatus, "capacity");
   assert.equal(stub.count(AI), 0);
   assert.equal(stub.count(HUB), 1);
 });
 
-test("a failed 'complete' write still returns the paid result instead of discarding it", async () => {
+test("a failed private save returns no report and never starts CRM delivery", async () => {
   const { deps, stub } = setup({ faults: [{ match: /SET status = 'complete'/, error: "D1_ERROR: write failed" }] });
   const r = await read(await handleGate(post(body()), deps));
-  assert.equal(r.status, 200);
-  assert.equal(r.json.saved, false);
-  assert.equal(r.json.briefStatus, "ready");
+  assert.equal(r.status, 500);
+  assert.equal(r.json.brief, undefined);
+  assert.equal(stub.count(/api\.hubapi/), 0);
   assert.equal(stub.count(AI), 1);
 });
 
@@ -400,14 +410,15 @@ test("production previews require an abuse limit; IPs are never hashed with a pu
 });
 
 test("a failed hubspot_status write cannot cause a second HubSpot submission", async () => {
-  const { deps, stub, sqlite } = setup({
+  const { deps, stub, sqlite, report } = setup({
     faults: [{ match: /^UPDATE research_jobs SET hubspot_status = 'submitted', updated_at/, error: "D1_ERROR: write failed", times: 2 }],
     openai: [() => jsonResponse({ error: { message: "overloaded" } }, 503)],
   });
   assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "provider");
   assert.equal((sqlite.prepare("SELECT hubspot_status FROM research_jobs").get() as any).hubspot_status, "submitted", "release() recorded it");
   const ok = await read(await handleGate(post(body()), deps));
-  assert.equal(ok.json.briefStatus, "ready");
+  assert.equal(ok.status,200);
+  assert.equal(report().briefStatus, "ready");
   assert.equal(stub.count(HUB), 1);
 });
 
@@ -484,8 +495,8 @@ test("AI config errors are capped per job; after a rejected output a 4xx finishe
   const mixed = setup({ openai: [() => jsonResponse(openAiResponse(invented)), () => jsonResponse({ error: {} }, 400)] });
   const r = await read(await handleGate(post(body()), mixed.deps));
   assert.equal(r.status, 200);
-  assert.equal(r.json.briefStatus, "rejected");
-  assert.equal(r.json.brief, null);
+  assert.equal(mixed.report().briefStatus, "rejected");
+  assert.equal(mixed.report().brief, null);
 });
 
 test("lease renewal is owner-checked and never consumes an attempt when it fails or is lost", async () => {
@@ -533,8 +544,8 @@ test("release and save only write while this request still holds the lease", asy
   const { deps, sqlite } = setup({ openai: [() => { steal(); return jsonResponse(openAiResponse(GOOD_BRIEF)); }] });
   steal = () => sqlite.prepare("UPDATE research_jobs SET lease_token = 'other-worker'").run();
   const r = await read(await handleGate(post(body()), deps));
-  assert.equal(r.status, 200, "the visitor still gets the paid result");
-  assert.equal(r.json.saved, false);
+  assert.equal(r.status, 500, "no report returned when the save lease is lost");
+  assert.equal(r.json.brief, undefined);
   assert.equal((sqlite.prepare("SELECT status FROM research_jobs").get() as any).status, "processing", "no write over another worker's lease");
 });
 
@@ -544,14 +555,15 @@ test("competitor search runs only in gated reports, persists on replay and honor
   await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${new URLSearchParams(PROFILE)}`),s.deps);
   assert.equal(s.stub.count(/api\.search\.brave/),0);
   const first = await read(await handleGate(post(body()),s.deps));
-  assert.equal(first.json.competitors.status,'ok');
-  assert.equal(first.json.competitors.items[0].url,'https://clinic.example.org/');
+  assert.equal(first.status,200);
+  assert.equal(s.report().competitors.status,'ok');
+  assert.equal(s.report().competitors.items[0].url,'https://clinic.example.org/');
   const repeated = await read(await handleGate(post(body()),s.deps));
-  assert.deepEqual(repeated.json.competitors,first.json.competitors);
+  assert.equal(repeated.json.competitors, undefined);
   assert.equal(s.stub.count(/api\.search\.brave/),1);
   const second = await read(await handleGate(post(body({requestId:'22222222-2222-4222-8222-222222222222',profile:{...PROFILE,zip:'10017'}})),s.deps));
   assert.equal(second.status,200);
-  assert.equal(second.json.competitors.status,'unavailable');
+  assert.equal(s.report('22222222-2222-4222-8222-222222222222').competitors.status,'unavailable');
   assert.equal(s.stub.count(/api\.search\.brave/),1);
 });
 test("missing search migration or provider outage does not lose an otherwise complete report", async () => {
@@ -562,15 +574,15 @@ test("missing search migration or provider outage does not lose an otherwise com
     const s=setup({...opts,env:{BRAVE_SEARCH_API_KEY:'test-brave'}});
     const r=await read(await handleGate(post(body()),s.deps));
     assert.equal(r.status,200);
-    assert.equal(r.json.briefStatus,'ready');
-    assert.equal(r.json.competitors.status,'unavailable');
+    assert.equal(s.report().briefStatus,'ready');
+    assert.equal(s.report().competitors.status,'unavailable');
   }
 });
 
 
 test("ambiguous HubSpot response loss and server errors never resubmit the lead", async () => {
   for (const response of [() => { throw new Error("response lost after upstream accepted"); }, () => jsonResponse({}, 503)]) {
-    const { deps, stub, sqlite } = setup({ hubspot: [response] });
+    const { deps, stub, sqlite, report } = setup({ hubspot: [response] });
     for (let retry = 0; retry < 3; retry++) {
       const result = await read(await handleGate(post(body()), deps));
       assert.equal(result.status, 500);
@@ -590,7 +602,8 @@ test("ambiguous HubSpot response loss and server errors never resubmit the lead"
     // An operator confirms receipt from HubSpot; the same request resumes.
     sqlite.exec("UPDATE research_jobs SET hubspot_status = 'submitted'");
     const recovered = await read(await handleGate(post(body()), deps));
-    assert.equal(recovered.json.briefStatus, "ready");
+    assert.equal(recovered.status, 200);
+    assert.equal(report().briefStatus, "ready");
     assert.equal(stub.count(HUB), 1);
   }
 });

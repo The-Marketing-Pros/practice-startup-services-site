@@ -1,5 +1,7 @@
 # Personalized startup tools: deployment and launch gates
 
+**Current delivery contract:** [Private SDR report delivery](research-private-delivery.md) supersedes the original browser/PDF delivery described below. The full report must remain server-side and be attached privately in HubSpot. The original implementation notes below are historical.
+
 Status (2026-10-10): implemented and locally tested on branch `claude/ig-personalized-startup-tools`. Not deployed to production. The free preview works without secrets (Census needs a key, see below). The gated brief reports itself unavailable until every required setting exists.
 
 Builds on uncommitted research work from the `codex/startup-research-gate` worktree (component layout, specialty task ideas, D1 gate concept). The endpoint, guard, facts pipeline and tests were rewritten to fix the prior review findings listed in `docs/reviews/ig-personalized-startup-tools-2026-10-10.md`.

@@ -14,9 +14,13 @@ import { buildFacts, type Cache, type FactsBundle, type Fetcher } from "./facts.
 import { generateBrief, briefInputs, ProviderError } from "./brief.ts";
 import { validateBrief, citableIds, type Brief } from "./guard.ts";
 import { researchCompetitors } from "./competitors.ts";
+import { deliverReport } from "./delivery.ts";
+import type { ResearchResult } from "./pdf.ts";
 import { CONSENT_TEXT, MARKETING_TEXT } from "./copy.ts";
 
 export interface ResearchEnv {
+  HUBSPOT_PRIVATE_APP_TOKEN?: string;
+  HUBSPOT_RESEARCH_FALLBACK_OWNER_ID?: string;
   RESEARCH_ENABLED?: string;
   RESEARCH_DB?: D1Database;
   RESEARCH_HASH_SECRET?: string;
@@ -46,6 +50,7 @@ export interface ResearchEnv {
 }
 
 export type Deps = {
+  renderReport?: (result: ResearchResult) => Promise<ArrayBuffer>;
   env: ResearchEnv;
   fetcher: Fetcher;
   now?: () => Date;
@@ -97,7 +102,7 @@ function int(v: string | undefined, fallback: number, max = 100000): number {
 }
 
 export function gateConfigured(env: ResearchEnv): boolean {
-  return env.RESEARCH_ENABLED === "true" && !!(env.RESEARCH_DB && env.RESEARCH_HASH_SECRET && env.TURNSTILE_SECRET_KEY && env.HUBSPOT_RESEARCH_FORM_ID && env.OPENAI_API_KEY && env.RESEARCH_MODEL);
+  return env.RESEARCH_ENABLED === "true" && !!(env.RESEARCH_DB && env.RESEARCH_HASH_SECRET && env.TURNSTILE_SECRET_KEY && env.HUBSPOT_RESEARCH_FORM_ID && env.OPENAI_API_KEY && env.RESEARCH_MODEL && env.HUBSPOT_PRIVATE_APP_TOKEN && env.HUBSPOT_RESEARCH_FALLBACK_OWNER_ID);
 }
 
 async function hmac(secret: string, value: string): Promise<string> {
@@ -472,7 +477,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     }
   }
   if (job.identity_hash !== identity || job.context_hash !== context) return fail("conflict");
-  if (job.status === "complete" && job.result_json) return replay(job);
+  if (job.status === "complete" && job.result_json) return deliverAndConfirm(job, g, deps, true);
   if (job.hubspot_status !== "submitted" && job.hubspot_attempted) {
     if (job.status === "processing" && job.lease_until >= t.getTime()) return fail("in_progress");
     return captureUnconfirmed(reference);
@@ -487,7 +492,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   );
   if ((claim.meta?.changes ?? 0) !== 1) {
     const latest = await dbStep("recheck", deps, () => db.prepare(SELECT_JOB).bind(g.requestId).first<JobRow>());
-    if (latest?.status === "complete" && latest.result_json) return replay(latest);
+    if (latest?.status === "complete" && latest.result_json) return deliverAndConfirm(latest, g, deps, true);
     return fail("in_progress");
   }
 
@@ -632,8 +637,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
     briefStatus,
     competitors,
   };
-  // 4. Persist; retry once. If both fail the visitor still gets the result
-  // (already paid for) and the client keeps it for this session.
+  // 4. Persist privately before delivery. A visitor never receives report data.
   const save = () =>
     db.prepare("UPDATE research_jobs SET status = 'complete', result_json = ?2, hubspot_status = 'submitted', lease_until = 0, updated_at = ?3 WHERE id = ?1 AND lease_token = ?4")
       .bind(g.requestId, JSON.stringify(result), now().getTime(), leaseToken)
@@ -649,15 +653,22 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
       deps.log?.("db_error", { step: "complete", error: String(e).slice(0, 200) });
     }
   }
-  if (!saved) deps.log?.("result_not_saved", { reason: "write_failed_or_lease_lost" });
+  if (!saved) {
+    deps.log?.("result_not_saved", { reason: "write_failed_or_lease_lost" });
+    return fail("system", { reference, message: "Your request was received, but we could not save the report. Please contact PPS with this reference." });
+  }
   if (job.capi_status === "none") sendCapi(request, deps, job.event_id, db, g.requestId, t);
-  return json({ ...result, saved, replay: false });
+  return deliverAndConfirm({ ...job, result_json: JSON.stringify(result) }, g, deps, false);
 }
 
-function replay(job: JobRow): Response {
+async function deliverAndConfirm(job: JobRow, g: GateRequest, deps: Deps, replay: boolean): Promise<Response> {
   try {
-    return json({ ...(JSON.parse(job.result_json!) as Record<string, unknown>), saved: true, replay: true });
+    const result = JSON.parse(job.result_json!) as ResearchResult;
+    await deliverReport({db:deps.env.RESEARCH_DB!, env:deps.env, fetcher:deps.fetcher, jobId:g.requestId, email:g.email, result, now:deps.now ?? (() => new Date()), render:deps.renderReport});
+    // Explicit allowlist: no full report, facts, file URLs, or CRM identifiers.
+    return json({ok:true, requestId:g.requestId, reference:referenceFor(g.requestId), eventId:job.event_id, deliveryStatus:"with_team", replay});
   } catch {
-    return fail("system");
+    deps.log?.("report_delivery_pending", {requestId:g.requestId});
+    return fail("system", {reference:referenceFor(g.requestId), message:"Your request was received, but the report handoff is not confirmed yet. Retry this request, or contact PPS with this reference. Your report will not appear on this page."});
   }
 }
