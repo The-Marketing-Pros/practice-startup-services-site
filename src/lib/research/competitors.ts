@@ -67,7 +67,7 @@ export async function researchCompetitors(facts: FactsBundle, deps: {
     if (!await deps.reserve()) return unavailable;
     const u = new URL('https://api.search.brave.com/res/v1/web/search');
     u.search = new URLSearchParams({ q: query, country: 'US', search_lang: 'en', count: '10', safesearch: 'moderate', text_decorations: 'false' }).toString();
-    const response = await deps.fetcher(u.href, { headers: { Accept: 'application/json', 'X-Subscription-Token': deps.apiKey }, redirect: 'error', signal: AbortSignal.timeout(10000) });
+    const response = await deps.fetcher(u.href, { headers: { Accept: 'application/json', 'X-Subscription-Token': deps.apiKey }, redirect: 'manual', signal: AbortSignal.timeout(10000) });
     if (!response.ok) throw new Error('search_http_error');
     const items = parseCompetitors(await response.json());
     const result: CompetitorResearch = { status: items.length ? 'ok' : 'empty', query, retrieved: deps.now.toISOString(), items };

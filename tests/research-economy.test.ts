@@ -49,7 +49,7 @@ test('FRED series fail independently and logs/responses cannot leak the API key 
     const u=new URL(url);
     assert.equal(u.hostname,'api.stlouisfed.org');
     assert.equal(u.searchParams.get('api_key'),'sensitive-key');
-    assert.equal(init?.redirect,'error');
+    assert.equal(init?.redirect,'manual');
     if(u.searchParams.get('series_id')==='CPIAUCNS') throw new Error(url);
     return jsonResponse({observations:[{date:'2026-09-01',value:'4.2'}]});
   }});
@@ -57,7 +57,7 @@ test('FRED series fail independently and logs/responses cannot leak the API key 
   assert.equal(result.items[1].value,null);
   assert.equal(result.items[0].value,4.2);
   assert.doesNotMatch(JSON.stringify({result,logs}),/sensitive-key|api_key/);
-  assert.deepEqual(logs,[{e:'fred_unavailable',d:{series:'CPIAUCNS'}}]);
+  assert.deepEqual(logs,[{e:'fred_unavailable',d:{series:'CPIAUCNS',code:'network'}}]);
 });
 
 test('successful national observations share a six-hour cache, retain original retrieval dates, and expire', async () => {
@@ -94,4 +94,22 @@ test('economic context survives Census and NPPES outages and stays out of ZIP fa
   assert.doesNotMatch(JSON.stringify(groundingView(f)),/UNRATE|CPIAUCNS|HOUST|PERMIT/);
   const healthy=await buildFacts(profile,{fetcher:async url=>url.includes('census.gov')?jsonResponse(URBAN_ACS):url.includes('npiregistry')?jsonResponse(nppesBody([])):jsonResponse({},500),now:NOW,fredKey:'test'});
   assert.equal(healthy.sections.acs.status,'ok');assert.equal(healthy.economy?.status,'unavailable');
+});
+
+// Cloudflare workerd supports manual/follow, but rejects the Fetch-standard error mode.
+test('FRED rejects redirects and provider errors without caching or exposing their destinations', async () => {
+  for (const status of [301, 302, 307, 308, 401, 429, 503]) {
+    const logs: unknown[] = []; let calls = 0, writes = 0;
+    const result = await fetchEconomy({ now: NOW, apiKey: 'secret',
+      cache: {get: async () => null, put: async () => { writes++; }},
+      log: (e,d) => logs.push({e,d}),
+      fetcher: async (_url, init) => {
+        calls++; assert.equal(init?.redirect, 'manual');
+        return new Response('secret provider details', {status, headers: {Location: 'https://untrusted.example/?api_key=secret'}});
+      }
+    });
+    assert.equal(result.status, 'unavailable'); assert.equal(calls, 4); assert.equal(writes, 0);
+    assert.ok(logs.every((x: any) => x.d.code === `http_${status}`));
+    assert.doesNotMatch(JSON.stringify({result,logs}), /secret|untrusted/);
+  }
 });
