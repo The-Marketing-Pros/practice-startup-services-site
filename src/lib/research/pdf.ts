@@ -72,6 +72,7 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
 
   pdf.space();
   if (f.economy) {
+    pdf.keep(95);
     pdf.line("U.S. economy and housing", 14, true);
     pdf.line(ECONOMY_NOTE, 9);
     for (const x of f.economy.items) {
@@ -88,6 +89,7 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
     pdf.link("FRED API terms", FRED_TERMS);
     pdf.space();
   }
+  pdf.keep(60);
   pdf.line("Your planning brief", 14, true);
   if (result.brief) {
     for (const s of result.brief.sections) {

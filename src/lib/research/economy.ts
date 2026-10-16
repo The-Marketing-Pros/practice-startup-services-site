@@ -7,7 +7,7 @@ export const FRED_NOTICE = 'This product uses the FRED® API but is not endorsed
 export const FRED_TERMS = 'https://fred.stlouisfed.org/docs/api/terms_of_use.html';
 export const ECONOMIC_SERIES = [
   { id: 'UNRATE', label: 'Unemployment rate', source: 'U.S. Bureau of Labor Statistics', unit: 'percent', note: 'Share of the civilian labor force that is unemployed. Monthly, seasonally adjusted.' },
-  { id: 'CPIAUCNS', label: 'Consumer inflation', source: 'U.S. Bureau of Labor Statistics', unit: 'inflation', note: 'All-items CPI-U, U.S. city average, not seasonally adjusted. Calculated as (index / index for the same month a year earlier − 1) × 100.' },
+  { id: 'CPIAUCNS', label: 'Consumer inflation', source: 'U.S. Bureau of Labor Statistics', unit: 'inflation', note: 'All-items CPI-U, U.S. city average, not seasonally adjusted. Calculated as (index / index for the same month a year earlier - 1) x 100.' },
   { id: 'HOUST', label: 'Housing starts', source: 'U.S. Census Bureau and U.S. Department of Housing and Urban Development', unit: 'housing', note: 'New privately owned housing units started. Monthly, seasonally adjusted annual rate; not the number built during that month.' },
   { id: 'PERMIT', label: 'Housing permits', source: 'U.S. Census Bureau and U.S. Department of Housing and Urban Development', unit: 'housing', note: 'New privately owned housing units authorized in permit-issuing places. Monthly, seasonally adjusted annual rate; permits may not become completed homes.' },
 ] as const;
