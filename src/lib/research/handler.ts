@@ -31,6 +31,7 @@ export interface ResearchEnv {
   RESEARCH_DAILY_PER_EMAIL?: string;
   RESEARCH_DAILY_PER_IP?: string;
   CENSUS_API_KEY?: string;
+  FRED_API_KEY?: string;
   BRAVE_SEARCH_API_KEY?: string;
   RESEARCH_MAX_SEARCH_CALLS_PER_DAY?: string;
   RESEARCH_PREVIEW_DISABLED?: string;
@@ -199,7 +200,7 @@ export async function handlePreview(request: Request, deps: Deps): Promise<Respo
     }
   }
   try {
-    const facts = await buildFacts(profile, { fetcher: deps.fetcher, cache: d1Cache(db, now), censusKey: env.CENSUS_API_KEY, now: now(), log: deps.log });
+    const facts = await buildFacts(profile, { fetcher: deps.fetcher, cache: d1Cache(db, now), censusKey: env.CENSUS_API_KEY, fredKey: env.FRED_API_KEY, now: now(), log: deps.log });
     return json({ ok: true, facts });
   } catch (e) {
     deps.log?.("preview_error", { error: String(e).slice(0, 200) });
@@ -531,7 +532,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   // 2. Facts (server-fetched; client-supplied facts are never trusted).
   let facts: FactsBundle;
   try {
-    facts = await buildFacts(g.profile, { fetcher: deps.fetcher, cache: d1Cache(db, now), censusKey: env.CENSUS_API_KEY, now: t, log: deps.log });
+    facts = await buildFacts(g.profile, { fetcher: deps.fetcher, cache: d1Cache(db, now), censusKey: env.CENSUS_API_KEY, fredKey: env.FRED_API_KEY, now: t, log: deps.log });
   } catch {
     await release("facts");
     return fail("system");

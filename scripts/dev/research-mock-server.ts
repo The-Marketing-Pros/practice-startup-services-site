@@ -22,6 +22,7 @@ import { GOOD_BRIEF, openAiResponse } from "../../tests/fixtures/brief.ts";
 const PORT = Number(process.env.PORT || 8799);
 const DIST = fileURLToPath(new URL("../../dist/", import.meta.url));
 const NPPES_MODE = process.env.NPPES_MODE || "fixture";
+const FRED_MODE = process.env.FRED_MODE || "fixture";
 const CENSUS_MODE = process.env.CENSUS_MODE || "fixture";
 let scenario = "ok";
 let { d1 } = createD1();
@@ -68,6 +69,15 @@ const mockFetch = async (input: string, init?: RequestInit): Promise<Response> =
     return jsonResponse(openAiResponse(briefFor(String(init?.body))));
   }
   if (url.includes("graph.facebook.com")) return jsonResponse({ events_received: 1 });
+  if (url.includes("api.stlouisfed.org")) {
+    if (FRED_MODE === "live") return fetch(url, init);
+    if (scenario === "fred_down") return jsonResponse({}, 503);
+    const id = new URL(url).searchParams.get("series_id");
+    if (scenario === "fred_partial" && id === "CPIAUCNS") return jsonResponse({}, 503);
+    const values = id === "UNRATE" ? [4.2,4.1,4.0,4.0] : id === "CPIAUCNS" ? [330,324,300,300] : [1500,1400,1300,1300];
+    const dates = scenario === "fred_stale" ? ["2025-09-01","2025-08-01","2024-09-01","2024-08-01"] : ["2026-09-01","2026-08-01","2025-09-01","2025-08-01"];
+    return jsonResponse({ observations: dates.map((date,i)=>({date,value:String(values[i])})) });
+  }
   if (url.includes("api.census.gov")) {
     if (scenario === "no_data") return jsonResponse({ error: "mock outage" }, 500);
     if (CENSUS_MODE === "live") return fetch(url, init);
@@ -98,6 +108,7 @@ function env(): ResearchEnv {
     RESEARCH_ENABLED: "true",
     RESEARCH_DB: d1,
     RESEARCH_HASH_SECRET: "local-dev-only",
+    FRED_API_KEY: FRED_MODE === "live" ? process.env.FRED_API_KEY : "local-fixture-only",
     TURNSTILE_SECRET_KEY: "local-dev-only",
     HUBSPOT_RESEARCH_FORM_ID: "00000000-0000-4000-8000-000000000000",
     OPENAI_API_KEY: "local-dev-only",
@@ -121,7 +132,8 @@ createServer(async (req, res) => {
   const body = Buffer.concat(chunks);
   if (url.pathname === "/__scenario" && req.method === "POST") {
     scenario = JSON.parse(body.toString() || "{}").name || "ok";
-    if (scenario === "reset") ({ d1 } = createD1()), (scenario = "ok");
+    ({ d1 } = createD1());
+    if (scenario === "reset") scenario = "ok";
     res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ scenario }));
     return;
   }
