@@ -11,6 +11,7 @@ import { trackLead, trackToolUse } from "../lib/measure";
 import { newChecklist, visibleTasks, priorityTasks, type Checklist } from "../lib/planners/checklist";
 import { personalTaskIds } from "../lib/planners/personal-tasks";
 import { profileSummary } from "../lib/planners/context";
+import { researchToolLinks } from "../lib/research/tool-links";
 import { stateForZip } from "../lib/startup/zip3";
 
 type Turnstile = {
@@ -87,10 +88,12 @@ function planSummary(p: ReturnType<typeof readProfile>) {
   return { summary: profileSummary(plan.profile), personal, first: priorityTasks(plan), total: all.length };
 }
 
-function handoffQuery(p: ReturnType<typeof readProfile>) {
-  const q = new URLSearchParams();
-  for (const [k, v] of Object.entries(p)) if (v) q.set(k, v);
-  return q.toString();
+function syncToolLinks(p: ReturnType<typeof readProfile>) {
+  const links = researchToolLinks(p);
+  document.querySelectorAll<HTMLAnchorElement>('[data-research-tool]').forEach(link => {
+    const key = link.dataset.researchTool as keyof typeof links;
+    if (links[key]) link.href = links[key];
+  });
 }
 
 function renderPreview(f: FactsBundle, p: ReturnType<typeof readProfile>) {
@@ -121,14 +124,14 @@ function renderPreview(f: FactsBundle, p: ReturnType<typeof readProfile>) {
     .slice(0, 8)
     .map((t) => `<li>${esc(t.title)}<small>${esc(t.reason ?? "")}</small></li>`)
     .join("")}</ul>${plan.first.length ? `<p style="margin-top:14px"><strong>Start these first:</strong> their suggested start dates have already passed for your launch stage.</p><ul class="research-plan-list">${plan.first.map((t) => `<li>${esc(t.title)}</li>`).join("")}</ul>` : ""}`;
-  const q = handoffQuery(p);
-  $<HTMLAnchorElement>("open-checklist").href = `/resources/startup-checklist/?${q}`;
-  $<HTMLAnchorElement>("open-proforma").href = `/resources/pro-forma/?${q}`;
+  syncToolLinks(p);
   $("sources-content").innerHTML = `<ul>${f.sources
     .map((s) => `<li><strong>${esc(s.name)}</strong>${s.vintage ? ` (${esc(s.vintage)})` : ""}${s.url ? `. <a href="${esc(s.url)}" target="_blank" rel="noopener">Source<span class="sr-only"> (opens in a new tab)</span></a>` : ""}${s.notes ? `<br>${esc(s.notes)}` : ""}</li>`)
     .join("")}</ul>`;
   $("preview-empty").hidden = true;
   $("preview-body").hidden = false;
+  $<HTMLAnchorElement>("overview-request").href = "#gate";
+  $("overview-request").textContent = "Return to my report request";
 }
 
 profileForm.addEventListener("submit", async (e) => {
@@ -167,6 +170,7 @@ profileForm.addEventListener("submit", async (e) => {
 });
 profileForm.addEventListener("change", (e) => {
   syncMix();
+  if (!busyGate) syncToolLinks(readProfile());
   if ((e.target as HTMLElement).id && facts && JSON.stringify(readProfile()) !== profileKey)
     previewStatus.textContent = "You changed your details. Show the preview again to update it.";
 });
@@ -237,9 +241,10 @@ gateForm.addEventListener("submit", async (e) => {
   const profile = JSON.parse(profileKey) as ReturnType<typeof readProfile>;
   const fingerprint = JSON.stringify({ email, marketing, profile });
   if (boundFingerprint && boundFingerprint !== fingerprint) requestId = crypto.randomUUID();
+  syncToolLinks(profile);
   busyGate = true;
   gateSubmit.disabled = true;
-  gateStatus.textContent = "Preparing your report for our team. Please keep this page open…";
+  gateStatus.textContent = "Preparing your report for our team. Keep this page open; you can use the checklist and pro forma in new tabs while you wait…";
   let attribution: Record<string, string> = {};
   try {
     attribution = attributionPayload(window.localStorage, window.sessionStorage);
@@ -329,6 +334,7 @@ function prefillFromQuery() {
 async function init() {
   prefillFromQuery();
   syncMix();
+  syncToolLinks(readProfile());
   const avail = await requestJson(fetch, "/api/startup-research");
   gateAvailable = avail.type === "success" && avail.body.available === true;
   // Tell visitors up front when the preview cannot run, instead of failing after they fill the form.

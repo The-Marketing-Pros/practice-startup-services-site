@@ -151,6 +151,7 @@ createServer(async (req, res) => {
     // Simulate the production hostname (preview gating applies there).
     const target = scenario === "preview_unconfigured" ? new URL(url.pathname + url.search, "https://practicestartupservices.com") : url;
     const request = new Request(target, { method: req.method, headers, body: ["GET", "HEAD"].includes(req.method || "GET") ? undefined : body });
+    if (req.method === "POST" && scenario === "slow") await new Promise(resolve => setTimeout(resolve, 8000));
     const deps = { env: env(), fetcher: mockFetch, log: (e: string, d: Record<string, unknown>) => console.log("[handler]", e, JSON.stringify(d)) };
     let response: Response;
     if (url.pathname === "/api/startup-research-preview" && req.method === "GET") response = await handlePreview(request, deps);
