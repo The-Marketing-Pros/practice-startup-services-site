@@ -178,3 +178,21 @@ test("maximum valid UTF-8 checklist fits the import limit and round trips",async
  const json=JSON.stringify(p,null,2);const size=new TextEncoder().encode(json).byteLength;
  assert.ok(size>500000);assert.ok(size<MAX_BACKUP_BYTES);assert.deepEqual(parseChecklist(JSON.parse(json)),p);
 });
+
+test("task dates read as calendar dates and know whether they are suggestions", async () => {
+  const { formatDay } = await import("../src/lib/planners/checklist.ts");
+  assert.equal(formatDay("2026-07-20"), "Jul 20, 2026");
+  assert.equal(formatDay("2026-13-01"), "");
+  assert.equal(formatDay(null), "");
+  const p = newChecklist();
+  p.profile.opening = "2027-03-01";
+  const t = visibleTasks(p)[0];
+  assert.equal(taskProgress(p, t).dueSuggested, true);
+  p.progress[t.id] = { done: false, owner: "", notes: "", due: "2026-11-05" };
+  assert.equal(taskProgress(p, t).dueSuggested, false);
+  const { checklistWorkbook } = await import("../src/lib/planners/downloads.ts");
+  const s = (await checklistWorkbook(p)).getWorksheet("Startup checklist")!;
+  assert.deepEqual(s.getCell("E8").value, new Date("2026-11-05T12:00:00Z"));
+  assert.equal(s.getCell("E8").numFmt, "mmm d, yyyy");
+  assert.match(String(s.getCell("A2").value), /0 of \d+ tasks complete/);
+});

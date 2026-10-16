@@ -669,10 +669,15 @@
 html.rs-js .rs-has-js {
   display: grid;
 }
+/* A panel that floats beside a longer column: it stays in view while the
+   other column scrolls and scrolls on its own when taller than the window. */
 @media (min-width: 1050px) {
   .rs-sticky {
     position: sticky;
-    top: 110px;
+    top: 100px;
+    max-height: calc(100vh - 116px);
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 }
 @media (max-width: 1000px) {
@@ -802,6 +807,11 @@ html.rs-js .rs-has-js {
     padding: 0;
   }
   .rs-table-wrap {
+    overflow: visible;
+  }
+  .rs-sticky {
+    position: static;
+    max-height: none;
     overflow: visible;
   }
   .rs-task {
