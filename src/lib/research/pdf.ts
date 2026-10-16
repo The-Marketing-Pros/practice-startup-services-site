@@ -9,6 +9,7 @@ import { competitorNote, competitorUrl, type CompetitorResearch } from "./compet
 import { researchToolLinks } from "./tool-links.ts";
 import { stages } from "../planners/checklist.ts";
 import type { Task } from "../planners/checklist.ts";
+import type { ReportContact } from './contract.ts';
 
 export type ResearchResult = {
   reference: string;
@@ -41,13 +42,18 @@ export function briefStatusNote(status: string): string {
   }
 }
 
-export async function researchPdf(result: ResearchResult, plan: { summary: string; personal: Task[]; first: Task[]; total: number; all: Task[] }, fontFetch: typeof fetch = fetch) {
+export async function researchPdf(result: ResearchResult, plan: { summary: string; personal: Task[]; first: Task[]; total: number; all: Task[] }, fontFetch: typeof fetch = fetch, contact?: ReportContact) {
   const f = result.facts;
   const pdf = await pdfDocument(
     "Your practice launch plan",
     `${f.labels.provider} | ${f.labels.specialty} | ZIP ${f.zip}${f.labels.state ? ` (${f.labels.state})` : ""}`,
     fontFetch,
   );
+  if (contact) {
+    pdf.line(`Prepared for ${contact.firstName} ${contact.lastName}`, 16, true);
+    pdf.line(contact.practiceName, 13, true);
+    pdf.space();
+  }
   pdf.line(`Reference ${result.reference} | Generated ${result.generatedAt.slice(0, 10)}`, 9);
   pdf.line("Facts come from public sources named below. Estimates are calculated from those facts and labeled. Interpretations are planning suggestions, not advice. Confirm requirements with your licensing board, payers and advisers.", 9);
 

@@ -1,5 +1,9 @@
 # Private report delivery to the SDR
 
+**Current direction (October 16):** use [email delivery](research-email-delivery.md)
+until HubSpot service-key approval is available. The CRM attachment mode below
+remains optional and is not the selected production path.
+
 Owner direction (2026-10-16): show a free preview, require a form submission,
 prepare the full report privately, attach it to the HubSpot lead/contact, and
 notify the assigned SDR to review and forward it. Do not expose the complete

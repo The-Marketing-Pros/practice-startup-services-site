@@ -221,6 +221,14 @@ gateForm.addEventListener("submit", async (e) => {
   gateStatus.classList.remove("error");
   const d = new FormData(gateForm);
   const email = String(d.get("email") || "").trim();
+  const firstName = String(d.get("firstName") || "").trim();
+  const lastName = String(d.get("lastName") || "").trim();
+  const practiceName = String(d.get("practiceName") || "").trim();
+  for (const field of ['firstName','lastName','practiceName']) {
+    if (!$<HTMLInputElement>(`g-${field}`).checkValidity() || !String(d.get(field)||'').trim()) {
+      fieldError(`g-${field}`, 'Please complete this field.'); $( `g-${field}`).focus(); return;
+    }
+  }
   const consent = d.get("consent") === "on";
   const marketing = d.get("marketing") === "on";
   if (!email || !$<HTMLInputElement>("g-email").checkValidity()) {
@@ -239,7 +247,7 @@ gateForm.addEventListener("submit", async (e) => {
     return;
   }
   const profile = JSON.parse(profileKey) as ReturnType<typeof readProfile>;
-  const fingerprint = JSON.stringify({ email, marketing, profile });
+  const fingerprint = JSON.stringify({ email, firstName, lastName, practiceName, marketing, profile });
   if (boundFingerprint && boundFingerprint !== fingerprint) requestId = crypto.randomUUID();
   syncToolLinks(profile);
   busyGate = true;
@@ -254,7 +262,7 @@ gateForm.addEventListener("submit", async (e) => {
   const outcome: Outcome = await requestJson(fetch, "/api/startup-research", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ requestId, email, consent, marketing, profile, token, attribution }),
+    body: JSON.stringify({ requestId, email, firstName, lastName, practiceName, consent, marketing, profile, token, attribution }),
   });
   busyGate = false;
   gateSubmit.disabled = false;
@@ -278,7 +286,7 @@ gateForm.addEventListener("submit", async (e) => {
   }
   gateStatus.classList.add("error");
   if (kind === "validation") {
-    const field = f?.field === "email" || f?.field === "consent" || f?.field === "marketing" ? f.field : "";
+    const field = ["email","firstName","lastName","practiceName","consent","marketing"].includes(f?.field || "") ? f.field : "";
     if (field && field !== "marketing") fieldError(`g-${field}`, f?.message || "Check this field.");
     gateStatus.textContent = f?.message || "Please check the highlighted field.";
   } else if (kind === "verification") {

@@ -1,0 +1,15 @@
+{
+  "name": "pss-report-mailer",
+  "main": "index.ts",
+  "account_id": "4018b85407bf8563bf26b88f4a10a5a6",
+  "compatibility_date": "2026-10-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "send_email": [{"name": "EMAIL", "destination_address": "issah@drcred.com"}],
+  "observability": {"enabled": true},
+  "vars": {
+    "REPORT_FROM": "startup@reports.practicestartupservices.com",
+    "REPORT_TO": "issah@drcred.com"
+  }
+}

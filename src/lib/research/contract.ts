@@ -58,6 +58,9 @@ export function validateProfile(raw: unknown): ResearchProfile {
 export type GateRequest = {
   requestId: string;
   email: string;
+  firstName: string;
+  lastName: string;
+  practiceName: string;
   consent: true;
   marketing: boolean;
   profile: ResearchProfile;
@@ -67,6 +70,17 @@ export type GateRequest = {
 
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+export type ReportContact = Pick<GateRequest, 'firstName' | 'lastName' | 'practiceName'>;
+export function validateContact(raw: Record<string, unknown>): ReportContact {
+  const name = (field: string, label: string, max: number) => {
+    const value = raw[field];
+    if (typeof value !== 'string' || !value.trim() || value.length > max || /[\u0000-\u001f\u007f-\u009f]/.test(value))
+      throw new ValidationError(field, `Enter ${label} (${max} characters or fewer).`);
+    return value.trim().replace(/\s+/g, ' ');
+  };
+  return {firstName:name('firstName','your first name',80),lastName:name('lastName','your last name',80),practiceName:name('practiceName','your practice name or working name',160)};
+}
 
 export function validateGate(raw: unknown): GateRequest {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new ValidationError("form", "Please check your details and try again.");
@@ -78,7 +92,9 @@ export function validateGate(raw: unknown): GateRequest {
   if (x.marketing !== undefined && typeof x.marketing !== "boolean") throw new ValidationError("marketing", "Invalid preference.");
   if (typeof x.token !== "string" || !x.token || x.token.length > 2048) throw new ValidationError("verification", "Complete the verification check.");
   const profile = validateProfile(x.profile);
+  const contact = validateContact(x);
   return {
+    ...contact,
     requestId: x.requestId,
     email,
     consent: true,

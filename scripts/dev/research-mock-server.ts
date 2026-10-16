@@ -110,8 +110,9 @@ function env(): ResearchEnv {
   const base: ResearchEnv = {
     CENSUS_API_KEY: process.env.CENSUS_API_KEY,
     BRAVE_SEARCH_API_KEY: "local-fixture-only",
-    HUBSPOT_PRIVATE_APP_TOKEN: "local-fixture-only",
-    HUBSPOT_RESEARCH_FALLBACK_OWNER_ID: "31",
+    RESEARCH_DELIVERY_MODE: "email",
+    REPORT_MAILER: {fetch: async () => scenario === 'email_down' ? jsonResponse({ok:false},502) : jsonResponse({ok:true,messageId:'mock-email-only'})},
+
     RESEARCH_ENABLED: "true",
     RESEARCH_DB: d1,
     RESEARCH_HASH_SECRET: "local-dev-only",

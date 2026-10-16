@@ -7,6 +7,7 @@ import { personalTaskIds } from '../planners/personal-tasks.ts';
 import { profileSummary } from '../planners/context.ts';
 import { stateForZip } from '../startup/zip3.ts';
 import type { Fetcher } from './facts.ts';
+import type { ReportContact } from './contract.ts';
 
 export type DeliveryEnv = {
   HUBSPOT_PRIVATE_APP_TOKEN?: string;
@@ -19,12 +20,12 @@ type DeliveryRow = {
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const id = (v: unknown): string => { if (typeof v !== 'string' || !/^\d+$/.test(v)) throw new Error('invalid_crm_id'); return v; };
 
-export async function reportBytes(result: ResearchResult, fetcher: Fetcher): Promise<ArrayBuffer> {
+export async function reportBytes(result: ResearchResult, fetcher: Fetcher, contact?: ReportContact): Promise<ArrayBuffer> {
   const plan = newChecklist();
   Object.assign(plan.profile, result.facts.profile, {state: stateForZip(result.facts.zip)?.name ?? ''});
   const tasks = visibleTasks(plan);
   return researchPdf(result, {summary: profileSummary(plan.profile), personal: tasks.filter(t => personalTaskIds.includes(t.id)), first: priorityTasks(plan), total: tasks.length, all: tasks},
-    ((path: string) => fetcher(`https://practicestartupservices.com${path}`, {redirect:'manual', signal:AbortSignal.timeout(10000)})) as typeof fetch);
+    ((path: string) => fetcher(`https://practicestartupservices.com${path}`, {redirect:'manual', signal:AbortSignal.timeout(10000)})) as typeof fetch, contact);
 }
 
 export async function deliverReport(input: {
