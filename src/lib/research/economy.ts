@@ -91,7 +91,7 @@ export async function fetchEconomy(deps: { fetcher: Fetcher; apiKey?: string; ca
     let code = "network";
     try {
       const params = new URLSearchParams({ series_id: series.id, api_key: key, file_type: 'json', sort_order: 'desc', limit: '36', observation_end: today });
-      const response = await deps.fetcher(`https://api.stlouisfed.org/fred/series/observations?${params}`, { redirect: 'error', signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json' } });
+      const response = await deps.fetcher(`https://api.stlouisfed.org/fred/series/observations?${params}`, { redirect: 'manual', signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json' } });
       if (!response.ok) { code = `http_${response.status}`; throw new Error('fred_unavailable'); }
       code = 'non_json';
       const body = await response.json();

@@ -28,7 +28,7 @@ test('search sends only the market query and header credential, caches results w
     assert.equal(u.origin, 'https://api.search.brave.com');
     assert.ok(u.searchParams.get('q')?.includes('10016'));
     assert.equal(u.searchParams.get('count'), '10');
-    assert.equal(init?.redirect, 'error');
+    assert.equal(init?.redirect, 'manual');
     assert.equal(new Headers(init?.headers).get('X-Subscription-Token'), 'test-private-key');
     assert.doesNotMatch(input, /test-private-key|@|email/);
     return jsonResponse(rows);
@@ -49,4 +49,20 @@ test('missing key and exhausted budget do not call Brave; outages and malformed/
     assert.equal((await researchCompetitors(f,{...deps,apiKey:'key',fetcher})).status,'unavailable');
   }
   assert.equal((await researchCompetitors(f,{...deps,apiKey:'key',fetcher:async()=>jsonResponse({web:{results:[]}})})).status,'empty');
+});
+
+test('Brave redirects are rejected without following credential-bearing requests or caching results', async () => {
+  const f = await facts();
+  for (const status of [301, 302, 307, 308]) {
+    let calls = 0, writes = 0;
+    const result = await researchCompetitors(f, { now: NOW, apiKey: 'secret', reserve: async () => true,
+      cache: {get: async () => null, put: async () => { writes++; }},
+      fetcher: async (_url, init) => {
+        calls++; assert.equal(init?.redirect, 'manual');
+        return new Response('secret', {status, headers: {Location: 'https://untrusted.example/'}});
+      }
+    });
+    assert.equal(result.status, 'unavailable'); assert.equal(calls, 1); assert.equal(writes, 0);
+    assert.doesNotMatch(JSON.stringify(result), /secret|untrusted/);
+  }
 });
