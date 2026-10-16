@@ -2,6 +2,7 @@
 // margins of error; labeled estimates; the AI brief with statement tags; and
 // the tailored checklist summary. Generated in the browser.
 import { pdfDocument } from "../planners/downloads.ts";
+import { ECONOMY_NOTE, FRED_NOTICE, FRED_TERMS, economicPeriod } from "./economy.ts";
 import type { FactsBundle } from "./facts.ts";
 import type { Brief } from "./guard.ts";
 import { competitorNote, competitorUrl, type CompetitorResearch } from "./competitors.ts";
@@ -70,6 +71,25 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
   }
 
   pdf.space();
+  if (f.economy) {
+    pdf.keep(95);
+    pdf.line("U.S. economy and housing", 14, true);
+    pdf.line(ECONOMY_NOTE, 9);
+    for (const x of f.economy.items) {
+      pdf.keep(50);
+      pdf.line(`${x.label}: ${x.display}`, 11, true);
+      if (x.period) pdf.line(`${economicPeriod(x.period)} | United States${x.comparison ? ` | ${x.comparison}` : ""}`, 9);
+      if (x.stale) pdf.line("Latest available observation is more than four months old.", 9);
+      pdf.line(x.note, 9);
+      pdf.line(`${x.source} via FRED${x.retrieved ? ` | Retrieved ${x.retrieved.slice(0,10)}` : ""}`, 8);
+      pdf.link(x.id, x.url);
+      pdf.space();
+    }
+    pdf.line(FRED_NOTICE, 8);
+    pdf.link("FRED API terms", FRED_TERMS);
+    pdf.space();
+  }
+  pdf.keep(60);
   pdf.line("Your planning brief", 14, true);
   if (result.brief) {
     for (const s of result.brief.sections) {

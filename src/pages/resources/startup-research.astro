@@ -42,12 +42,13 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
    <p id="preview-status" class="rs-status" role="status" aria-live="polite"></p>
    <div id="preview-empty" class="research-empty">
     <p>Your free preview will show:</p>
-    <ul><li>Population, age 65 and over, uninsured share and median household income for your ZIP area, each with its margin of error and Census data years</li><li>How many providers with your taxonomy list a practice location in your ZIP and city in the national NPI Registry</li><li>A startup checklist with the steps your provider type, specialty, state and launch stage add</li></ul>
+    <ul><li>Population, age 65 and over, uninsured share and median household income for your ZIP area, each with its margin of error and Census data years</li><li>How many providers with your taxonomy list a practice location in your ZIP and city in the national NPI Registry</li><li>U.S. unemployment, consumer inflation, housing starts and permits, with observation dates and month-to-month changes</li><li>A startup checklist with the steps your provider type, specialty, state and launch stage add</li></ul>
    </div>
    <div id="preview-body" hidden>
     <section class="research-block" aria-labelledby="acs-title"><h3 id="acs-title">Your area at a glance</h3><div id="acs-content"></div></section>
     <section class="research-block" aria-labelledby="nppes-title"><h3 id="nppes-title">Providers already listed nearby</h3><div id="nppes-content"></div></section>
     <section class="research-block" aria-labelledby="estimate-title" id="estimate-block"><h3 id="estimate-title">A rough ratio (estimate)</h3><div id="estimate-content"></div></section>
+    <section class="research-block" aria-labelledby="economy-title" id="economy-block" hidden><h3 id="economy-title">U.S. economy and housing</h3><div id="economy-content"></div></section>
     <section class="research-block" aria-labelledby="plan-title"><h3 id="plan-title">Your tailored startup plan</h3><div id="plan-content"></div><p class="research-links"><a class="rs-btn secondary" id="open-checklist" href="/resources/startup-checklist/">Open my full checklist</a><a class="rs-btn secondary" id="open-proforma" href="/resources/pro-forma/">Model my numbers</a></p></section>
     <details class="research-block research-sources"><summary>Sources, dates and limits</summary><div id="sources-content"></div></details>
 

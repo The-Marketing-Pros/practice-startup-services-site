@@ -1,3 +1,4 @@
+import { ECONOMY_NOTE, FRED_NOTICE, FRED_TERMS, economicPeriod } from "../lib/research/economy";
 // Startup research page: free preview (no email) and gated brief.
 // UX contract: values kept after recoverable errors; submit disabled while in
 // flight; one requestId per logical submission, reused on retry; responses are
@@ -112,6 +113,8 @@ function renderPreview(f: FactsBundle, p: ReturnType<typeof readProfile>) {
       : `<p class="rs-small">Matching taxonomy: ${esc(f.labels.taxonomy)}</p><table class="research-table"><tbody>${nppes
           .map((x) => `<tr><th scope="row">${esc(x.label)}${x.note ? `<span class="moe">${esc(x.note)}</span>` : ""}</th><td class="num">${esc(x.display)}</td></tr>`)
           .join("")}</tbody></table>${f.sections.nppes.note ? `<p class="rs-small">${esc(f.sections.nppes.note)}</p>` : ""}<p class="research-meta"><span class="research-tag fact">Fact</span>CMS NPPES NPI Registry, retrieved ${esc(f.sources.find((s) => s.id === "nppes")?.retrieved ?? f.generatedAt.slice(0, 10))}. A listing is a registration, not proof that a provider is seeing patients or competing for the same patients.</p>`;
+  $("economy-block").hidden = !f.economy;
+  if (f.economy) $("economy-content").innerHTML = `<p class="rs-small">${esc(ECONOMY_NOTE)}</p><div class="research-economy-grid">${f.economy.items.map((x) => `<article class="research-indicator"><h4>${esc(x.label)}</h4><p class="research-indicator-value">${esc(x.display)}</p>${x.value !== null ? `<p class="research-meta">${esc(economicPeriod(x.period))} · United States</p><p class="research-change">${esc(x.comparison || "Previous-month comparison unavailable")}</p>${x.stale ? '<p class="research-section-error">Latest available observation is more than four months old.</p>' : ""}` : '<p class="research-meta">This source could not be loaded. Other indicators are shown when available.</p>'}<p class="research-meta">${esc(x.note)}</p><p class="research-meta">${esc(x.source)} via <a href="${esc(x.url)}" target="_blank" rel="noopener">FRED: ${esc(x.id)}<span class="sr-only"> (opens in a new tab)</span></a>${x.retrieved ? `. Retrieved ${esc(x.retrieved.slice(0,10))}.` : ""}</p></article>`).join("")}</div><p class="research-meta">${esc(FRED_NOTICE)} <a href="${FRED_TERMS}" target="_blank" rel="noopener">FRED API terms<span class="sr-only"> (opens in a new tab)</span></a>.</p>`;
   const est = f.estimates[0];
   $("estimate-block").hidden = !est;
   if (est)
@@ -150,7 +153,7 @@ profileForm.addEventListener("submit", async (e) => {
     profileKey = JSON.stringify(p);
     if (result && JSON.stringify(result.facts.profile) !== profileKey) resetResult();
     renderPreview(facts, p);
-    previewStatus.textContent = Object.values(facts.sections).some((section) => section.status !== "ok")
+    previewStatus.textContent = Object.values(facts.sections).some((section) => section.status !== "ok") || (facts.economy && facts.economy.status !== "ok")
       ? "Your preview is ready below, with some public data unavailable. See the notes in each section."
       : "Your preview is ready below.";
     if (window.matchMedia("(max-width: 900px)").matches) $("research-results").scrollIntoView({ block: "start" });

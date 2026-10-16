@@ -12,6 +12,7 @@
 
 import { optionLabel, specialtyById, taxonomyFor, providerTypes, type TaxonomyQuery } from "../startup/options.ts";
 import { stateForZip } from "../startup/zip3.ts";
+import { fetchEconomy, type Economy } from "./economy.ts";
 import type { ResearchProfile } from "./contract.ts";
 
 export const ACS_YEAR = 2024;
@@ -66,6 +67,7 @@ export type FactsBundle = {
   estimates: Estimate[];
   sections: { acs: SectionStatus; nppes: SectionStatus & { note?: string } };
   caveats: string[];
+  economy?: Economy;
 };
 
 export class UpstreamError extends Error {
@@ -284,12 +286,13 @@ function fact(f: Omit<Fact, "moeDisplay" | "capped" | "note"> & Partial<Pick<Fac
   return { capped: false, note: "", moeDisplay: "", ...f };
 }
 
-export type BuildDeps = { fetcher: Fetcher; cache?: Cache; censusKey?: string; now?: Date; log?: (event: string, detail: Record<string, unknown>) => void };
+export type BuildDeps = { fetcher: Fetcher; cache?: Cache; censusKey?: string; fredKey?: string; now?: Date; log?: (event: string, detail: Record<string, unknown>) => void };
 
 /** Fetch, cache and assemble the preview facts. Each section fails independently. */
 export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Promise<FactsBundle> {
   const cache = deps.cache ?? noCache;
   const now = deps.now ?? new Date();
+  const economyPromise = fetchEconomy({ fetcher: deps.fetcher, apiKey: deps.fredKey, cache, now, log: deps.log });
   const day = now.toISOString().slice(0, 10);
   const zip = profile.zip;
   const state = stateForZip(zip);
@@ -423,6 +426,7 @@ export async function buildFacts(profile: ResearchProfile, deps: BuildDeps): Pro
 
   return {
     version: 1,
+    economy: await economyPromise,
     generatedAt: now.toISOString(),
     profile,
     labels: {
