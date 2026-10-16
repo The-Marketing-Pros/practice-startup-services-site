@@ -65,7 +65,7 @@ function setup(o: Opts = {}) {
 
 const RID = "11111111-1111-4111-8111-111111111111";
 function body(extra: Record<string, unknown> = {}) {
-  return { requestId: RID, email: "Founder@Example.com", consent: true, marketing: false, profile: PROFILE, token: "tok", attribution: { utm_source: "instagram", utm_campaign: "pss_free_resources_us_test01", utm_content: "startup_research", bogus: "x" }, ...extra };
+  return { requestId: RID, email: "Founder@Example.com", firstName:"Morgan", lastName:"Example", practiceName:"Example Practice", consent: true, marketing: false, profile: PROFILE, token: "tok", attribution: { utm_source: "instagram", utm_campaign: "pss_free_resources_us_test01", utm_content: "startup_research", bogus: "x" }, ...extra };
 }
 function post(b: unknown, headers: Record<string, string> = {}) {
   return new Request(`${ORIGIN}/api/startup-research`, {
@@ -109,7 +109,7 @@ test("success captures lead, privately delivers report and returns only a receip
   assert.equal(stub.count(AI), 1);
   // HubSpot payload: email only by default, UTMs on pageUri, consent text, no extra fields.
   const hub = JSON.parse(String(stub.calls.find((c) => HUB.test(c.url))!.init!.body));
-  assert.deepEqual(hub.fields, [{ objectTypeId: "0-1", name: "email", value: "founder@example.com" }]);
+  assert.deepEqual(hub.fields, [{ objectTypeId: "0-1", name: "email", value: "founder@example.com" }, {objectTypeId:"0-1",name:"firstname",value:"Morgan"}, {objectTypeId:"0-1",name:"lastname",value:"Example"}, {objectTypeId:"0-1",name:"company",value:"Example Practice"}]);
   assert.equal(hub.context.pageUri, `${ORIGIN}/resources/startup-research/?utm_source=instagram&utm_campaign=pss_free_resources_us_test01&utm_content=startup_research`);
   assert.equal(hub.legalConsentOptions.consent.consentToProcess, true);
   assert.equal(hub.legalConsentOptions.consent.communications, undefined);
@@ -358,7 +358,7 @@ test("HubSpot extra fields are sent only when the owner lists them", async () =>
   const { deps, stub } = setup({ env: { HUBSPOT_RESEARCH_FIELDS: "utm_source,utm_campaign,pss_specialty,pss_reference,unknown_field" } });
   await handleGate(post(body()), deps);
   const hub = JSON.parse(String(stub.calls.find((c) => HUB.test(c.url))!.init!.body));
-  assert.deepEqual(hub.fields.map((f: any) => f.name), ["email", "utm_source", "utm_campaign", "pss_specialty", "pss_reference"]);
+  assert.deepEqual(hub.fields.map((f: any) => f.name), ["email", "firstname", "lastname", "company", "utm_source", "utm_campaign", "pss_specialty", "pss_reference"]);
   assert.equal(hub.fields.find((f: any) => f.name === "pss_reference").value, "PSS-11111111");
 });
 
@@ -623,4 +623,26 @@ test("expired lease after a process crash cannot repeat an unacknowledged submis
   assert.equal(result.status, 500);
   assert.match(result.json.message, /could not confirm/);
   assert.equal(stub.count(HUB), 1);
+});
+
+
+test('email mode works without HubSpot key, sends after capture, and keeps names out of AI, D1 and visitor responses', async()=>{
+ const messages:FormData[]=[];
+ const s=setup({env:{RESEARCH_DELIVERY_MODE:'email',HUBSPOT_PRIVATE_APP_TOKEN:undefined,HUBSPOT_RESEARCH_FALLBACK_OWNER_ID:undefined,REPORT_MAILER:{fetch:async(_url,init)=>{assert.equal(s.stub.count(HUB),1);messages.push(init!.body as FormData);return jsonResponse({ok:true,messageId:'email-1'});}}}});
+ const r=await read(await handleGate(post(body()),s.deps));assert.equal(r.status,200);
+ assert.equal(messages.length,1);assert.match(String(messages[0].get('text')),/Morgan Example/);
+ assert.equal(s.stub.count(/api\.hubapi\.com/),0);
+ const ai=JSON.stringify(s.stub.calls.filter(c=>AI.test(c.url)));
+ for(const value of ['Morgan','Example Practice','founder@example.com']) {assert.ok(!ai.includes(value));assert.ok(!JSON.stringify(r.json).includes(value));assert.ok(!JSON.stringify(s.sqlite.prepare('SELECT * FROM research_jobs').all()).includes(value));}
+ await handleGate(post(body()),s.deps);assert.equal(messages.length,1);
+ const changed=await read(await handleGate(post(body({firstName:'Different'})),s.deps));assert.equal(changed.status,409);
+});
+test('missing names are rejected before lead capture and email mode needs its private binding',async()=>{
+ const s=setup();
+ for(const extra of [{firstName:''},{lastName:'bad\nheader'},{practiceName:'x'.repeat(161)}]) {
+  const r=await read(await handleGate(post(body(extra)),s.deps));assert.equal(r.status,400);
+ }
+ assert.equal(s.stub.count(HUB),0);
+ const off=setup({env:{RESEARCH_DELIVERY_MODE:'email',REPORT_MAILER:undefined}});
+ assert.equal((await read(handleAvailability(new Request(ORIGIN+'/api/startup-research'),off.deps))).json.available,false);
 });

@@ -9,16 +9,19 @@
 // same requestId returns the stored result; ambiguous HubSpot attempts are
 // never automatically repeated; AI is called at most twice per requestId.
 
-import { validateGate, validateProfile, referenceFor, ValidationError, type FailureKind, type GateRequest } from "./contract.ts";
+import { validateGate, validateProfile, referenceFor, ValidationError, type FailureKind, type GateRequest, type ReportContact } from "./contract.ts";
 import { buildFacts, type Cache, type FactsBundle, type Fetcher } from "./facts.ts";
 import { generateBrief, briefInputs, ProviderError } from "./brief.ts";
 import { validateBrief, citableIds, type Brief } from "./guard.ts";
 import { researchCompetitors } from "./competitors.ts";
+import { emailReport, type ReportMailer } from './email-delivery.ts';
 import { deliverReport } from "./delivery.ts";
 import type { ResearchResult } from "./pdf.ts";
 import { CONSENT_TEXT, MARKETING_TEXT } from "./copy.ts";
 
 export interface ResearchEnv {
+  RESEARCH_DELIVERY_MODE?: "email" | "hubspot";
+  REPORT_MAILER?: ReportMailer;
   HUBSPOT_PRIVATE_APP_TOKEN?: string;
   HUBSPOT_RESEARCH_FALLBACK_OWNER_ID?: string;
   RESEARCH_ENABLED?: string;
@@ -50,7 +53,7 @@ export interface ResearchEnv {
 }
 
 export type Deps = {
-  renderReport?: (result: ResearchResult) => Promise<ArrayBuffer>;
+  renderReport?: (result: ResearchResult, contact?: ReportContact) => Promise<ArrayBuffer>;
   env: ResearchEnv;
   fetcher: Fetcher;
   now?: () => Date;
@@ -102,7 +105,7 @@ function int(v: string | undefined, fallback: number, max = 100000): number {
 }
 
 export function gateConfigured(env: ResearchEnv): boolean {
-  return env.RESEARCH_ENABLED === "true" && !!(env.RESEARCH_DB && env.RESEARCH_HASH_SECRET && env.TURNSTILE_SECRET_KEY && env.HUBSPOT_RESEARCH_FORM_ID && env.OPENAI_API_KEY && env.RESEARCH_MODEL && env.HUBSPOT_PRIVATE_APP_TOKEN && env.HUBSPOT_RESEARCH_FALLBACK_OWNER_ID);
+  return env.RESEARCH_ENABLED === "true" && !!(env.RESEARCH_DB && env.RESEARCH_HASH_SECRET && env.TURNSTILE_SECRET_KEY && env.HUBSPOT_RESEARCH_FORM_ID && env.OPENAI_API_KEY && env.RESEARCH_MODEL && (env.RESEARCH_DELIVERY_MODE === "email" ? env.REPORT_MAILER : env.HUBSPOT_PRIVATE_APP_TOKEN && env.HUBSPOT_RESEARCH_FALLBACK_OWNER_ID));
 }
 
 async function hmac(secret: string, value: string): Promise<string> {
@@ -281,10 +284,10 @@ export function hubspotPayload(g: GateRequest, origin: string, env: ResearchEnv,
   const pageUri = `${origin}/resources/startup-research/${params.toString() ? `?${params}` : ""}`;
   // Only fields the owner confirmed exist on the HubSpot form are sent.
   const allow = new Set((env.HUBSPOT_RESEARCH_FIELDS || "").split(",").map((s) => s.trim()).filter(Boolean));
-  const fields: Array<{ objectTypeId: string; name: string; value: string }> = [{ objectTypeId: "0-1", name: "email", value: g.email }];
+  const fields: Array<{ objectTypeId: string; name: string; value: string }> = [{ objectTypeId: "0-1", name: "email", value: g.email }, {objectTypeId:"0-1",name:"firstname",value:g.firstName}, {objectTypeId:"0-1",name:"lastname",value:g.lastName}, {objectTypeId:"0-1",name:"company",value:g.practiceName}];
   for (const name of allow) {
     const value = HUBSPOT_FIELD_SOURCES[name]?.(g, ref) ?? g.attribution[name] ?? "";
-    if (value && name !== "email") fields.push({ objectTypeId: "0-1", name, value });
+    if (value && !["email","firstname","lastname","company"].includes(name)) fields.push({ objectTypeId: "0-1", name, value });
   }
   const consent: Record<string, unknown> = {
     consentToProcess: true,
@@ -444,7 +447,7 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
   const day = t.toISOString().slice(0, 10);
   const identity = await hmac(env.RESEARCH_HASH_SECRET!, `email|${g.email}`);
   const ipHash = await hmac(env.RESEARCH_HASH_SECRET!, `ip|${request.headers.get("CF-Connecting-IP") || "unknown"}|${day}`);
-  const context = await hmac(env.RESEARCH_HASH_SECRET!, `context|${JSON.stringify(g.profile)}|${g.marketing}`);
+  const context = await hmac(env.RESEARCH_HASH_SECRET!, `context|${JSON.stringify(g.profile)}|${g.marketing}|${JSON.stringify([g.firstName,g.lastName,g.practiceName])}`);
   const reference = referenceFor(g.requestId);
 
   let job = await dbStep("select", deps, () => db.prepare(SELECT_JOB).bind(g.requestId).first<JobRow>());
@@ -664,7 +667,12 @@ async function gate(request: Request, deps: Deps): Promise<Response> {
 async function deliverAndConfirm(job: JobRow, g: GateRequest, deps: Deps, replay: boolean): Promise<Response> {
   try {
     const result = JSON.parse(job.result_json!) as ResearchResult;
-    await deliverReport({db:deps.env.RESEARCH_DB!, env:deps.env, fetcher:deps.fetcher, jobId:g.requestId, email:g.email, result, now:deps.now ?? (() => new Date()), render:deps.renderReport});
+    const contact = {firstName:g.firstName,lastName:g.lastName,practiceName:g.practiceName};
+    if (deps.env.RESEARCH_DELIVERY_MODE === 'email') {
+      await emailReport({db:deps.env.RESEARCH_DB!,mailer:deps.env.REPORT_MAILER!,fetcher:deps.fetcher,jobId:g.requestId,email:g.email,contact,result,now:deps.now ?? (()=>new Date()),render:deps.renderReport});
+    } else {
+      await deliverReport({db:deps.env.RESEARCH_DB!, env:deps.env, fetcher:deps.fetcher, jobId:g.requestId, email:g.email, contact, result, now:deps.now ?? (() => new Date()), render:deps.renderReport ? r=>deps.renderReport!(r,contact) : undefined});
+    }
     // Explicit allowlist: no full report, facts, file URLs, or CRM identifiers.
     return json({ok:true, requestId:g.requestId, reference:referenceFor(g.requestId), eventId:job.event_id, deliveryStatus:"with_team", replay});
   } catch {
