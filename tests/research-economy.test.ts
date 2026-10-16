@@ -57,7 +57,7 @@ test('FRED series fail independently and logs/responses cannot leak the API key 
   assert.equal(result.items[1].value,null);
   assert.equal(result.items[0].value,4.2);
   assert.doesNotMatch(JSON.stringify({result,logs}),/sensitive-key|api_key/);
-  assert.deepEqual(logs,[{e:'fred_unavailable',d:{series:'CPIAUCNS'}}]);
+  assert.deepEqual(logs,[{e:'fred_unavailable',d:{series:'CPIAUCNS',code:'network'}}]);
 });
 
 test('successful national observations share a six-hour cache, retain original retrieval dates, and expire', async () => {

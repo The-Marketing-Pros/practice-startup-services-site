@@ -88,21 +88,24 @@ export async function fetchEconomy(deps: { fetcher: Fetcher; apiKey?: string; ca
         }
       }
     } catch { /* Malformed/missing cache: query the public source. */ }
+    let code = "network";
     try {
       const params = new URLSearchParams({ series_id: series.id, api_key: key, file_type: 'json', sort_order: 'desc', limit: '36', observation_end: today });
       const response = await deps.fetcher(`https://api.stlouisfed.org/fred/series/observations?${params}`, { redirect: 'error', signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error('fred_unavailable');
+      if (!response.ok) { code = `http_${response.status}`; throw new Error('fred_unavailable'); }
+      code = 'non_json';
       const body = await response.json();
+      code = 'invalid_data';
       const observations = parseObservations(body, today);
       const retrieved = deps.now.toISOString();
       const item = economicIndicator(series, observations, retrieved, deps.now);
-      if (item.value === null) throw new Error('fred_no_data');
+      if (item.value === null) { code = 'no_data'; throw new Error('fred_no_data'); }
       // Persist only validated public observations, never response metadata or request URLs.
       const cleanBody = { observations: observations.map((x) => ({ date: x.date, value: String(x.value) })) };
       await deps.cache?.put(cacheKey, JSON.stringify({ body: cleanBody, retrieved }), 6 * 3600).catch(() => {});
       return item;
     } catch {
-      deps.log?.('fred_unavailable', { series: series.id });
+      deps.log?.('fred_unavailable', { series: series.id, code });
       return unavailable();
     }
   }));
