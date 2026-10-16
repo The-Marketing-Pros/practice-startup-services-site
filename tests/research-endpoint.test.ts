@@ -83,7 +83,7 @@ const HUB = /api\.hsforms\.com/;
 const AI = /api\.openai\.com/;
 
 test("availability and unconfigured gate report unavailable without calling any provider", async () => {
-  const { deps, stub, report } = setup({ env: { HUBSPOT_RESEARCH_FORM_ID: undefined } });
+  const { deps, stub } = setup({ env: { HUBSPOT_RESEARCH_FORM_ID: undefined } });
   const a = await read(handleAvailability(new Request(`${ORIGIN}/api/startup-research`), deps));
   assert.equal(a.json.available, false);
   assert.equal(a.json.previewAvailable, true);
@@ -129,7 +129,7 @@ test("success captures lead, privately delivers report and returns only a receip
 });
 
 test("idempotent replay returns the stored result without new HubSpot or AI calls", async () => {
-  const { deps, stub, report } = setup();
+  const { deps, stub } = setup();
   const first = await read(await handleGate(post(body()), deps));
   const again = await read(await handleGate(post(body()), deps));
   assert.equal(again.status, 200);
@@ -143,12 +143,13 @@ test("idempotent replay returns the stored result without new HubSpot or AI call
 });
 
 test("HubSpot rate-limit rejection permits a retry without consuming new job quota", async () => {
-  const { deps, stub, sqlite, report } = setup({ env: { RESEARCH_DAILY_PER_EMAIL: "1" }, hubspot: [() => jsonResponse({ status: "error" }, 429)] });
+  const { deps, stub, sqlite } = setup({ env: { RESEARCH_DAILY_PER_EMAIL: "1" }, hubspot: [() => jsonResponse({ status: "error" }, 429)] });
   const fail = await read(await handleGate(post(body()), deps));
   assert.equal(fail.status, 502);
   assert.equal(fail.json.kind, "provider");
   assert.equal(stub.count(AI), 0, "no paid AI call before the lead is captured");
   const ok = await read(await handleGate(post(body()), deps));
+  assert.equal(ok.status,200);
   assert.equal(ok.status, 200, "per-email cap of 1 is not consumed by the retry");
   assert.equal(stub.count(HUB), 2);
   assert.equal((sqlite.prepare("SELECT count(*) n FROM research_jobs").get() as any).n, 1);
@@ -160,6 +161,7 @@ test("an AI provider failure after lead capture never re-submits HubSpot on retr
   assert.equal(fail.status, 502);
   assert.equal(fail.json.kind, "provider");
   const ok = await read(await handleGate(post(body()), deps));
+  assert.equal(ok.status,200);
   assert.equal(report().briefStatus, "ready");
   assert.equal(stub.count(HUB), 1, "HubSpot submitted exactly once per requestId");
   assert.equal(stub.count(AI), 2);
@@ -167,7 +169,7 @@ test("an AI provider failure after lead capture never re-submits HubSpot on retr
 
 test("malformed or non-JSON AI responses are provider errors, not system or quota errors", async () => {
   for (const respond of [() => new Response("<html>bad gateway</html>", { status: 200, headers: { "Content-Type": "text/html" } }), () => new Response("", { status: 502 })]) {
-    const { deps, report } = setup({ openai: [respond] });
+    const { deps } = setup({ openai: [respond] });
     const r = await read(await handleGate(post(body()), deps));
     assert.equal(r.json.kind, "provider");
   }
@@ -191,7 +193,7 @@ test("database errors are 'system', never 'rate_limited'; unwrapped SELECT/UPDAT
 });
 
 test("a duplicate-id INSERT (UNIQUE violation from a concurrent retry) resolves to the stored result, not a quota error", async () => {
-  const { deps, stub, report } = setup();
+  const { deps, stub } = setup();
   const first = await read(await handleGate(post(body()), deps));
   // Re-run with a SELECT that misses once, so INSERT hits the primary key.
   const sqliteDeps = { ...deps, env: { ...deps.env, RESEARCH_DB: hideOnce(deps.env.RESEARCH_DB!) } };
@@ -217,7 +219,7 @@ function hideOnce(db: D1Database): D1Database {
 }
 
 test("quota limits return rate_limited (per email, per IP, global)", async () => {
-  const { deps, report } = setup({ env: { RESEARCH_DAILY_PER_EMAIL: "2" } });
+  const { deps } = setup({ env: { RESEARCH_DAILY_PER_EMAIL: "2" } });
   for (const id of ["22222222-2222-4222-8222-222222222222", "33333333-3333-4333-8333-333333333333"])
     assert.equal((await read(await handleGate(post(body({ requestId: id })), deps))).status, 200);
   const third = await read(await handleGate(post(body({ requestId: "44444444-4444-4444-8444-444444444444" })), deps));
@@ -248,7 +250,7 @@ test("Turnstile failure is 'verification'; verification outage is 'provider'; ne
 });
 
 test("request hygiene: exact origin, JSON content type, body cap, malformed JSON, field validation", async () => {
-  const { deps, stub, report } = setup();
+  const { deps, stub } = setup();
   assert.equal((await read(await handleGate(post(body(), { Origin: "https://evil.example" }), deps))).json.kind, "verification");
   assert.equal((await read(await handleGate(post(body(), { Origin: "https://practicestartupservices.com.evil.example" }), deps))).json.kind, "verification");
   assert.equal((await read(await handleGate(post(body(), { "Content-Type": "text/plain" }), deps))).json.kind, "validation");
@@ -286,6 +288,7 @@ test("numeric guard rejection: never shown, counted as billed, one regeneration 
 test("first output rejected, regeneration accepted", async () => {
   const { deps, sqlite, report } = setup({ openai: [() => jsonResponse(openAiResponse(GOOD_BRIEF, "incomplete")), () => jsonResponse(openAiResponse(GOOD_BRIEF))] });
   const r = await read(await handleGate(post(body()), deps));
+  assert.equal(r.status, 200);
   assert.equal(report().briefStatus, "ready");
   assert.equal((sqlite.prepare("SELECT rejected_billed FROM research_usage").get() as any).rejected_billed, 1);
 });
@@ -300,7 +303,7 @@ test("daily AI cap: no model call, lead still captured, honest fallback status",
 });
 
 test("a failed private save returns no report and never starts CRM delivery", async () => {
-  const { deps, stub, report } = setup({ faults: [{ match: /SET status = 'complete'/, error: "D1_ERROR: write failed" }] });
+  const { deps, stub } = setup({ faults: [{ match: /SET status = 'complete'/, error: "D1_ERROR: write failed" }] });
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.status, 500);
   assert.equal(r.json.brief, undefined);
@@ -309,7 +312,7 @@ test("a failed private save returns no report and never starts CRM delivery", as
 });
 
 test("changed details on the same requestId is a conflict; a live lease is in_progress", async () => {
-  const { deps, report } = setup();
+  const { deps } = setup();
   await handleGate(post(body()), deps);
   const conflict = await read(await handleGate(post(body({ email: "someone-else@example.com" })), deps));
   assert.equal(conflict.status, 409);
@@ -332,7 +335,7 @@ test("Meta CAPI: sent once with the shared event id and no email/phone; skipped 
   const other = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "999999999999999", META_CAPI_TOKEN: "test-capi-token" } });
   await handleGate(post(body()), other.deps);
   assert.equal(other.stub.count(/graph\.facebook\.com/), 0);
-  const { deps, stub, pending, sqlite, report } = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "test-capi-token" } });
+  const { deps, stub, pending, sqlite } = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "test-capi-token" } });
   const r = await read(await handleGate(post(body(), { Cookie: "_fbp=fb.1.1.2; _fbc=fb.1.1.abc" }), deps));
   await Promise.all(pending);
   const call = stub.calls.find((c) => /graph\.facebook\.com/.test(c.url))!;
@@ -352,7 +355,7 @@ test("Meta CAPI: sent once with the shared event id and no email/phone; skipped 
 });
 
 test("HubSpot extra fields are sent only when the owner lists them", async () => {
-  const { deps, stub, report } = setup({ env: { HUBSPOT_RESEARCH_FIELDS: "utm_source,utm_campaign,pss_specialty,pss_reference,unknown_field" } });
+  const { deps, stub } = setup({ env: { HUBSPOT_RESEARCH_FIELDS: "utm_source,utm_campaign,pss_specialty,pss_reference,unknown_field" } });
   await handleGate(post(body()), deps);
   const hub = JSON.parse(String(stub.calls.find((c) => HUB.test(c.url))!.init!.body));
   assert.deepEqual(hub.fields.map((f: any) => f.name), ["email", "utm_source", "utm_campaign", "pss_specialty", "pss_reference"]);
@@ -360,7 +363,7 @@ test("HubSpot extra fields are sent only when the owner lists them", async () =>
 });
 
 test("HubSpot rejecting the email is a validation error on the email field", async () => {
-  const { deps, report } = setup({ hubspot: [() => jsonResponse({ status: "error", errors: [{ errorType: "INVALID_EMAIL" }] }, 400)] });
+  const { deps } = setup({ hubspot: [() => jsonResponse({ status: "error", errors: [{ errorType: "INVALID_EMAIL" }] }, 400)] });
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.json.kind, "validation");
   assert.equal(r.json.field, "email");
@@ -370,7 +373,7 @@ test("HubSpot rejecting the email is a validation error on the email field", asy
 
 const PREVIEW_HOST = "https://abc123.practice-startup-services.pages.dev";
 test("free preview works without a database binding on preview deployments and validates input", async () => {
-  const { deps, stub, report } = setup({ env: { RESEARCH_DB: undefined, RESEARCH_ENABLED: undefined } });
+  const { deps, stub } = setup({ env: { RESEARCH_DB: undefined, RESEARCH_ENABLED: undefined } });
   const ok = await read(await handlePreview(new Request(`${PREVIEW_HOST}/api/startup-research-preview?${new URLSearchParams(PROFILE as Record<string, string>)}`), deps));
   assert.equal(ok.status, 200);
   assert.equal(ok.json.facts.sections.nppes.status, "ok");
@@ -382,7 +385,7 @@ test("free preview works without a database binding on preview deployments and v
 });
 
 test("free preview soft per-IP cap and cache use the database when bound", async () => {
-  const { deps, stub, report } = setup({ env: { RESEARCH_PREVIEW_DAILY_PER_IP: "2" } });
+  const { deps, stub } = setup({ env: { RESEARCH_PREVIEW_DAILY_PER_IP: "2" } });
   const req = () => new Request(`${ORIGIN}/api/startup-research-preview?${new URLSearchParams(PROFILE as Record<string, string>)}`, { headers: { "CF-Connecting-IP": "198.51.100.4" } });
   assert.equal((await handlePreview(req(), deps)).status, 200);
   const calls = stub.calls.length;
@@ -414,13 +417,14 @@ test("a failed hubspot_status write cannot cause a second HubSpot submission", a
   assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "provider");
   assert.equal((sqlite.prepare("SELECT hubspot_status FROM research_jobs").get() as any).hubspot_status, "submitted", "release() recorded it");
   const ok = await read(await handleGate(post(body()), deps));
+  assert.equal(ok.status,200);
   assert.equal(report().briefStatus, "ready");
   assert.equal(stub.count(HUB), 1);
 });
 
 test("OpenAI 400/401/403/404 is a system error with no retry and the reserved call refunded", async () => {
   for (const status of [400, 401, 403, 404]) {
-    const { deps, stub, sqlite, report } = setup({ openai: [() => jsonResponse({ error: { message: "bad" } }, status)] });
+    const { deps, stub, sqlite } = setup({ openai: [() => jsonResponse({ error: { message: "bad" } }, status)] });
     const r = await read(await handleGate(post(body()), deps));
     assert.equal(r.json.kind, "system", String(status));
     assert.equal(stub.count(AI), 1, "no second call in the same request");
@@ -430,7 +434,7 @@ test("OpenAI 400/401/403/404 is a system error with no retry and the reserved ca
 });
 
 test("lease covers the AI calls and is renewed; bodies without Content-Length are stream-capped", async () => {
-  const { deps, sqlite, stub, report } = setup({ faults: [{ match: /SET status = 'complete'/, error: "D1_ERROR: keep processing", times: 2 }] });
+  const { deps, sqlite, stub } = setup({ faults: [{ match: /SET status = 'complete'/, error: "D1_ERROR: keep processing", times: 2 }] });
   await handleGate(post(body()), deps);
   const lease = (sqlite.prepare("SELECT lease_until FROM research_jobs").get() as any).lease_until;
   assert.ok(lease >= NOW.getTime() + 240000, "lease is at least 240 s");
@@ -444,14 +448,14 @@ test("lease covers the AI calls and is renewed; bodies without Content-Length ar
 });
 
 test("HubSpot receives exactly the consent text shown in the form", async () => {
-  const { deps, stub, report } = setup();
+  const { deps, stub } = setup();
   await handleGate(post(body()), deps);
   const hub = JSON.parse(String(stub.calls.find((c) => HUB.test(c.url))!.init!.body));
   assert.equal(hub.legalConsentOptions.consent.text, CONSENT_TEXT);
 });
 
 test("CAPI never fires from preview deployments, even with matching IDs", async () => {
-  const { deps, stub, pending, report } = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "t" }, turnstile: () => jsonResponse({ success: true, hostname: "abc123.practice-startup-services.pages.dev", action: "startup_research" }) });
+  const { deps, stub, pending } = setup({ env: { META_PIXEL_ID: "123456789012345", PUBLIC_META_PIXEL_ID: "123456789012345", META_CAPI_TOKEN: "t" }, turnstile: () => jsonResponse({ success: true, hostname: "abc123.practice-startup-services.pages.dev", action: "startup_research" }) });
   const req = new Request(`${PREVIEW_HOST}/api/startup-research`, { method: "POST", headers: { Origin: PREVIEW_HOST, "Content-Type": "application/json" }, body: JSON.stringify(body()) });
   const r = await read(await handleGate(req, deps));
   assert.equal(r.status, 200);
@@ -471,7 +475,7 @@ test("availability reports the real previewAvailable for the hostname (same rule
   for (const [env, host, expected] of cases) {
     resetPreviewBlockedLog();
     const logs: string[] = [];
-    const { deps, report } = setup({ env });
+    const { deps } = setup({ env });
     const d = { ...deps, log: (e: string) => void logs.push(e) };
     const a = await read(handleAvailability(new Request(`${host}/api/startup-research`), d));
     assert.equal(a.json.previewAvailable, expected, JSON.stringify(env) + host);
@@ -482,7 +486,7 @@ test("availability reports the real previewAvailable for the hostname (same rule
 });
 
 test("AI config errors are capped per job; after a rejected output a 4xx finishes with the fallback", async () => {
-  const { deps, stub, report } = setup({ openai: [() => jsonResponse({ error: {} }, 401), () => jsonResponse({ error: {} }, 401)] });
+  const { deps, stub } = setup({ openai: [() => jsonResponse({ error: {} }, 401), () => jsonResponse({ error: {} }, 401)] });
   assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "system");
   assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "unavailable", "second config error caps the job");
   assert.equal((await read(await handleGate(post(body()), deps))).json.kind, "unavailable");
@@ -512,7 +516,7 @@ test("lease renewal is owner-checked and never consumes an attempt when it fails
 
 test("concurrent submissions with the same requestId: one 200, the rest 409, one HubSpot, one AI", async () => {
   const slow = (r: Response) => new Promise<Response>((res) => setTimeout(() => res(r), 30));
-  const { deps, stub, report } = setup({
+  const { deps, stub } = setup({
     hubspot: [() => slow(jsonResponse({ inlineMessage: "ok" })), () => slow(jsonResponse({ inlineMessage: "ok" })), () => slow(jsonResponse({ inlineMessage: "ok" }))],
   });
   const results = await Promise.all([1, 2, 3].map(async () => read(await handleGate(post(body()), deps))));
@@ -526,7 +530,7 @@ test("concurrent submissions with the same requestId: one 200, the rest 409, one
 test("preview_blocked_unconfigured is logged once per isolate, not per request", async () => {
   resetPreviewBlockedLog();
   const logs: string[] = [];
-  const { deps, report } = setup({ env: { RESEARCH_DB: undefined } });
+  const { deps } = setup({ env: { RESEARCH_DB: undefined } });
   const d = { ...deps, log: (e: string) => void logs.push(e) };
   for (let i = 0; i < 5; i++) {
     handleAvailability(new Request(`${ORIGIN}/api/startup-research`), d);
@@ -537,7 +541,7 @@ test("preview_blocked_unconfigured is logged once per isolate, not per request",
 
 test("release and save only write while this request still holds the lease", async () => {
   let steal = () => {};
-  const { deps, sqlite, report } = setup({ openai: [() => { steal(); return jsonResponse(openAiResponse(GOOD_BRIEF)); }] });
+  const { deps, sqlite } = setup({ openai: [() => { steal(); return jsonResponse(openAiResponse(GOOD_BRIEF)); }] });
   steal = () => sqlite.prepare("UPDATE research_jobs SET lease_token = 'other-worker'").run();
   const r = await read(await handleGate(post(body()), deps));
   assert.equal(r.status, 500, "no report returned when the save lease is lost");
@@ -551,6 +555,7 @@ test("competitor search runs only in gated reports, persists on replay and honor
   await handlePreview(new Request(`${ORIGIN}/api/startup-research-preview?${new URLSearchParams(PROFILE)}`),s.deps);
   assert.equal(s.stub.count(/api\.search\.brave/),0);
   const first = await read(await handleGate(post(body()),s.deps));
+  assert.equal(first.status,200);
   assert.equal(s.report().competitors.status,'ok');
   assert.equal(s.report().competitors.items[0].url,'https://clinic.example.org/');
   const repeated = await read(await handleGate(post(body()),s.deps));
@@ -597,20 +602,21 @@ test("ambiguous HubSpot response loss and server errors never resubmit the lead"
     // An operator confirms receipt from HubSpot; the same request resumes.
     sqlite.exec("UPDATE research_jobs SET hubspot_status = 'submitted'");
     const recovered = await read(await handleGate(post(body()), deps));
+    assert.equal(recovered.status, 200);
     assert.equal(report().briefStatus, "ready");
     assert.equal(stub.count(HUB), 1);
   }
 });
 
 test("failed write-ahead marker prevents any outbound lead submission", async () => {
-  const { deps, stub, report } = setup({ faults: [{ match: /SET hubspot_attempted = 1/, error: "D1 unavailable" }] });
+  const { deps, stub } = setup({ faults: [{ match: /SET hubspot_attempted = 1/, error: "D1 unavailable" }] });
   const result = await read(await handleGate(post(body()), deps));
   assert.equal(result.status, 500);
   assert.equal(stub.count(HUB), 0);
 });
 
 test("expired lease after a process crash cannot repeat an unacknowledged submission", async () => {
-  const { deps, stub, sqlite, report } = setup();
+  const { deps, stub, sqlite } = setup();
   await handleGate(post(body()), deps);
   sqlite.exec("UPDATE research_jobs SET hubspot_status = 'pending', result_json = NULL, status = 'processing', lease_until = 0");
   const result = await read(await handleGate(post(body()), deps));

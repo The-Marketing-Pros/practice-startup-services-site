@@ -10,7 +10,7 @@ const now = () => new Date('2026-10-16T12:00:00Z');
 async function setup(opts: {owner?:string, fail?:string, fault?:string} = {}) {
   const {d1,sqlite} = createD1({faults:opts.fault ? [{match:new RegExp(opts.fault),error:'database failure'}]:[]});
   let failures = 0;
-  const api = stubFetch([{match:/./,respond:(url,init) => {
+  const api = stubFetch([{match:/./,respond:(url) => {
     if(opts.fail && url.includes(opts.fail) && ++failures===1) throw new Error('network_failure');
     if(url.includes('/owners/')) return jsonResponse({id:'31',userId:7});
     if(url.includes('/contacts/')) return jsonResponse({id:'11',properties:{hubspot_owner_id:opts.owner ?? '31'}});
