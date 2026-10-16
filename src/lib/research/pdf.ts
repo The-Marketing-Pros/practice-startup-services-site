@@ -6,6 +6,8 @@ import { ECONOMY_NOTE, FRED_NOTICE, FRED_TERMS, economicPeriod } from "./economy
 import type { FactsBundle } from "./facts.ts";
 import type { Brief } from "./guard.ts";
 import { competitorNote, competitorUrl, type CompetitorResearch } from "./competitors.ts";
+import { researchToolLinks } from "./tool-links.ts";
+import { stages } from "../planners/checklist.ts";
 import type { Task } from "../planners/checklist.ts";
 
 export type ResearchResult = {
@@ -39,17 +41,34 @@ export function briefStatusNote(status: string): string {
   }
 }
 
-export async function researchPdf(result: ResearchResult, plan: { summary: string; personal: Task[]; first: Task[]; total: number }, fontFetch: typeof fetch = fetch) {
+export async function researchPdf(result: ResearchResult, plan: { summary: string; personal: Task[]; first: Task[]; total: number; all: Task[] }, fontFetch: typeof fetch = fetch) {
   const f = result.facts;
   const pdf = await pdfDocument(
-    "My startup research",
+    "Your practice launch plan",
     `${f.labels.provider} | ${f.labels.specialty} | ZIP ${f.zip}${f.labels.state ? ` (${f.labels.state})` : ""}`,
     fontFetch,
   );
   pdf.line(`Reference ${result.reference} | Generated ${result.generatedAt.slice(0, 10)}`, 9);
   pdf.line("Facts come from public sources named below. Estimates are calculated from those facts and labeled. Interpretations are planning suggestions, not advice. Confirm requirements with your licensing board, payers and advisers.", 9);
 
+  const links = researchToolLinks(f.profile);
+  const origin = "https://practicestartupservices.com";
   pdf.space();
+  pdf.section("Your roadmap");
+  pdf.line("Use this report to organize your launch, investigate your market and decide what to validate next. Your PPS specialist can help you turn the findings into an action plan.");
+  if (result.briefStatus !== "ready") pdf.line(`Report status: ${briefStatusNote(result.briefStatus)}`, 9, true);
+  pdf.jump("01  Market research and planning brief", "market");
+  pdf.jump("02  Marketing action plan", "marketing");
+  pdf.jump("03  Full startup checklist", "checklist");
+  pdf.jump("04  Pro forma and financial planning", "proforma");
+  pdf.jump("05  Sources and limits", "sources");
+  pdf.space();
+  pdf.line("Continue with your editable tools", 12, true);
+  pdf.link("Open your full startup checklist", origin + links.checklist);
+  pdf.link("Open your pro forma builder", origin + links.proforma);
+  pdf.line("These links carry your practice details. Checklist progress and financial assumptions are edited and saved in your browser; they are not embedded in these links.", 9);
+
+  pdf.section("01 / Market research", "market", true);
   pdf.line("Your area at a glance", 14, true);
   if (f.sections.acs.status !== "ok") pdf.line(f.sections.acs.message);
   for (const x of f.facts.filter((x) => x.sourceId === "acs"))
@@ -118,18 +137,50 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
     pdf.line("Before positioning your practice, compare services, geography, payer participation and appointment access directly with each practice.", 9);
     pdf.space();
   }
-  pdf.line("Your tailored startup checklist", 14, true);
-  pdf.line(plan.summary, 9);
-  pdf.line(`${plan.total} tasks in your plan. Steps added for your situation:`);
-  for (const t of plan.personal) pdf.line(`- ${t.title}${t.reason ? ` (${t.reason})` : ""}`);
-  if (plan.first.length) {
-    pdf.line("Start these first (suggested start dates have passed for your timeline):", 10, true);
-    for (const t of plan.first) pdf.line(`- ${t.title}`);
-  }
-  pdf.link("Open and edit your full checklist", "https://practicestartupservices.com/resources/startup-checklist/");
+  pdf.section("02 / Marketing action plan", "marketing", true);
+  pdf.line(`${f.labels.specialty} | ZIP ${f.zip}`, 11, true);
+  pdf.line("A planning framework tailored to the practice details you supplied. These are suggested actions, not verified market opportunities, forecasts or AI findings. Validate them with your PPS specialist and the sources in this report.", 9);
+  const actions = [
+    ["Define your position", `Describe who your ${f.labels.specialty.toLowerCase()} practice will serve, which services you will offer and how patients will access care. Compare the potential competitors in this report directly before making claims about gaps in the market.`],
+    ["Build the patient discovery path", f.profile.setting === "telehealth" ? "Build a clear specialty and service-area page for the states where you can practice. Explain the virtual visit process and test the appointment request flow before promoting it." : "Prepare your practice website and eligible local business listing with consistent location, service and appointment information. Test the path from a local search to a completed inquiry."],
+    ["Make access clear", f.profile.payer === "cash" ? "Explain your self-pay services, published prices and payment policies. Confirm the offer with your team before using it in advertising." : "Publish only confirmed payer participation and explain the difference between enrollment in progress and plans you currently accept. Make it easy for patients to ask about coverage."],
+    ["Develop referral relationships", "Identify relevant local clinicians and community organizations. Prepare a concise service introduction, a referral process and a contact person; verify that each relationship fits your specialty and care model."],
+    ["Launch, measure and adjust", "Choose an initial outreach channel and agree on a budget before launch. Track inquiries, booked visits, attended visits and referral sources. Review results against capacity and cash flow before expanding. Keep patient and sensitive health information out of advertising analytics."],
+  ];
+  for (const [title, text] of actions) { pdf.keep(38); pdf.line(title, 12, true); pdf.line(text); pdf.space(); }
+  pdf.line("Working decisions to complete with your specialist: priority audience, service offer, channel, owner, launch date, budget and success measure.", 9);
 
-  pdf.space();
-  pdf.line("Sources and limits", 14, true);
+  pdf.section("03 / Full startup checklist", "checklist", true);
+  pdf.line(plan.summary, 9);
+  pdf.line(`${plan.total} tasks tailored to your practice. Use the editable checklist to assign owners, set dates, track progress and download a working copy.`, 10);
+  pdf.link("Open and edit your full checklist", origin + links.checklist);
+  if (plan.first.length) {
+    pdf.line("Start these first", 12, true);
+    pdf.line("Suggested start dates have passed for your timeline. These are planning targets, not required lead times.", 9);
+    for (const t of plan.first) pdf.line(`- ${t.title}`, 9);
+  }
+  let phase = -1;
+  for (const t of plan.all) {
+    if (t.phase !== phase) { pdf.keep(50); pdf.space(); pdf.line(stages[t.phase], 13, true); phase = t.phase; }
+    pdf.keep(28);
+    pdf.line(`[ ] ${t.title}`, 10, true);
+    pdf.line(t.detail, 9);
+    if (t.reason) pdf.line(`Why it applies: ${t.reason}`, 8);
+    if (t.link) pdf.link(t.link.label, t.link.url);
+  }
+
+  pdf.section("04 / Pro forma and financial planning", "proforma", true);
+  pdf.line("Build your cash forecast", 14, true);
+  pdf.line("Your practice details are carried into the pro forma builder. Review the starting assumptions, then enter your own costs, capacity, expected collections, payer mix and funding. The report does not assume you have supplied financial figures.");
+  pdf.link("Open your pro forma builder", origin + links.proforma);
+  pdf.line("Complete the assumptions", 12, true);
+  pdf.line("Replace sample values with your actual quotes, contracts and expected staffing. Apply your selected practice context in the builder only when you are ready to replace its starting inputs.");
+  pdf.line("Review the forecast", 12, true);
+  pdf.line("Check startup costs, opening cash, monthly cash balance and any modeled funding shortfall. Adjust the launch and marketing plan to the resources available.");
+  pdf.line("Export and share", 12, true);
+  pdf.line("Download the editable Excel workbook or formatted PDF from the builder. Review the assumptions and model limits with your advisers. Saved browser inputs do not travel with the link.");
+
+  pdf.section("05 / Sources and limits", "sources", true);
   for (const s of f.sources) {
     pdf.line(`${s.name}${s.vintage ? ` (${s.vintage})` : ""}`, 9, true);
     if (s.url) pdf.link("Source", s.url);

@@ -460,10 +460,11 @@ export async function financeExcel(plan: FinancePlan) {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   );
 }
-export async function checklistPdf(plan: Checklist) {
+export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof fetch; download?: boolean} = {}) {
   const pdf = await pdfDocument(
     "My practice startup checklist",
     plan.profile.name || "My practice",
+    options.fontFetch,
   );
   pdf.line(profileSummary(plan.profile));
   pdf.line(openingLine(plan));
@@ -475,9 +476,9 @@ export async function checklistPdf(plan: Checklist) {
   for (const t of visibleTasks(plan)) {
     const help = supportForTask(t.id);
     if (t.phase !== phase) {
-      pdf.keep(help ? 85 : 52);
+      pdf.keep(help ? 110 : 80);
       pdf.space();
-      pdf.line(`${t.phase + 1}. ${stages[t.phase]}`, 14, true);
+      pdf.section(`${t.phase + 1}. ${stages[t.phase]}`);
       phase = t.phase;
     }
     const p = taskProgress(plan, t);
@@ -498,13 +499,14 @@ export async function checklistPdf(plan: Checklist) {
       pdf.link(help.label, help.url);
     }
   }
-  pdf.finish("practice-startup-checklist.pdf");
+  return pdf.finish(options.download === false ? undefined : "practice-startup-checklist.pdf");
 }
-export async function financePdf(plan: FinancePlan) {
+export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof fetch; download?: boolean} = {}) {
   const r = project(plan);
   const pdf = await pdfDocument(
     "My practice startup pro forma",
     `${plan.name || "My practice"} | Opening ${plan.opening} | USD`,
+    options.fontFetch,
   );
   pdf.line(
     "Planning estimate based on your inputs. Sample values are illustrative, not industry benchmarks. This is a cash forecast, not an accrual income statement.",
@@ -530,13 +532,13 @@ export async function financePdf(plan: FinancePlan) {
     `First month with nonnegative cash change after debt: ${r.cashPositiveMonth ?? "Not within 24 months"}. This is not cumulative payback.`,
   );
   pdf.space();
-  pdf.line("Your assumptions", 14, true);
+  pdf.section("Your assumptions");
   const preset = new Set(plan.context?.presetFields ?? []);
   for (const [key, label] of financeFields)
     pdf.line(`${label}: ${plan.values[key].toLocaleString("en-US")}${preset.has(key) ? " (starting assumption: replace)" : ""}`);
   pdf.line(`Pre-opening overhead = ${plan.values.preMonths} months x (rent + software + insurance + marketing + other) = ${cash(r.preOverhead)}. Included in startup costs. "Pre-opening payroll & one-time costs" excludes these recurring costs, so nothing is counted twice.`);
   pdf.space();
-  pdf.line("Payer mix", 14, true);
+  pdf.section("Payer mix");
   const mix = plan.mix ?? newMix();
   for (const k of payerKeys)
     pdf.line(`${payerLabels[k]}: ${mix.payers[k].share}% of visits x ${cash(mix.payers[k].net)} net per visit${preset.has(`mix-${k}-net`) ? " (starting assumption: replace)" : ""}`);
@@ -548,24 +550,14 @@ export async function financePdf(plan: FinancePlan) {
     true,
   );
   pdf.space();
-  pdf.line("Monthly cash forecast", 14, true);
-  for (const m of r.months) {
-    pdf.keep(28);
-    pdf.line(
-      `${m.month}. ${m.label} | Visits ${m.visits.toFixed(1)} | Utilization ${(m.utilization * 100).toFixed(0)}%`,
-      11,
-      true,
-    );
-    pdf.line(
-      `Earned ${cash(m.earned)} | Collected ${cash(m.collected)} | Operating outflow ${cash(m.expenses)}`,
-    );
-    pdf.line(
-      `Debt ${cash(plan.values.debt)} | Net cash ${cash(m.netCash)} | Cash balance ${cash(m.balance)}`,
-    );
-  }
+  pdf.section("Monthly cash forecast", undefined, true);
+  pdf.table(["Month", "Visits", "Earned", "Collected", "Net cash", "Balance"],
+    r.months.map(m => [m.label, m.visits.toFixed(1), cash(m.earned), cash(m.collected), cash(m.netCash), cash(m.balance)]),
+    [29, 17, 31, 31, 31, 33]);
+  pdf.line("Net cash is after operating outflow and debt payments. The Excel export includes the full monthly calculation detail.", 9);
   pdf.space();
   pdf.keep(65);
-  pdf.line("Model notes", 14, true);
+  pdf.section("Model notes");
   pdf.line(
     "Startup costs are paid before opening. Available funding is received upfront. Volume ramps linearly; provider count and monthly costs remain constant. Collections lag by whole months. Variable costs follow cash collections. Owner/provider compensation and payroll burden are included.",
   );
@@ -576,6 +568,6 @@ export async function financePdf(plan: FinancePlan) {
     "Payer mix, when on, sets net collections per visit to the share-weighted sum of each payer's net per visit. Pre-opening overhead counts months of fixed costs before opening.",
   );
   pdf.line("Planning framework: sba.gov/counseling/plan-your-business/");
-  pdf.finish("practice-startup-pro-forma.pdf");
+  return pdf.finish(options.download === false ? undefined : "practice-startup-pro-forma.pdf");
 }
 

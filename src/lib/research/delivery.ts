@@ -23,7 +23,7 @@ export async function reportBytes(result: ResearchResult, fetcher: Fetcher): Pro
   const plan = newChecklist();
   Object.assign(plan.profile, result.facts.profile, {state: stateForZip(result.facts.zip)?.name ?? ''});
   const tasks = visibleTasks(plan);
-  return researchPdf(result, {summary: profileSummary(plan.profile), personal: tasks.filter(t => personalTaskIds.includes(t.id)), first: priorityTasks(plan), total: tasks.length},
+  return researchPdf(result, {summary: profileSummary(plan.profile), personal: tasks.filter(t => personalTaskIds.includes(t.id)), first: priorityTasks(plan), total: tasks.length, all: tasks},
     ((path: string) => fetcher(`https://practicestartupservices.com${path}`, {redirect:'manual', signal:AbortSignal.timeout(10000)})) as typeof fetch);
 }
 

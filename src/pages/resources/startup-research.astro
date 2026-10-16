@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
+import ResearchTools from '../../components/resources/ResearchTools.astro';
 import { specialties, providerTypes, practiceModels, launchStages, payerMixes } from '../../lib/startup/options';
 import { CONSULT_BOOKING_URL } from '@config/site';
 import { CONSENT_TEXT, MARKETING_TEXT } from '../../lib/research/copy';
@@ -17,12 +18,13 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
   <p class="rs-intro">Public data on your ZIP code and how many providers in your field are already listed nearby, plus a startup plan tailored to your provider type, specialty and launch stage. For physicians, NPs, PAs, therapists and other practice founders.</p>
   <ul class="research-promise"><li>Free to use</li><li>No email needed for the preview</li><li>Every number shows its source and date</li></ul>
  </section>
- <noscript><p class="rs-notice">Enable JavaScript to run the research preview. The <a class="rs-link" href="/resources/startup-checklist/">startup checklist</a> and <a class="rs-link" href="/journey/">launch guides</a> are also available.</p></noscript>
+ <ResearchTools />
+ <noscript><p class="rs-notice">Enable JavaScript to run the research preview. The <a class="rs-link" data-research-tool="checklist" target="_blank" rel="noopener" href="/resources/startup-checklist/">startup checklist</a> and <a class="rs-link" href="/journey/">launch guides</a> are also available.</p></noscript>
  <div class="rs-workspace research-ws rs-has-js">
   <aside class="rs-panel research-inputs">
    <p class="rs-kicker">01 / Your practice</p>
    <h2>Tell us what you are planning</h2>
-   <p id="preview-unavailable" class="rs-notice" role="status" hidden>The free preview is not available yet. The <a class="rs-link" href="/resources/startup-checklist/">startup checklist</a> and <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+   <p id="preview-unavailable" class="rs-notice" role="status" hidden>The free preview is not available yet. The <a class="rs-link" data-research-tool="checklist" target="_blank" rel="noopener" href="/resources/startup-checklist/">startup checklist</a> and <a class="rs-link" data-research-tool="proforma" target="_blank" rel="noopener" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
    <form id="research-profile" novalidate autocomplete="off">
     <div class="rs-field"><label for="r-provider">Provider type</label><select id="r-provider" name="provider" required aria-describedby="r-provider-error">{providerTypes.map(o=><option value={o.value}>{o.label}</option>)}</select><p class="research-error" id="r-provider-error" hidden></p></div>
     <div class="rs-field"><label for="r-specialty">Specialty</label><select id="r-specialty" name="specialty" required aria-describedby="r-specialty-error"><option value="">Select your specialty</option>{specialties.map(s=><option value={s.id}>{s.label}</option>)}</select><p class="research-error" id="r-specialty-error" hidden></p></div>
@@ -49,14 +51,15 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
     <section class="research-block" aria-labelledby="nppes-title"><h3 id="nppes-title">Providers already listed nearby</h3><div id="nppes-content"></div></section>
     <section class="research-block" aria-labelledby="estimate-title" id="estimate-block"><h3 id="estimate-title">A rough ratio (estimate)</h3><div id="estimate-content"></div></section>
     <section class="research-block" aria-labelledby="economy-title" id="economy-block" hidden><h3 id="economy-title">U.S. economy and housing</h3><div id="economy-content"></div></section>
-    <section class="research-block" aria-labelledby="plan-title"><h3 id="plan-title">Your tailored startup plan</h3><div id="plan-content"></div><p class="research-links"><a class="rs-btn secondary" id="open-checklist" href="/resources/startup-checklist/">Open my full checklist</a><a class="rs-btn secondary" id="open-proforma" href="/resources/pro-forma/">Model my numbers</a></p></section>
+    <section class="research-block" aria-labelledby="plan-title"><h3 id="plan-title">Your tailored startup plan</h3><div id="plan-content"></div></section>
     <details class="research-block research-sources"><summary>Sources, dates and limits</summary><div id="sources-content"></div></details>
 
+    <ResearchTools />
     <section class="research-gate" id="gate" aria-labelledby="gate-title">
      <p class="rs-kicker">03 / Go deeper</p>
      <h3 id="gate-title">Request your complete startup report</h3>
-     <p>Submit the form below to request a report prepared for your practice. A PPS startup specialist will review the report and follow up by email. The completed report is provided through our team, not displayed on this page. It includes a planning brief, your data tables and tailored checklist as a PDF. Every statement is labeled as a fact, an estimate or an interpretation, and the brief uses only the data shown above. When available, a separate competitor section includes websites found through Brave Search, with source links and a search date. These are leads to investigate, not verified competitors.</p>
-     <p id="gate-unavailable" class="rs-notice" hidden>The written brief and PDF are not available yet. The <a class="rs-link" href="/resources/startup-checklist/">checklist</a> and the <a class="rs-link" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+     <p>Submit the form below to request a report prepared for your practice. A PPS startup specialist will review the report and follow up by email. The completed report is provided through our team, not displayed on this page. It includes a planning brief, data tables, a marketing action plan and your full tailored checklist as a PDF, with a link to build your pro forma. In the AI planning brief, each statement is labeled as a fact, an estimate or an interpretation, using only the data shown above. The marketing action plan is a planning framework tailored to your inputs. When available, a separate competitor section includes websites found through Brave Search, with source links and a search date. These are leads to investigate, not verified competitors.</p>
+     <p id="gate-unavailable" class="rs-notice" hidden>The written brief and PDF are not available yet. The <a class="rs-link" data-research-tool="checklist" target="_blank" rel="noopener" href="/resources/startup-checklist/">checklist</a> and the <a class="rs-link" data-research-tool="proforma" target="_blank" rel="noopener" href="/resources/pro-forma/">pro forma</a> work now, and you can <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
      <form id="gate-form" novalidate hidden data-sitekey={sitekey}>
       <div class="rs-field"><label for="g-email">Email</label><input id="g-email" name="email" type="email" maxlength="254" required autocomplete="email" aria-describedby="g-email-help g-email-error" /><small id="g-email-help">Our team will use this email to follow up with your report. The full report will not appear on this page.</small><p class="research-error" id="g-email-error" hidden></p></div>
       <div class="research-checks">
@@ -64,7 +67,7 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
        <p class="research-error" id="g-consent-error" hidden></p>
        <label class="research-check" id="g-marketing-wrap" hidden><input type="checkbox" name="marketing" id="g-marketing" /> <span>{MARKETING_TEXT}</span></label>
       </div>
-      <p class="rs-small">Your email goes to PPS through HubSpot. Your ZIP, specialty, provider type, practice model, payment model and stage, plus the public facts above, are sent to our AI provider (OpenAI) to write the brief. Your email is not sent to the AI. For competitor research, your specialty and practice location are sent to Brave Search; your email is not. <a class="rs-link" href="/privacy/">Privacy policy</a>.</p>
+      <p class="rs-small">Your email goes to PPS through HubSpot. Your ZIP, specialty, provider type, practice model, payment model and stage, plus the public facts above, are sent to our AI provider (OpenAI) to write the brief. Your email is not sent to the AI. For competitor research, your specialty and practice location are sent to Brave Search; your email is not. <a class="rs-link" href="/privacy/" target="_blank" rel="noopener">Privacy policy (new tab)</a>.</p>
       <div id="g-verification" class="research-verification"></div>
       <p class="research-error" id="g-verification-error" hidden></p>
       <button class="rs-btn research-cta" id="gate-submit" type="submit">Request my report</button>
@@ -77,10 +80,20 @@ const sitekey = (import.meta.env.PUBLIC_RESEARCH_TURNSTILE_SITE_KEY || '').trim(
      <h3 id="confirm-title">Request received.</h3>
      <p>Reference: <strong id="confirm-ref"></strong>. Keep it if you contact us.</p>
      <p><strong>What happens next:</strong> <span id="confirm-next">a PPS startup specialist will review your report and follow up by email.</span> If you would rather talk now, <a class="rs-link" href={CONSULT_BOOKING_URL}>book a free first conversation</a>.</p>
+     <ResearchTools />
     </section>
    </div>
   </section>
  </div>
+    <section class="research-block research-report-overview" id="report-includes" aria-labelledby="report-includes-title" tabindex="-1">
+     <p class="rs-kicker">Inside your private report</p>
+     <h3 id="report-includes-title">A practical plan for your market.</h3>
+     <p>Your report brings together local research, a marketing action plan and your complete startup checklist. The pro forma builder is linked so you can add your actual costs and revenue assumptions.</p>
+     <ul><li>Local public data and potential competitors to investigate, with sources and dates</li><li>Positioning, patient discovery, referral outreach and launch measurement steps</li><li>Your complete checklist, plus links to edit it and build your pro forma</li></ul>
+     <p class="rs-small">This is an overview of the contents. Your completed report stays private and is provided by a PPS startup specialist after you submit the form.</p>
+     <p class="research-links"><a class="rs-btn secondary" id="overview-request" href="#research-profile">Start with my free preview</a></p>
+    </section>
+
 </div></div>
 <script>import '../../scripts/research';</script>
 </BaseLayout>
