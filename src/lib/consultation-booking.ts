@@ -45,7 +45,7 @@ export function createBookingReceiver(options: {
   };
 }
 
-/** Only UTMs go to the calendar; never planner inputs, notes, or click identifiers. */
+/** Explicitly forward only UTMs. HubSpot’s embed also appends its parent-page URL. */
 export function calendarUrl(base: string, attribution: Record<string, string>): string {
   const url = new URL(base);
   url.searchParams.set('embed', 'true');
