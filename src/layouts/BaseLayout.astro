@@ -275,20 +275,13 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
       (function () {
         document.addEventListener("click", function (event) {
           var link = event.target && event.target.closest && event.target.closest('a[href]');
-          if (!link || window.__ppsConsultationClickConversionFired) return;
+          if (!link) return;
           var destination = new URL(link.href);
-          var booking = new URL(consultBookingUrl);
+          var booking = new URL(consultBookingUrl, location.origin);
           if (destination.origin !== booking.origin || destination.pathname !== booking.pathname) return;
-          window.__ppsConsultationClickConversionFired = true;
           window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({ event: "consultation_booking_click", brand: "PPS" });
-          if (typeof gtag === "function") {
-            gtag("event", "conversion", {
-              send_to: "AW-1007225529/BFN7CN-KwcEcELmVpOAD",
-              value: 1.0,
-              currency: "USD"
-            });
-          }
+          window.dataLayer.push({ event: "consultation_booking_click", brand: "PSS" });
+
         });
 
         if (!("IntersectionObserver" in window)) return;

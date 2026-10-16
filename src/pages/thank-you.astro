@@ -17,10 +17,9 @@ import { phases } from "@data/phases";
     handler in the widget fires the Ads conversion at submit time (survives
     the redirect via gtag's sendBeacon transport). Firing Ads a second time
     here would double-count every lead.
-  - Booking flow is entirely off-site (prompt-platform-bay.vercel.app/...),
-    so there is no /thank-you-booking/ counterpart on this site — the Ads
-    conversion for booking fires on the outbound click (see the click listener
-    in BaseLayout).
+  - Consultation bookings use the embedded HubSpot calendar on /schedule-meeting/.
+    Only a confirmed booking message triggers a booking conversion. This page
+    does not report bookings.
 
   noIndex is set so this page never ranks or appears in search results — it's
   a post-submit confirmation, not a landing surface.

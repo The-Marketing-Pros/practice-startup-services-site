@@ -3,7 +3,7 @@
 // The consultation booking URL now lives in ONE place: src/config/site.ts
 // (CONSULT_BOOKING_URL). `scheduleUrl` below re-exports that single source so
 // every existing CTA across the site resolves through the same constant — updates
-// to the PPS scheduling destination happen in exactly one file.
+// to the PSS scheduling destination happen in exactly one file.
 
 import { CONSULT_BOOKING_URL } from "@config/site";
 

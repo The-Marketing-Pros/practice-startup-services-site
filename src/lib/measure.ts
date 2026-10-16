@@ -74,3 +74,12 @@ export function trackToolUse(tool: "research_preview", env: MeasureEnv = browser
   env.gtag?.("event", "pss_tool_use", { tool });
   openai(env, "contents_viewed", { type: "contents", contents: [{ id: "pss_research_preview", content_type: "tool" }] });
 }
+
+/** Called only after the embedded calendar confirms a booking. No contact data. */
+export function trackConsultationBooked(eventId: string, env: MeasureEnv = browserEnv()): void {
+  // Providers are independent: a blocked tag must not suppress another provider.
+  try { env.gtag?.("event", "booking_confirmed", { method: "hubspot_meetings", transaction_id: eventId }); } catch {}
+  try { env.gtag?.("event", "conversion", { send_to: "AW-1007225529/BFN7CN-KwcEcELmVpOAD", transaction_id: eventId, value: 1, currency: "USD" }); } catch {}
+  try { env.fbq?.("track", "Schedule", {}, { eventID: eventId }); } catch {}
+  openai(env, "appointment_scheduled", { type: "customer_action" }, { event_id: eventId });
+}

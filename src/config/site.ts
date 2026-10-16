@@ -1,11 +1,6 @@
-// Shared PPS scheduling destination for all consultation links.
-// Keep booking URLs here so navigation, footer, and page CTAs stay in sync.
-
-/** Official PPS consultation selector, verified against the live PPS site. */
-export const CONSULT_BOOKING_URL =
-  "https://physicianpracticespecialists.com/schedule-meeting/";
-
-/** Open the same scheduler with startup consulting selected. */
-export const STARTUP_CONSULT_BOOKING_URL = `${CONSULT_BOOKING_URL}?category=startup`;
-
+// Keep consultation links on PSS so the parent page can measure confirmed bookings.
+export const CONSULT_BOOKING_URL = "/schedule-meeting/";
+export const STARTUP_CONSULT_BOOKING_URL = CONSULT_BOOKING_URL;
 export const CONSULT_CTA_LABEL = "Book your free consultation";
+// Same HubSpot round-robin calendar used by the PPS scheduling page.
+export const CONSULT_CALENDAR_URL = "https://meetings-na2.hubspot.com/aeriksen/consultation-round-robin";

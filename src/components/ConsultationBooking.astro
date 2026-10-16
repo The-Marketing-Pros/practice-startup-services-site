@@ -1,0 +1,75 @@
+---
+import { CONSULT_CALENDAR_URL } from '../config/site';
+---
+<section id="book" class="booking-panel" aria-labelledby="booking-title" data-calendar-url={CONSULT_CALENDAR_URL}>
+  <h2 id="booking-title">Choose a time for your free consultation.</h2>
+  <p>Talk through your practice plans, startup timeline, and credentialing questions with our team.</p>
+  <div id="booking-status" role="status" aria-live="polite">Loading available times…</div>
+  <div id="booking-calendar"></div>
+  <p class="booking-help">Calendar not loading? <button id="booking-retry" type="button">Reload the calendar</button> or <a href="tel:8004064796">call 800.406.4796</a>.</p>
+  <noscript><p>Enable JavaScript to book here, or <a href={CONSULT_CALENDAR_URL}>open the scheduling calendar</a>.</p></noscript>
+</section>
+<script>
+  import { attributionPayload, captureAttribution } from '../lib/attribution';
+  import { calendarUrl, createBookingReceiver } from '../lib/consultation-booking';
+  import { trackConsultationBooked } from '../lib/measure';
+  const box = document.querySelector<HTMLElement>('#book')!;
+  const calendar = document.querySelector<HTMLElement>('#booking-calendar')!;
+  const status = document.querySelector<HTMLElement>('#booking-status')!;
+  let session: Storage | undefined, local: Storage | undefined;
+  try { session = window.sessionStorage; local = window.localStorage; } catch {}
+  captureAttribution(location.href, document.referrer, local, session);
+  const url = calendarUrl(box.dataset.calendarUrl!, attributionPayload(local, session));
+  let booked = false;
+  const receive = createBookingReceiver({
+    frameWindow: () => calendar.querySelector('iframe')?.contentWindow,
+    session,
+    uuid: () => crypto.randomUUID(),
+    onBooked(eventId) {
+      booked = true;
+      status.textContent = 'Your consultation is booked. Check your email for your confirmation and options to reschedule or cancel.';
+      status.dataset.state = 'booked';
+      trackConsultationBooked(eventId);
+    },
+  });
+  window.addEventListener('message', receive);
+  let embed: HTMLScriptElement | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let observer: MutationObserver | undefined;
+  const problem = () => {
+    if (!booked) status.textContent = 'The calendar is taking longer than usual to load. Try reloading it below, or call us to arrange a time.';
+  };
+  const load = () => {
+    if (booked) return;
+    clearTimeout(timer); observer?.disconnect(); embed?.remove();
+    status.textContent = 'Loading available times…';
+    const container = document.createElement('div');
+    container.className = 'meetings-iframe-container';
+    container.dataset.src = url;
+    calendar.replaceChildren(container);
+    observer = new MutationObserver(() => {
+      const frame = calendar.querySelector('iframe');
+      if (!frame) return;
+      frame.title = 'Book a free practice startup consultation';
+      frame.addEventListener('load', () => {
+        clearTimeout(timer);
+        if (!booked) status.textContent = 'Select an available date and time in the calendar below.';
+      }, { once: true });
+      observer?.disconnect();
+    });
+    observer.observe(calendar, { childList: true, subtree: true });
+    embed = document.createElement('script');
+    embed.src = 'https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js';
+    embed.async = true;
+    embed.onerror = problem;
+    document.body.appendChild(embed);
+    timer = setTimeout(problem, 15000);
+  };
+  document.querySelector('#booking-retry')?.addEventListener('click', load);
+  load();
+</script>
+<style>
+.booking-panel{background:#fff;border:1px solid #dcd7cd;border-radius:18px;padding:clamp(18px,4vw,40px);margin:32px 0 60px}
+h2{font-family:var(--font-display,serif);font-size:clamp(26px,3vw,36px);line-height:1.2;color:#152c37;margin-bottom:16px}
+p{color:#4c575a;line-height:1.65}#booking-status{padding:16px 0;font-size:15px;color:#4c575a}#booking-status[data-state="booked"]{background:#eaf3ed;color:#214b35;padding:20px;border-radius:8px;font-weight:600}#booking-calendar{min-height:660px;margin-top:8px}.booking-help{font-size:14px;margin-top:18px}.booking-help a,.booking-help button{text-decoration:underline;text-underline-offset:3px}.booking-help button{min-height:44px;padding:8px 4px}.booking-help button:focus-visible{outline:2px solid #815c2d;outline-offset:4px}
+</style>
