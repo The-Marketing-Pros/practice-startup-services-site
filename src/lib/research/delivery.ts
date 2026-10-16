@@ -24,7 +24,7 @@ export async function reportBytes(result: ResearchResult, fetcher: Fetcher): Pro
   Object.assign(plan.profile, result.facts.profile, {state: stateForZip(result.facts.zip)?.name ?? ''});
   const tasks = visibleTasks(plan);
   return researchPdf(result, {summary: profileSummary(plan.profile), personal: tasks.filter(t => personalTaskIds.includes(t.id)), first: priorityTasks(plan), total: tasks.length},
-    ((path: string) => fetcher(`https://practicestartupservices.com${path}`, {redirect:'error', signal:AbortSignal.timeout(10000)})) as typeof fetch);
+    ((path: string) => fetcher(`https://practicestartupservices.com${path}`, {redirect:'manual', signal:AbortSignal.timeout(10000)})) as typeof fetch);
 }
 
 export async function deliverReport(input: {
@@ -46,7 +46,7 @@ export async function deliverReport(input: {
     if (r.meta.changes !== 1) throw new Error('delivery_lease_lost');
   };
   const api = async (path: string, init: RequestInit = {}) => {
-    const response = await fetcher(`https://api.hubapi.com${path}`, {...init, headers:{...init.headers, Authorization:`Bearer ${env.HUBSPOT_PRIVATE_APP_TOKEN}`}, redirect:'error', signal:AbortSignal.timeout(12000)});
+    const response = await fetcher(`https://api.hubapi.com${path}`, {...init, headers:{...init.headers, Authorization:`Bearer ${env.HUBSPOT_PRIVATE_APP_TOKEN}`}, redirect:'manual', signal:AbortSignal.timeout(12000)});
     if (!response.ok) throw new Error(`hubspot_${response.status}`);
     return response.json() as Promise<any>;
   };

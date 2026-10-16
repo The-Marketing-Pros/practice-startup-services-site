@@ -28,6 +28,7 @@ async function setup(opts: {owner?:string, fail?:string, fault?:string} = {}) {
 test('uploads PRIVATE PDF, associates note/contact and schedules owner reminder only once',async()=>{
  const s=await setup(); await deliverReport(s.input); await deliverReport(s.input);
  const writes=s.api.calls.filter(c=>c.init?.method==='POST'); assert.equal(writes.length,3);
+ for(const call of s.api.calls) assert.equal(call.init?.redirect,'manual');
  const form=writes[0].init!.body as FormData;
  assert.equal(JSON.parse(String(form.get('options'))).access,'PRIVATE');
  assert.equal((form.get('file') as Blob).type,'application/pdf');
@@ -84,4 +85,10 @@ test('lost acknowledgement after successful upload is not uploaded again',async(
  const s=await setup({fault:'SET file_id'});
  await assert.rejects(deliverReport(s.input));await assert.rejects(deliverReport(s.input),/reconciliation/);
  assert.equal(s.api.calls.filter(c=>c.url.includes('/files/')&&c.init?.method==='POST').length,1);
+});
+
+test('redirect responses never forward credentials or complete a delivery step',async()=>{
+ const s=await setup(); let calls=0;
+ s.input.fetcher=async()=>{calls++;return new Response(null,{status:302,headers:{Location:'https://untrusted.example/'}});};
+ await assert.rejects(deliverReport(s.input),/hubspot_302/);assert.equal(calls,1);
 });
