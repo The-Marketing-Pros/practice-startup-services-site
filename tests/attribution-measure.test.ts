@@ -133,3 +133,25 @@ test("confirmation heading only claims a brief when one is shown", async () => {
   }
   assert.equal(briefStatusNote("ready"), "");
 });
+
+test("OpenAI gets one confirmed lead and separate download/preview events without form data", () => {
+  const calls: unknown[][] = [];
+  const env = { oaiq: (...args: unknown[]) => void calls.push(args), session: store() };
+  const lead = { reference: "PSS-openai-1", eventId: "server-event-1", leadType: "startup_research", contentName: "pss_startup_research" };
+  trackLead(lead, env);
+  trackLead(lead, env);
+  for (const tool of ["checklist", "proforma", "research"] as const) trackToolDownload(tool, "pdf", env);
+  trackToolUse("research_preview", env);
+  assert.deepEqual(calls, [
+    ["measure", "lead_created", { type: "customer_action" }, { event_id: "server-event-1" }],
+    ...["checklist", "proforma", "research"].map(tool => ["measure", "custom", { type: "custom" }, { custom_event_name: `pss_${tool}_download` }]),
+    ["measure", "contents_viewed", { type: "contents", contents: [{ id: "pss_research_preview", content_type: "tool" }] }, {}],
+  ]);
+});
+
+test("a failing OpenAI provider does not interrupt successful lead or tool callbacks", () => {
+  const env = { oaiq: () => { throw new Error("blocked"); }, session: store() };
+  assert.doesNotThrow(() => trackLead({ reference: "PSS-openai-blocked", eventId: "e", leadType: "startup_research", contentName: "pss_startup_research" }, env));
+  assert.doesNotThrow(() => trackToolDownload("checklist", "xlsx", env));
+  assert.doesNotThrow(() => trackToolUse("research_preview", env));
+});

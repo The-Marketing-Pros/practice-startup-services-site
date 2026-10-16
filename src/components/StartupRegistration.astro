@@ -21,9 +21,12 @@ const { standalone = false } = Astro.props;
   </div>}
 </section>
 <script>
+  import { trackLead } from "../lib/measure";
   type Forms = { create(options: Record<string, unknown>): void };
   const host = document.getElementById("pps-startup-registration");
   if (host) {
+    const registrationEventId = crypto.randomUUID();
+    let registrationCounted = false;
     const status = document.getElementById("registration-loading")!;
     const fail = () => {
       status.textContent = "The registration form could not load. Please use the PPS contact link below, or reload this page to try again.";
@@ -49,7 +52,13 @@ const { standalone = false } = Astro.props;
           formId: "a511bd25-cdf3-4265-aecb-d56ff941bf9e",
           target: "#pps-startup-registration",
           onFormReady: ready,
-          onFormSubmitted: ready,
+          onFormSubmitted: () => {
+            ready();
+            if (registrationCounted) return;
+            registrationCounted = true;
+            trackLead({ reference: registrationEventId, eventId: registrationEventId,
+              leadType: "free_license_request", contentName: "pss_free_laborgenie" });
+          },
         });
       } catch { window.clearTimeout(timeout); fail(); }
     };
