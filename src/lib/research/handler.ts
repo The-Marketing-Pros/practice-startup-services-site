@@ -671,7 +671,7 @@ async function deliverAndConfirm(job: JobRow, g: GateRequest, deps: Deps, replay
     if (deps.env.RESEARCH_DELIVERY_MODE === 'email') {
       await emailReport({db:deps.env.RESEARCH_DB!,mailer:deps.env.REPORT_MAILER!,fetcher:deps.fetcher,jobId:g.requestId,email:g.email,contact,result,now:deps.now ?? (()=>new Date()),render:deps.renderReport});
     } else {
-      await deliverReport({db:deps.env.RESEARCH_DB!, env:deps.env, fetcher:deps.fetcher, jobId:g.requestId, email:g.email, result, now:deps.now ?? (() => new Date()), render:deps.renderReport ? r=>deps.renderReport!(r,contact) : undefined});
+      await deliverReport({db:deps.env.RESEARCH_DB!, env:deps.env, fetcher:deps.fetcher, jobId:g.requestId, email:g.email, contact, result, now:deps.now ?? (() => new Date()), render:deps.renderReport ? r=>deps.renderReport!(r,contact) : undefined});
     }
     // Explicit allowlist: no full report, facts, file URLs, or CRM identifiers.
     return json({ok:true, requestId:g.requestId, reference:referenceFor(g.requestId), eventId:job.event_id, deliveryStatus:"with_team", replay});

@@ -30,7 +30,7 @@ export async function reportBytes(result: ResearchResult, fetcher: Fetcher, cont
 
 export async function deliverReport(input: {
   db: D1Database; env: DeliveryEnv; fetcher: Fetcher; jobId: string;
-  email: string; result: ResearchResult; now: () => Date;
+  email: string; contact?: ReportContact; result: ResearchResult; now: () => Date;
   render?: (r: ResearchResult) => Promise<ArrayBuffer>;
 }): Promise<void> {
   const {db, env, fetcher, jobId, result, now} = input;
@@ -81,7 +81,7 @@ export async function deliverReport(input: {
       await save('owner_id', row.owner_id);
     }
     if (!row.file_id) {
-      const bytes = await (input.render ? input.render(result) : reportBytes(result, fetcher));
+      const bytes = await (input.render ? input.render(result) : reportBytes(result, fetcher, input.contact));
       await write('file', async () => {
         const form = new FormData();
         form.set('file', new Blob([bytes], {type:'application/pdf'}), `pss-startup-report-${jobId}.pdf`);
