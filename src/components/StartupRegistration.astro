@@ -21,7 +21,7 @@ const { standalone = false } = Astro.props;
   </div>}
 </section>
 <script>
-  import { trackLead } from "../lib/measure";
+  import { trackOpenAILead } from "../lib/measure";
   type Forms = { create(options: Record<string, unknown>): void };
   const host = document.getElementById("pps-startup-registration");
   if (host) {
@@ -56,8 +56,7 @@ const { standalone = false } = Astro.props;
             ready();
             if (registrationCounted) return;
             registrationCounted = true;
-            trackLead({ reference: registrationEventId, eventId: registrationEventId,
-              leadType: "free_license_request", contentName: "pss_free_laborgenie" });
+            trackOpenAILead(registrationEventId);
           },
         });
       } catch { window.clearTimeout(timeout); fail(); }

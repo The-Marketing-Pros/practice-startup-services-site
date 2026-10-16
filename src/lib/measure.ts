@@ -49,8 +49,13 @@ export function trackLead(e: LeadEvent, env: MeasureEnv = browserEnv()): boolean
   }
   env.gtag?.("event", "generate_lead", { lead_type: e.leadType });
   env.fbq?.("track", "Lead", { content_name: e.contentName, content_category: e.leadType }, { eventID: e.eventId });
-  openai(env, "lead_created", { type: "customer_action" }, { event_id: e.eventId });
+  trackOpenAILead(e.eventId, env);
   return true;
+}
+
+/** Confirmed PSS request; event ID must stay stable across repeated callbacks. */
+export function trackOpenAILead(eventId: string, env: MeasureEnv = browserEnv()): void {
+  openai(env, "lead_created", { type: "customer_action" }, { event_id: eventId });
 }
 
 // A blocked or failing measurement provider must never break a successful action.
