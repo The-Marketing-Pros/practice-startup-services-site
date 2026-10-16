@@ -10,6 +10,7 @@ export function createD1(opts: { faults?: Fault[]; hideFirstSelects?: number } =
   db.exec(readFileSync(new URL("../../migrations/0001_research.sql", import.meta.url), "utf8"));
   db.exec(readFileSync(new URL("../../migrations/0002_competitor_search.sql", import.meta.url), "utf8"));
   db.exec(readFileSync(new URL("../../migrations/0003_hubspot_attempt.sql", import.meta.url), "utf8"));
+  db.exec(readFileSync(new URL("../../migrations/0004_private_delivery.sql", import.meta.url), "utf8"));
   const faults = opts.faults ?? [];
   let hide = opts.hideFirstSelects ?? 0;
   const statements: string[] = [];

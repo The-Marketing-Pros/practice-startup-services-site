@@ -1,7 +1,7 @@
 // PDF of the visitor's actual personalized work: facts with sources, dates and
 // margins of error; labeled estimates; the AI brief with statement tags; and
-// the tailored checklist summary. Generated in the browser.
-import { pdfDocument } from "../planners/downloads.ts";
+// the tailored checklist summary. Generated on the server for private SDR delivery.
+import { pdfDocument } from "../planners/pdf-layout.ts";
 import { ECONOMY_NOTE, FRED_NOTICE, FRED_TERMS, economicPeriod } from "./economy.ts";
 import type { FactsBundle } from "./facts.ts";
 import type { Brief } from "./guard.ts";
@@ -39,11 +39,12 @@ export function briefStatusNote(status: string): string {
   }
 }
 
-export async function researchPdf(result: ResearchResult, plan: { summary: string; personal: Task[]; first: Task[]; total: number }) {
+export async function researchPdf(result: ResearchResult, plan: { summary: string; personal: Task[]; first: Task[]; total: number }, fontFetch: typeof fetch = fetch) {
   const f = result.facts;
   const pdf = await pdfDocument(
     "My startup research",
     `${f.labels.provider} | ${f.labels.specialty} | ZIP ${f.zip}${f.labels.state ? ` (${f.labels.state})` : ""}`,
+    fontFetch,
   );
   pdf.line(`Reference ${result.reference} | Generated ${result.generatedAt.slice(0, 10)}`, 9);
   pdf.line("Facts come from public sources named below. Estimates are calculated from those facts and labeled. Interpretations are planning suggestions, not advice. Confirm requirements with your licensing board, payers and advisers.", 9);
@@ -134,5 +135,5 @@ export async function researchPdf(result: ResearchResult, plan: { summary: strin
     if (s.url) pdf.link("Source", s.url);
     if (s.notes) pdf.line(s.notes, 8);
   }
-  pdf.finish("startup-research.pdf");
+  return pdf.finish();
 }

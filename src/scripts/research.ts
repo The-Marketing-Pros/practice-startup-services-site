@@ -5,12 +5,9 @@ import { ECONOMY_NOTE, FRED_NOTICE, FRED_TERMS, economicPeriod } from "../lib/re
 // parsed only when they are JSON; success events fire only after the server
 // confirms, once per reference.
 import type { FactsBundle } from "../lib/research/facts";
-import { competitorNote, competitorUrl } from "../lib/research/competitors";
-import type { Brief } from "../lib/research/guard";
-import { briefStatusNote, confirmationHeading, type ResearchResult } from "../lib/research/pdf";
 import { attributionPayload } from "../lib/attribution";
 import { requestJson, gateFailureMessage, type Outcome } from "../lib/research/client";
-import { trackLead, trackToolDownload, trackToolUse } from "../lib/measure";
+import { trackLead, trackToolUse } from "../lib/measure";
 import { newChecklist, visibleTasks, priorityTasks, type Checklist } from "../lib/planners/checklist";
 import { personalTaskIds } from "../lib/planners/personal-tasks";
 import { profileSummary } from "../lib/planners/context";
@@ -21,7 +18,7 @@ type Turnstile = {
   reset: (id?: string) => void;
   getResponse: (id?: string) => string | undefined;
 };
-type GateSuccess = ResearchResult & { ok: true; requestId: string; eventId: string; saved?: boolean; replay?: boolean };
+type GateSuccess = { ok: true; requestId: string; reference: string; eventId: string; deliveryStatus: "with_team"; replay?: boolean };
 
 const $ = <T = HTMLElement>(id: string) => document.getElementById(id) as unknown as T;
 const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -151,7 +148,7 @@ profileForm.addEventListener("submit", async (e) => {
   if (outcome.type === "success" && outcome.body.facts) {
     facts = outcome.body.facts as FactsBundle;
     profileKey = JSON.stringify(p);
-    if (result && JSON.stringify(result.facts.profile) !== profileKey) resetResult();
+    if (result) resetResult();
     renderPreview(facts, p);
     previewStatus.textContent = Object.values(facts.sections).some((section) => section.status !== "ok") || (facts.economy && facts.economy.status !== "ok")
       ? "Your preview is ready below, with some public data unavailable. See the notes in each section."
@@ -242,7 +239,7 @@ gateForm.addEventListener("submit", async (e) => {
   if (boundFingerprint && boundFingerprint !== fingerprint) requestId = crypto.randomUUID();
   busyGate = true;
   gateSubmit.disabled = true;
-  gateStatus.textContent = "Preparing your brief. This can take up to a minute…";
+  gateStatus.textContent = "Preparing your report for our team. Please keep this page open…";
   let attribution: Record<string, string> = {};
   try {
     attribution = attributionPayload(window.localStorage, window.sessionStorage);
@@ -302,79 +299,20 @@ function resetResult() {
     /* ignore */
   }
   $("gate-confirm").hidden = true;
-  $("brief-content").innerHTML = "";
-  $("competitor-content").innerHTML = "";
-}
-
-function renderBrief(brief: Brief | null, status: string) {
-  const box = $("brief-content");
-  if (!brief) {
-    box.innerHTML = "";
-    return;
-  }
-  box.innerHTML = `<div class="research-brief"><p class="rs-small">Facts and estimates are written by our system from the tables above, word for word. AI chose which to include and wrote the interpretations, which contain no numbers. Each statement is labeled.</p>${brief.sections
-    .map(
-      (s) =>
-        `<section><h4>${esc(s.heading)}</h4>${s.statements
-          .map((st) => `<p><span class="research-tag ${esc(st.kind)}">${esc(st.kind)}</span>${esc(st.text)}</p>`)
-          .join("")}</section>`,
-    )
-    .join("")}</div>`;
-  void status;
 }
 
 function showResult(r: GateSuccess) {
   result = r;
-  try {
-    sessionStorage.setItem("pss_research_last", JSON.stringify(r));
-  } catch {
-    /* keep in memory only */
-  }
   trackLead({ reference: r.reference, eventId: r.eventId, leadType: "startup_research", contentName: "pss_startup_research" });
   gateForm.hidden = true;
   gateStatus.textContent = "";
-  // The brief must only cite numbers that are on screen: re-render the tables
-  // from the exact facts the server used for this brief.
-  facts = r.facts;
-  renderPreview(r.facts, r.facts.profile as ReturnType<typeof readProfile>);
-  $("confirm-title").textContent = confirmationHeading(r.briefStatus);
-  $("confirm-next").textContent = r.brief ? "your brief and PDF are below." : "your data tables and checklist are above, and the PDF is ready to download.";
-  // The result is shown either way; say so when our copy could not be stored.
-  if (r.saved === false) $("confirm-next").textContent += " We could not store a copy on our side, so please download your PDF now.";
+  $("confirm-title").textContent = "Your request is with our team.";
+  $("confirm-next").textContent = "A PPS startup specialist will review your report and follow up by email. The completed report is provided through our team.";
   $("confirm-ref").textContent = r.reference;
-  const note = briefStatusNote(r.briefStatus);
-  $("confirm-note").hidden = !note;
-  $("confirm-note").textContent = note;
-  renderBrief(r.brief, r.briefStatus);
-  const competitors = r.competitors;
-  $("competitor-content").innerHTML = competitors ? `<section class="research-brief"><h3>Potential competitors to investigate</h3><p>${esc(competitorNote(competitors))}</p>${competitors.retrieved ? `<p class="rs-small">Brave Search · Retrieved ${esc(competitors.retrieved.slice(0, 10))}<br>Search: ${esc(competitors.query)}</p>` : ''}${competitors.items.map((item) => {
-    const url = competitorUrl(item.url);
-    return url ? `<section><h4><a class="rs-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}<span class="sr-only"> (opens in a new tab)</span></a></h4>${item.description ? `<p><span class="research-tag">Search excerpt</span>${esc(item.description)}</p>` : ''}</section>` : '';
-  }).join('')}<p class="rs-small">Compare services, geography, payer participation and appointment access directly with each practice before making positioning decisions.</p></section>` : '';
   const confirm = $("gate-confirm");
   confirm.hidden = false;
   confirm.focus();
 }
-
-$("brief-pdf").addEventListener("click", async () => {
-  if (!result) return;
-  const button = $<HTMLButtonElement>("brief-pdf");
-  const status = $("pdf-status");
-  button.disabled = true;
-  status.classList.remove("error");
-  status.textContent = "Preparing your PDF…";
-  try {
-    const { researchPdf } = await import("../lib/research/pdf");
-    await researchPdf(result, planSummary(result.facts.profile as ReturnType<typeof readProfile>));
-    status.textContent = "Your PDF is ready. Check your browser downloads.";
-    trackToolDownload("research", "pdf");
-  } catch {
-    status.classList.add("error");
-    status.textContent = "The PDF could not be created. Reload the page and try again; your brief stays on this page for this visit.";
-  } finally {
-    button.disabled = false;
-  }
-});
 
 // ------------------------------------------------------------------- start
 
@@ -400,27 +338,8 @@ async function init() {
     $("preview-empty").hidden = true;
   }
   $("g-marketing-wrap").hidden = !(gateAvailable && avail.type === "success" && avail.body.marketingAvailable === true);
-  // Restore this visit's result (for example after a reload).
-  try {
-    const raw = sessionStorage.getItem("pss_research_last");
-    if (raw) {
-      const r = JSON.parse(raw) as GateSuccess;
-      if (r?.ok && r.facts) {
-        facts = r.facts;
-        const p = r.facts.profile as ReturnType<typeof readProfile>;
-        for (const [k, v] of Object.entries(p)) {
-          const el = document.getElementById(`r-${k}`) as HTMLInputElement | HTMLSelectElement | null;
-          if (el && v) el.value = v;
-        }
-        syncMix();
-        profileKey = JSON.stringify(readProfile());
-        renderPreview(r.facts, readProfile());
-        showResult(r);
-      }
-    }
-  } catch {
-    /* ignore a corrupt saved result */
-  }
+  // Remove reports cached by older versions. New responses are receipts only.
+  try { sessionStorage.removeItem("pss_research_last"); } catch { /* storage unavailable */ }
   syncGate();
 }
 void init();
