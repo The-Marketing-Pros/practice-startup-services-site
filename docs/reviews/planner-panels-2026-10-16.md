@@ -5,10 +5,9 @@ Owner direction: Andrew reported that the startup checklist output "isn't great"
 ## Snapshot
 
 Base: `cdc51ff785198e8c55e12a8215ddbdc4d3d6d259` (main after PR #36).
-Final implementation head: `8c8edd0ddd769241e926920247a85b8927f9304b`.
-Implementation tree: `026a02ab03d26e1ef171e199deb8a60ca1ac9ba4`.
-Diff SHA-256 (`git diff base head | sha256sum`): `66f758015e00319706bba7a1531861dff62b3611203a28ed472f85de7ecd447e`.
-This record is a later evidence-only commit with no runtime change; inspect its diff separately.
+Round 1 implementation head: `8c8edd0ddd769241e926920247a85b8927f9304b` (tree `026a02ab03d26e1ef171e199deb8a60ca1ac9ba4`); diff SHA-256 vs base `66f758015e00319706bba7a1531861dff62b3611203a28ed472f85de7ecd447e`.
+Final implementation head: `bf1c96ec2cb90e4fb65ec1d927db396a267a8169` (R1 fixes); source diff SHA-256 vs base (`git diff base head -- src tests`) `922a3aae05d7c26df17bd5c53241a0968ab59d7857ab6108efacd115562c9a1f`; round-2 delta SHA-256 (`git diff 8c8edd0 bf1c96e -- src tests`) `9a1f212b63028a1252f1beee2a42b7895391824eae494451bb303c7c1707f27a`.
+Commit `8e564c8` (between the two) and the commit carrying this update are evidence-only with no runtime change; inspect their diffs separately.
 
 ## Scope
 
@@ -26,9 +25,11 @@ Nine files, all static site source and tests. No destinations, CRM settings, dep
 
 ## V1 — implementer verification
 
-Claude Code cloud session (model identifier per session configuration `claude-fable-5-1`; serving model not independently confirmed); not independent. Date 2026-10-16. Verdict: pass on the final implementation head.
+Claude Code cloud session (model identifier per session configuration `claude-fable-5-1`; serving model not independently confirmed); not independent. Date 2026-10-16 (round 1) and 2026-10-17 (round 2). Verdict: pass on the final implementation head `bf1c96e`.
 
-Checks run locally on `8c8edd0`:
+Round 2 (`bf1c96e`, after the R1 findings below): `npm run test:planners` 150 passed / 0 failed (the existing new test gained a cleared-date case); `npm run check` 0 errors, 0 warnings, 5 pre-existing hints; `npm run build` 72 pages; `git diff --check` clean. No browser re-run by the implementer in round 2; R1 performed the browser reproduction.
+
+Round 1 checks run locally on `8c8edd0`:
 
 - `npm run test:planners`: 150 tests passed, 0 failed (149 existing + 1 new).
 - `npm run check`: 0 errors, 0 warnings, 5 pre-existing hints.
@@ -46,10 +47,29 @@ Local production-preview browser observations (Playwright Chromium, 1440×900, s
 
 Limitations: no physical print, screen reader, Safari/Firefox, production deployment or live-site verification. Two-column behaviour between 1000px and 1050px is unchanged normal flow. Google Tag Manager requests were blocked by the sandbox proxy and are unrelated.
 
-## Independent reviews
+## R1 — independent agent review
 
-None performed in this session. R1/R2 rows are intentionally absent; add them only when separately assigned agent reviews actually run against the head above.
+Reviewer: a separately spawned Claude Code subagent in this cloud session, assigned the diff and the repository without the implementer's conclusions; read-only (no edits, commits or pushes). Requested model inherited from the session; actual model identifier unavailable. Independent of the implementer's reasoning but run on the same account and sandbox. Date 2026-10-17.
+
+Round 1 (head `8c8edd0`, base `cdc51ff`, digest `66f7580…` confirmed by the reviewer): verdict PASS with findings. Ran test:planners (150/150), check (0/0/5), build (72 pages), diff check, a Node script over the planner library and exports, pdftoppm/pdftotext inspection of a generated PDF, and Playwright Chromium at 1280×720, 1000×720 and print emulation on both planner pages. Findings:
+
+- P2 (verified): clearing a task's due date while an opening date is set made the card chip read "Set an opening date for a suggested date"; the stored `""` bypassed the suggestion and `formatDay("")` is empty.
+- P3 (verified): "Start these first" labelled a visitor-set past date as "suggested" on the page and in the PDF.
+- P3 (verified): an empty `class=""` attribute on non-overdue chips.
+- P3 (reasoned, pre-existing but more visible): editing a due date did not refresh the first-steps box until the next full render.
+
+Verified as correct in round 1: `formatDay` UTC handling and invalid inputs; XSS escaping of owner; overdue comparison; done-task chips; the PDF `check()` primitive never splits a box from its title and draws inside the page; Excel date serials and `mmm d, yyyy` format; unchanged columns and task order; sticky panels keep all content reachable, focus scrolls into view inside the panel, static below 1050px and in print.
+
+Disposition: all four fixed in `bf1c96e` (`dueSuggested` is `saved.due == null`; "Date not set" when an anchor exists; due vs suggested labels on the page and PDF; `renderTimeline()` after each task edit; conditional class attribute; test extended).
+
+Round 2 (head `bf1c96e`, delta digest `9a1f212…` confirmed by the reviewer): verdict PASS. Each finding re-verified in Chromium against the rebuilt preview (chip "Date not set" after clearing; "due Jan 5, 2020" vs "suggested Aug 3, 2026" in the first-steps list and PDF text; zero empty class attributes; first-steps box updates immediately). test:planners 150/150, check 0 errors/0 warnings/5 hints, build 72 pages, diff check clean. No new issues; notes only (first-steps re-render on every input event is negligible; loose `== null` is intentional).
+
+R1 limitations: Chromium headless only; round 2 exercised the checklist page only, since the delta does not touch the pro forma or CSS; Excel not regenerated in round 2; docs/reviews content not reviewed.
+
+## R2
+
+Not performed. Only one independent agent review ran; no second reviewer is claimed.
 
 ## CI and integration
 
-Hosted CI results belong on the PR after the engineering-protocol workflow runs. Integration counter: the last combined audit (2026-10-15) covered PRs #22–#27. PRs #28–#36 have integrated since without a recorded combined audit; that audit is overdue and this PR does not perform it. No merge or deployment is authorized by this record.
+Hosted CI: run 38978299161 passed on `8e564c8` (Repository verification, CI gate regression tests, required-ci; Cloudflare Pages preview deployed). The run for `bf1c96e` is linked from the PR once complete. Integration counter: the last combined audit (2026-10-15) covered PRs #22–#27. PRs #28–#36 have integrated since without a recorded combined audit; that audit is overdue and this PR does not perform it. No merge or deployment is authorized by this record.
