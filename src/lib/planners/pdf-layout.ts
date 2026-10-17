@@ -18,17 +18,47 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
   const jumps: {id: string; page: number; y: number; height: number}[] = [];
   const newPage = () => { doc.addPage(); y = 32; };
   const keep = (height: number) => { if (y + height > bottom) newPage(); };
-  const line = (text: string, size = 10, bold = false) => {
+  const line = (text: string, size = 10, bold = false, indent = 0) => {
     doc.setFont("NotoSans", bold ? "bold" : "normal");
     doc.setFontSize(size);
     doc.setTextColor(...(bold ? [19, 39, 73] : [55, 66, 84]) as [number, number, number]);
     const leading = size * 0.42 + 1.3;
-    const lines = doc.splitTextToSize(text, width) as string[];
+    const lines = doc.splitTextToSize(text, width - indent) as string[];
     // Keep short paragraphs and titles together. Longer paragraphs may span pages.
     keep(Math.min(lines.length, 3) * leading + 3);
     for (const l of lines) {
       if (y + leading > bottom) newPage();
-      doc.text(l, left, y);
+      doc.text(l, left + indent, y);
+      y += leading;
+    }
+    y += 2.5;
+  };
+  /** A checklist item: a drawn box (ticked when done) beside a bold title. */
+  const check = (text: string, done: boolean, size = 11) => {
+    const indent = 7, box = 4.2;
+    doc.setFont("NotoSans", "bold");
+    doc.setFontSize(size);
+    doc.setTextColor(19, 39, 73);
+    const leading = size * 0.42 + 1.3;
+    const lines = doc.splitTextToSize(text, width - indent) as string[];
+    keep(Math.min(lines.length, 3) * leading + 3);
+    const top = y - box + 0.6;
+    doc.setLineWidth(0.4);
+    if (done) {
+      doc.setFillColor(48, 80, 224);
+      doc.setDrawColor(48, 80, 224);
+      doc.roundedRect(left, top, box, box, 0.7, 0.7, "FD");
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0.6);
+      doc.line(left + 1, top + 2.2, left + 1.8, top + 3.1);
+      doc.line(left + 1.8, top + 3.1, left + 3.3, top + 1.1);
+    } else {
+      doc.setDrawColor(125, 140, 165);
+      doc.roundedRect(left, top, box, box, 0.7, 0.7, "D");
+    }
+    for (const l of lines) {
+      if (y + leading > bottom) newPage();
+      doc.text(l, left + indent, y);
       y += leading;
     }
     y += 2.5;
@@ -45,18 +75,18 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
     doc.text(text, left + 5, y + 3);
     y += 18;
   };
-  const link = (label: string, url: string) => {
+  const link = (label: string, url: string, indent = 0) => {
     doc.setFont('NotoSans', 'normal'); doc.setFontSize(9); doc.setTextColor(39, 71, 201);
-    const lines = doc.splitTextToSize(label, width) as string[];
+    const lines = doc.splitTextToSize(label, width - indent) as string[];
     keep(lines.length * 5.5 + 3);
-    for (const text of lines) { doc.textWithLink(text, left, y, {url}); y += 5.5; }
+    for (const text of lines) { doc.textWithLink(text, left + indent, y, {url}); y += 5.5; }
     y += 3;
   };
   line(title, 24, true);
   line(subtitle, 10);
   y += 3;
   return {
-    doc, line, section, link, keep,
+    doc, line, section, link, keep, check,
     table: (headers: string[], rows: string[][], widths: number[]) => {
       const row = (values: string[], index: number) => {
         doc.setFont('NotoSans', index < 0 ? 'bold' : 'normal'); doc.setFontSize(8);

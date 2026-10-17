@@ -36,7 +36,7 @@ const groups=[['volume','Patient volume & collections'],['startup','Startup cost
    </div></details>
    </form><PlannerStorage />
   </aside>
-  <section class="rs-panel" id="cash-forecast"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your cash forecast</h2><p class="rs-small">Updates as you change your inputs.</p></div><div class="rs-actions"><button id="finance-xlsx" class="rs-btn">Download Excel</button><button id="finance-pdf" class="rs-btn secondary">Download PDF</button><a class="rs-link" href="#startup-registration">Claim your free LaborGenie license</a></div></div>
+  <section class="rs-panel rs-sticky" id="cash-forecast"><div class="rs-toolbar"><div><h2 style="margin-bottom:5px">Your cash forecast</h2><p class="rs-small">Updates as you change your inputs.</p></div><div class="rs-actions"><button id="finance-xlsx" class="rs-btn">Download Excel</button><button id="finance-pdf" class="rs-btn secondary">Download PDF</button><a class="rs-link" href="#startup-registration">Claim your free LaborGenie license</a></div></div>
    <p id="planner-status" class="rs-status" role="status"></p><div id="finance-errors" role="alert" hidden class="rs-notice warn"></div>
    <div id="finance-results"><p class="rs-notice" id="finance-context" hidden></p><div class="rs-summary"><div class="rs-stat"><span>Startup costs</span><strong id="startup-total"></strong></div><div class="rs-stat"><span>Lowest cash balance</span><strong id="lowest-cash"></strong></div><div class="rs-stat"><span>Additional funding</span><strong id="funding-gap"></strong></div></div>
     <p class="rs-small">Additional funding covers the projected shortfall to stay at $0. Add a reserve for uncertainty.</p>

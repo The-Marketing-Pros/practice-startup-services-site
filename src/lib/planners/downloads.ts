@@ -2,7 +2,7 @@ import { pdfDocument } from "./pdf-layout.ts";
 export { pdfDocument } from "./pdf-layout.ts";
 import { supportForTask } from "./support.ts";
 import type { Checklist } from "./checklist.ts";
-import { stages, visibleTasks, taskProgress, anchorDate } from "./checklist.ts";
+import { stages, visibleTasks, taskProgress, anchorDate, priorityTasks, formatDay } from "./checklist.ts";
 import {
   financeFields,
   project,
@@ -75,8 +75,10 @@ function styleSheet(s: import("exceljs").Worksheet, widths: number[]) {
 export async function checklistWorkbook(plan: Checklist) {
   const w = await workbook();
   const s = w.addWorksheet("Startup checklist");
+  const all = visibleTasks(plan);
+  const complete = all.filter((t) => taskProgress(plan, t).done).length;
   s.addRow(["YOUR PRACTICE STARTUP CHECKLIST"]);
-  s.addRow([plan.profile.name || "My practice"]);
+  s.addRow([`${plan.profile.name || "My practice"} • ${complete} of ${all.length} tasks complete`]);
   s.addRow([profileSummary(plan.profile)]);
   s.addRow([openingLine(plan)]);
   s.addRow([
@@ -98,15 +100,15 @@ export async function checklistWorkbook(plan: Checklist) {
     "Why this is on your plan",
     "Official source",
   ]);
-  for (const t of visibleTasks(plan)) {
+  for (const t of all) {
     const p = taskProgress(plan, t);
     const help = supportForTask(t.id);
-    s.addRow([
+    const row = s.addRow([
       stages[t.phase],
       t.title,
       p.done ? "Complete" : "Open",
       p.owner,
-      p.due,
+      p.due ? new Date(`${p.due}T12:00:00Z`) : "",
       p.notes,
       t.detail,
       help ? `${help.name}: ${help.description}` : "",
@@ -114,6 +116,7 @@ export async function checklistWorkbook(plan: Checklist) {
       t.reason || "",
       t.link ? { text: t.link.label, hyperlink: t.link.url } : "",
     ]);
+    row.getCell(5).numFmt = "mmm d, yyyy";
   }
   styleSheet(s, [17, 48, 14, 23, 15, 50, 70, 65, 35, 45, 40]);
   s.autoFilter = "A7:K7";
@@ -121,10 +124,10 @@ export async function checklistWorkbook(plan: Checklist) {
 }
 function openingLine(plan: Checklist) {
   const anchor = anchorDate(plan.profile);
-  if (!anchor.date) return "Target opening: Not set";
+  if (!anchor.date) return "Target opening: not set. Set a date to get suggested dates for every step.";
   return anchor.assumed
-    ? `Target opening: not set. Suggested dates assume opening around ${anchor.date} based on your launch stage; set a date to replace this.`
-    : `Target opening: ${anchor.date}`;
+    ? `Target opening: not set. Suggested dates assume opening around ${formatDay(anchor.date)} based on your launch stage; set a date to replace this.`
+    : `Target opening: ${formatDay(anchor.date)}`;
 }
 export async function checklistExcel(plan: Checklist) {
   const w = await checklistWorkbook(plan);
@@ -466,37 +469,59 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
     plan.profile.name || "My practice",
     options.fontFetch,
   );
+  const all = visibleTasks(plan);
+  const complete = all.filter((t) => taskProgress(plan, t).done).length;
+  pdf.line(`${complete} of ${all.length} tasks complete · ${stages.length} phases`, 11, true);
   pdf.line(profileSummary(plan.profile));
   pdf.line(openingLine(plan));
   pdf.line(
-    "Suggested dates are editable planning targets, not required lead times. This checklist is a starting point; verify current requirements with your licensing board and advisers.",
+    "Suggested dates are editable planning targets, not required lead times. This checklist is a starting point; verify current requirements with your licensing board and advisers. Optional PPS services, LaborGenie, and UnfairCPA resources appear beside relevant tasks; you choose whether to use them.",
+    9,
   );
-  pdf.line("Optional PPS services, LaborGenie, and UnfairCPA resources are included alongside relevant tasks. You choose whether to use them.", 9);
+  const first = priorityTasks(plan);
+  if (first.length) {
+    pdf.space();
+    pdf.section("Start these first");
+    pdf.line("Their suggested start dates have already passed for your timeline. Longest lead times are listed first.", 9);
+    for (const t of first) {
+      const p = taskProgress(plan, t);
+      const due = formatDay(p.due);
+      pdf.line(`• ${t.title}${due ? ` (${p.dueSuggested ? "suggested" : "due"} ${due})` : ""}`, 10, false, 3);
+    }
+  }
+  const indent = 7;
   let phase = -1;
-  for (const t of visibleTasks(plan)) {
+  for (const t of all) {
     const help = supportForTask(t.id);
     if (t.phase !== phase) {
-      pdf.keep(help ? 110 : 80);
+      pdf.keep(help ? 80 : 60);
       pdf.space();
-      pdf.section(`${t.phase + 1}. ${stages[t.phase]}`);
+      const count = all.filter((x) => x.phase === t.phase).length;
+      pdf.section(`${t.phase + 1}. ${stages[t.phase]} · ${count} ${count === 1 ? "task" : "tasks"}`);
       phase = t.phase;
     }
     const p = taskProgress(plan, t);
-    pdf.keep(help ? 65 : 32);
-    pdf.line(`${p.done ? "[Done]" : "[Open]"} ${t.title}`, 11, true);
-    pdf.line(t.detail);
+    pdf.keep(help ? 45 : 26);
+    pdf.check(t.title, p.done);
+    pdf.line(t.detail, 10, false, indent);
+    const due = formatDay(p.due);
     pdf.line(
-      `Owner: ${p.owner || "Unassigned"} | Due: ${p.due || "Not set"}`,
+      [
+        `Owner: ${p.owner || "Unassigned"}`,
+        p.done ? "Done" : due ? `${p.dueSuggested ? "Suggested date" : "Due"}: ${due}` : "Date: not set",
+      ].join("  |  "),
       9,
+      false,
+      indent,
     );
-    if (p.notes) pdf.line(`Notes: ${p.notes}`);
-    if (t.reason) pdf.line(`Why this is on your plan: ${t.reason}`, 9);
-    if (t.link) pdf.link(`Official source: ${t.link.label}`, t.link.url);
+    if (p.notes) pdf.line(`Notes: ${p.notes}`, 10, false, indent);
+    if (t.reason) pdf.line(`Why this is on your plan: ${t.reason}`, 9, false, indent);
+    if (t.link) pdf.link(`Official source: ${t.link.label}`, t.link.url, indent);
     if (help) {
-      pdf.keep(38);
-      pdf.line(`Optional support: ${help.name}`, 9, true);
-      pdf.line(help.description, 9);
-      pdf.link(help.label, help.url);
+      pdf.keep(24);
+      pdf.line(`Optional support: ${help.name}`, 9, true, indent);
+      pdf.line(help.description, 9, false, indent);
+      pdf.link(help.label, help.url, indent);
     }
   }
   return pdf.finish(options.download === false ? undefined : "practice-startup-checklist.pdf");

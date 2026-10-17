@@ -390,6 +390,16 @@ export function validDate(value: unknown): value is string {
     new Date(`${value}T12:00:00Z`).toISOString().slice(0, 10) === value
   );
 }
+/** "2026-07-20" as "Jul 20, 2026" for people; "" when the value is not a date. */
+export function formatDay(value: string | null | undefined): string {
+  if (!validDate(value)) return "";
+  return new Date(`${value}T12:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
 export function suggestedDate(opening: string, weeks: number): string {
   if (!validDate(opening)) return "";
   const d = new Date(`${opening}T12:00:00Z`);
@@ -406,6 +416,8 @@ export function taskProgress(plan: Checklist, t: Task, today: Date = new Date())
   return {
     ...saved,
     due: saved.due ?? suggestedDate(anchorDate(plan.profile, today).date, t.weeks),
+    /** True while the due date is a suggestion rather than one the visitor set or cleared. */
+    dueSuggested: saved.due == null,
   };
 }
 export function parseChecklist(raw: unknown): Checklist {

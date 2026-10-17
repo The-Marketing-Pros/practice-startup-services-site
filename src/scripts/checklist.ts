@@ -6,8 +6,10 @@ import {
   taskProgress,
   priorityTasks,
   anchorDate,
+  formatDay,
   stages,
   type Profile,
+  type Task,
 } from "../lib/planners/checklist";
 import { stateForZip, validZip } from "../lib/startup/zip3";
 import { trackToolDownload } from "../lib/measure";
@@ -117,9 +119,30 @@ function renderTimeline() {
   if (first.length) {
     element("checklist-first-intro").textContent = "Their suggested start dates have already passed for your timeline. Longest lead times are listed first.";
     element("checklist-first-list").innerHTML = first
-      .map((t) => `<li><a href="#done-${esc(t.id)}">${esc(t.title)}</a></li>`)
+      .map((t) => {
+        const p = taskProgress(plan, t);
+        const due = formatDay(p.due);
+        return `<li><a href="#done-${esc(t.id)}">${esc(t.title)}</a>${due ? ` <span class="rs-small">· ${p.dueSuggested ? "suggested" : "due"} ${esc(due)}</span>` : ""}</li>`;
+      })
       .join("");
   }
+}
+// Date and owner shown on the card itself, so the plan reads without opening every task.
+function metaHtml(t: Task) {
+  const p = taskProgress(plan, t);
+  const today = new Date().toISOString().slice(0, 10);
+  const due = formatDay(p.due);
+  const chips: string[] = [];
+  if (p.done) chips.push(`<span class="is-done">Done</span>`);
+  else if (due) {
+    const overdue = p.due! < today;
+    chips.push(
+      `<span${overdue ? ' class="is-overdue"' : ""}>${p.dueSuggested ? "Suggested" : "Due"} ${esc(due)}${overdue ? " · start now" : ""}</span>`,
+    );
+  } else if (anchorDate(plan.profile).date) chips.push(`<span>Date not set</span>`);
+  else chips.push(`<span>Set an opening date for a suggested date</span>`);
+  if (p.owner) chips.push(`<span>Owner: ${esc(p.owner)}</span>`);
+  return chips.join("");
 }
 function render() {
   summary();
@@ -136,7 +159,7 @@ function render() {
           .map((t) => {
             const p = taskProgress(plan, t);
             const help = supportForTask(t.id);
-            return `<article class="rs-task ${p.done ? "done" : ""}" data-task="${t.id}"><div class="rs-task-line"><input type="checkbox" id="done-${t.id}" data-field="done" ${p.done ? "checked" : ""}><label class="rs-task-title" for="done-${t.id}">${esc(t.title)}</label>${t.id.startsWith("custom-") ? `<button class="rs-icon-btn" data-remove="${t.id}" aria-label="Remove ${esc(t.title)}">Remove</button>` : ""}</div><p class="rs-task-desc">${esc(t.detail)}</p>${t.reason ? `<p class="rs-task-why"><strong>Why this is on your plan:</strong> ${esc(t.reason)}</p>` : ""}${t.link ? `<p class="rs-task-source">Official source: <a href="${esc(t.link.url)}" target="_blank" rel="noopener">${esc(t.link.label)}<span class="sr-only"> (opens in a new tab)</span></a></p>` : ""}${help ? `<aside class="rs-task-support" aria-label="Optional help with this step"><span>Help with this step</span><strong>${esc(help.name)}</strong><p>${esc(help.description)}</p><a class="rs-link" href="${esc(help.url)}" target="_blank" rel="noopener">${esc(help.label)}<span class="sr-only"> (opens in a new tab)</span></a></aside>` : ""}<details><summary>Owner, due date & notes${p.owner ? ` · ${esc(p.owner)}` : ""}${p.due ? ` · ${esc(p.due)}` : ""}</summary><div class="rs-task-fields"><div class="rs-field"><label for="owner-${t.id}">Owner</label><input id="owner-${t.id}" data-field="owner" value="${esc(p.owner)}" maxlength="100"></div><div class="rs-field"><label for="due-${t.id}">Due date</label><input type="date" id="due-${t.id}" data-field="due" value="${p.due}" min="2000-01-01" max="2100-12-31"></div><div class="rs-field wide"><label for="notes-${t.id}">Notes</label><textarea id="notes-${t.id}" data-field="notes" maxlength="2000" rows="2">${esc(p.notes)}</textarea></div></div></details></article>`;
+            return `<article class="rs-task ${p.done ? "done" : ""}" data-task="${t.id}"><div class="rs-task-line"><input type="checkbox" id="done-${t.id}" data-field="done" ${p.done ? "checked" : ""}><label class="rs-task-title" for="done-${t.id}">${esc(t.title)}</label>${t.id.startsWith("custom-") ? `<button class="rs-icon-btn" data-remove="${t.id}" aria-label="Remove ${esc(t.title)}">Remove</button>` : ""}</div><p class="rs-task-desc">${esc(t.detail)}</p><p class="rs-task-meta">${metaHtml(t)}</p>${t.reason ? `<p class="rs-task-why"><strong>Why this is on your plan:</strong> ${esc(t.reason)}</p>` : ""}${t.link ? `<p class="rs-task-source">Official source: <a href="${esc(t.link.url)}" target="_blank" rel="noopener">${esc(t.link.label)}<span class="sr-only"> (opens in a new tab)</span></a></p>` : ""}${help ? `<aside class="rs-task-support" aria-label="Optional help with this step"><span>Help with this step</span><strong>${esc(help.name)}</strong><p>${esc(help.description)}</p><a class="rs-link" href="${esc(help.url)}" target="_blank" rel="noopener">${esc(help.label)}<span class="sr-only"> (opens in a new tab)</span></a></aside>` : ""}<details><summary>Edit owner, due date & notes</summary><div class="rs-task-fields"><div class="rs-field"><label for="owner-${t.id}">Owner</label><input id="owner-${t.id}" data-field="owner" value="${esc(p.owner)}" maxlength="100"></div><div class="rs-field"><label for="due-${t.id}">Due date</label><input type="date" id="due-${t.id}" data-field="due" value="${p.due}" min="2000-01-01" max="2100-12-31"></div><div class="rs-field wide"><label for="notes-${t.id}">Notes</label><textarea id="notes-${t.id}" data-field="notes" maxlength="2000" rows="2">${esc(p.notes)}</textarea></div></div></details></article>`;
           })
           .join("")}</section>`;
       })
@@ -182,8 +205,12 @@ list.addEventListener("input", (event) => {
     progress[input.dataset.field as "owner" | "due" | "notes"] = input.value;
   plan.progress[id] = progress;
   store(key, plan);
-  input.closest(".rs-task")?.classList.toggle("done", progress.done);
+  const card = input.closest<HTMLElement>(".rs-task");
+  card?.classList.toggle("done", progress.done);
+  const meta = card?.querySelector(".rs-task-meta");
+  if (meta) meta.innerHTML = metaHtml(task);
   summary();
+  renderTimeline();
   if (input.dataset.field === "done" && openOnly) {
     const index = [...list.querySelectorAll("input[type=checkbox]")].indexOf(input);
     render();
