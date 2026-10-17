@@ -190,6 +190,10 @@ test("task dates read as calendar dates and know whether they are suggestions", 
   assert.equal(taskProgress(p, t).dueSuggested, true);
   p.progress[t.id] = { done: false, owner: "", notes: "", due: "2026-11-05" };
   assert.equal(taskProgress(p, t).dueSuggested, false);
+  p.progress[t.id].due = "";
+  assert.equal(taskProgress(p, t).due, "", "a cleared date stays cleared");
+  assert.equal(taskProgress(p, t).dueSuggested, false);
+  p.progress[t.id].due = "2026-11-05";
   const { checklistWorkbook } = await import("../src/lib/planners/downloads.ts");
   const s = (await checklistWorkbook(p)).getWorksheet("Startup checklist")!;
   assert.deepEqual(s.getCell("E8").value, new Date("2026-11-05T12:00:00Z"));

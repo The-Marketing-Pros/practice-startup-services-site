@@ -484,8 +484,9 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
     pdf.section("Start these first");
     pdf.line("Their suggested start dates have already passed for your timeline. Longest lead times are listed first.", 9);
     for (const t of first) {
-      const due = formatDay(taskProgress(plan, t).due);
-      pdf.line(`• ${t.title}${due ? ` (suggested ${due})` : ""}`, 10, false, 3);
+      const p = taskProgress(plan, t);
+      const due = formatDay(p.due);
+      pdf.line(`• ${t.title}${due ? ` (${p.dueSuggested ? "suggested" : "due"} ${due})` : ""}`, 10, false, 3);
     }
   }
   const indent = 7;

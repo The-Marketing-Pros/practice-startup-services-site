@@ -120,8 +120,9 @@ function renderTimeline() {
     element("checklist-first-intro").textContent = "Their suggested start dates have already passed for your timeline. Longest lead times are listed first.";
     element("checklist-first-list").innerHTML = first
       .map((t) => {
-        const due = formatDay(taskProgress(plan, t).due);
-        return `<li><a href="#done-${esc(t.id)}">${esc(t.title)}</a>${due ? ` <span class="rs-small">· suggested ${esc(due)}</span>` : ""}</li>`;
+        const p = taskProgress(plan, t);
+        const due = formatDay(p.due);
+        return `<li><a href="#done-${esc(t.id)}">${esc(t.title)}</a>${due ? ` <span class="rs-small">· ${p.dueSuggested ? "suggested" : "due"} ${esc(due)}</span>` : ""}</li>`;
       })
       .join("");
   }
@@ -133,10 +134,12 @@ function metaHtml(t: Task) {
   const due = formatDay(p.due);
   const chips: string[] = [];
   if (p.done) chips.push(`<span class="is-done">Done</span>`);
-  else if (due)
+  else if (due) {
+    const overdue = p.due! < today;
     chips.push(
-      `<span class="${p.due! < today ? "is-overdue" : ""}">${p.dueSuggested ? "Suggested" : "Due"} ${esc(due)}${p.due! < today ? " · start now" : ""}</span>`,
+      `<span${overdue ? ' class="is-overdue"' : ""}>${p.dueSuggested ? "Suggested" : "Due"} ${esc(due)}${overdue ? " · start now" : ""}</span>`,
     );
+  } else if (anchorDate(plan.profile).date) chips.push(`<span>Date not set</span>`);
   else chips.push(`<span>Set an opening date for a suggested date</span>`);
   if (p.owner) chips.push(`<span>Owner: ${esc(p.owner)}</span>`);
   return chips.join("");
@@ -207,6 +210,7 @@ list.addEventListener("input", (event) => {
   const meta = card?.querySelector(".rs-task-meta");
   if (meta) meta.innerHTML = metaHtml(task);
   summary();
+  renderTimeline();
   if (input.dataset.field === "done" && openOnly) {
     const index = [...list.querySelectorAll("input[type=checkbox]")].indexOf(input);
     render();

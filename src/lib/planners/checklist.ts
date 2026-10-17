@@ -416,8 +416,8 @@ export function taskProgress(plan: Checklist, t: Task, today: Date = new Date())
   return {
     ...saved,
     due: saved.due ?? suggestedDate(anchorDate(plan.profile, today).date, t.weeks),
-    /** True while the due date is a suggestion rather than one the visitor set. */
-    dueSuggested: saved.due === null || saved.due === "",
+    /** True while the due date is a suggestion rather than one the visitor set or cleared. */
+    dueSuggested: saved.due == null,
   };
 }
 export function parseChecklist(raw: unknown): Checklist {
