@@ -16,6 +16,7 @@ export const ATTRIBUTION_KEYS = [
   "placement",
   "fbclid",
   "gclid",
+  "msclkid",
   "gbraid",
   "wbraid",
 ] as const;

@@ -15,18 +15,19 @@ export type MeasureEnv = {
   gtag?: Gtag;
   fbq?: Fbq;
   oaiq?: (...args: unknown[]) => void;
+  uetq?: { push: (...args: unknown[]) => unknown };
   session?: Pick<Storage, "getItem" | "setItem">;
 };
 
 function browserEnv(): MeasureEnv {
-  const w = globalThis as unknown as { gtag?: Gtag; fbq?: Fbq; oaiq?: (...args: unknown[]) => void; sessionStorage?: Storage };
+  const w = globalThis as unknown as { gtag?: Gtag; fbq?: Fbq; oaiq?: (...args: unknown[]) => void; uetq?: MeasureEnv["uetq"]; sessionStorage?: Storage };
   let session: Storage | undefined;
   try {
     session = w.sessionStorage;
   } catch {
     session = undefined;
   }
-  return { oaiq: typeof w.oaiq === "function" ? w.oaiq : undefined, gtag: typeof w.gtag === "function" ? w.gtag : undefined, fbq: typeof w.fbq === "function" ? w.fbq : undefined, session };
+  return { uetq: w.uetq, oaiq: typeof w.oaiq === "function" ? w.oaiq : undefined, gtag: typeof w.gtag === "function" ? w.gtag : undefined, fbq: typeof w.fbq === "function" ? w.fbq : undefined, session };
 }
 
 export type LeadEvent = {
@@ -47,15 +48,29 @@ export function trackLead(e: LeadEvent, env: MeasureEnv = browserEnv()): boolean
   } catch {
     /* without storage we still fire once per page via the caller's state */
   }
-  env.gtag?.("event", "generate_lead", { lead_type: e.leadType });
-  env.fbq?.("track", "Lead", { content_name: e.contentName, content_category: e.leadType }, { eventID: e.eventId });
+  try { env.gtag?.("event", "generate_lead", { lead_type: e.leadType }); } catch {}
+  try { env.fbq?.("track", "Lead", { content_name: e.contentName, content_category: e.leadType }, { eventID: e.eventId }); } catch {}
   trackOpenAILead(e.eventId, env);
   return true;
 }
 
 /** Confirmed PSS request; event ID must stay stable across repeated callbacks. */
 export function trackOpenAILead(eventId: string, env: MeasureEnv = browserEnv()): void {
+  microsoft(env, "pss_inquiry_submitted", eventId);
   openai(env, "lead_created", { type: "customer_action" }, { event_id: eventId });
+}
+
+// Success signals only. Never transmit contact details, planner inputs, or event IDs.
+function microsoft(env: MeasureEnv, event: string, eventId?: string): void {
+  if (!env.uetq) return;
+  const key = eventId ? `pss_ms_${event}_${eventId}` : undefined;
+  try {
+    if (key && env.session?.getItem(key)) return;
+  } catch {}
+  try {
+    env.uetq.push("event", event, {});
+    if (key) { try { env.session?.setItem(key, "1"); } catch {} }
+  } catch { /* Measurement must never interrupt the successful user action. */ }
 }
 
 // A blocked or failing measurement provider must never break a successful action.
@@ -65,7 +80,8 @@ function openai(env: MeasureEnv, event: string, data: Record<string, unknown>, o
 
 /** Tool downloads are separate custom events, never leads. */
 export function trackToolDownload(tool: "checklist" | "proforma" | "research", format: string, env: MeasureEnv = browserEnv()): void {
-  env.gtag?.("event", "pss_tool_download", { tool, format });
+  microsoft(env, `pss_${tool}_download`);
+  try { env.gtag?.("event", "pss_tool_download", { tool, format }); } catch {}
   openai(env, "custom", { type: "custom" }, { custom_event_name: `pss_${tool}_download` });
 }
 
@@ -77,6 +93,7 @@ export function trackToolUse(tool: "research_preview", env: MeasureEnv = browser
 
 /** Called only after the embedded calendar confirms a booking. No contact data. */
 export function trackConsultationBooked(eventId: string, env: MeasureEnv = browserEnv()): void {
+  microsoft(env, "pss_booking_complete", eventId);
   // Providers are independent: a blocked tag must not suppress another provider.
   try { env.gtag?.("event", "booking_confirmed", { method: "hubspot_meetings", transaction_id: eventId }); } catch {}
   try { env.gtag?.("event", "conversion", { send_to: "AW-1007225529/BFN7CN-KwcEcELmVpOAD", transaction_id: eventId, value: 1, currency: "USD" }); } catch {}
