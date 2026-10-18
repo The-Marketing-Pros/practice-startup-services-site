@@ -1,0 +1,36 @@
+<!-- Account-owned UET; PSS goals use distinct pss_ event names. -->
+<script is:inline>
+  (function (w, d) {
+    if (!/^(www\.)?practicestartupservices\.com$/.test(location.hostname)) return;
+    if (w.__pssMicrosoftConfigured) return;
+    w.__pssMicrosoftConfigured = true;
+    w.uetq = w.uetq || [];
+    // Deferred planner modules consume and remove research handoff parameters.
+    // Wait for those modules, then fail closed if cleanup did not complete.
+    function safeContext() {
+      var privateKeys = ["provider", "specialty", "zip", "model", "setting", "payer", "mix", "stage", "state", "email", "phone", "token", "report_id"];
+      return [location.href, d.referrer].every(function (value) {
+        if (!value) return true;
+        try {
+          var url = new URL(value);
+          return !privateKeys.some(function (key) { return url.searchParams.has(key); });
+        } catch (_) { return false; }
+      });
+    }
+    function load() {
+    if (!safeContext()) return;
+    var script = d.createElement("script");
+    script.async = true;
+    script.src = "https://bat.bing.net/bat.js?ti=187281708";
+    script.onload = function () {
+      if (!safeContext()) return;
+      var queued = w.uetq;
+      w.uetq = new w.UET({ ti: "187281708", q: queued, enableAutoSpaTracking: false });
+      w.uetq.push("pageLoad");
+    };
+    d.head.appendChild(script);
+    }
+    if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", load, { once: true });
+    else load();
+  })(window, document);
+</script>

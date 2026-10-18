@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-const lastUpdated = "October 15, 2026";
+const lastUpdated = "October 17, 2026";
 // Meta measurement is described only when the pixel is configured at build time.
 const metaPixelEnabled = /^\d{5,20}$/.test((import.meta.env.PUBLIC_META_PIXEL_ID || "").trim());
 ---
@@ -79,6 +79,9 @@ const metaPixelEnabled = /^\d{5,20}$/.test((import.meta.env.PUBLIC_META_PIXEL_ID
         <h2>OpenAI advertising measurement.</h2>
         <p>We use the OpenAI Measurement Pixel to measure our ChatGPT ads. It records page views, confirmed requests, successful tool downloads, and displayed market previews. Downloads and previews are recorded separately from inquiries. The pixel sends event details, the website origin, browser and ad-click identifiers to OpenAI; network requests also expose technical information such as your IP address and browser. When automatic advanced matching is enabled, the pixel can detect supported customer information, such as an email address, normalize and hash it in your browser, and send the resulting identifiers with events. Raw customer information is not sent through that matching feature. See <a href="https://developers.openai.com/ads/measurement-pixel" class="underline text-ink hover:text-bronze-700">OpenAI's measurement documentation</a>.</p>
 
+        <h2>Microsoft advertising measurement.</h2>
+        <p>We use Microsoft Advertising Universal Event Tracking (UET) to measure visits, successful planning-tool downloads, confirmed requests, and completed consultation bookings. Downloads are recorded separately from inquiries and bookings. Microsoft receives page addresses, referring pages, IP addresses, browser and device information, cookie identifiers, and ad-click identifiers to provide measurement and personalized advertising. Our custom conversion events do not contain contact details or planner inputs. Microsoft processes this information under the <a href="https://privacy.microsoft.com/en-us/privacystatement" class="underline">Microsoft Privacy Statement</a>. Manage your advertising preferences at <a href="https://account.microsoft.com/privacy/ad-settings" class="underline">Microsoft ad settings</a>, or block or delete cookies in your browser.</p>
+
         <h2>What we don't collect.</h2>
         <p>
           We do not collect or store any protected health information (PHI). This site is for
@@ -125,7 +128,7 @@ const metaPixelEnabled = /^\d{5,20}$/.test((import.meta.env.PUBLIC_META_PIXEL_ID
         <p>
           We use a small number of cookies: one to maintain your visitor session on the site,
           and a small set used by our hosting provider (Cloudflare) for performance and security.
-          Our site includes Google Analytics, Google Ads, and OpenAI advertising measurement{metaPixelEnabled ? ", and Meta Pixel measurement" : ""}. The registration form also uses HubSpot and its spam-prevention service, and the research brief form uses Cloudflare Turnstile. These providers may use cookies or similar technologies for measurement, form delivery, and spam prevention.
+          Our site includes Google Analytics, Google Ads, Microsoft Advertising, and OpenAI advertising measurement{metaPixelEnabled ? ", and Meta Pixel measurement" : ""}. The registration form also uses HubSpot and its spam-prevention service, and the research brief form uses Cloudflare Turnstile. These providers may use cookies or similar technologies for measurement, form delivery, and spam prevention.
         </p>
 
         <p>The OpenAI pixel uses first-party cookies for ad attribution and browser recognition: <code>__oppref</code> lasts up to 30 days after it is written, and <code>__obref</code> up to 365 days after creation. Browser restrictions or clearing cookies can shorten those periods.</p>

@@ -4,6 +4,7 @@ import SiteHeader from "@components/SiteHeader.astro";
 import SiteFooter from "@components/SiteFooter.astro";
 import Architect from "@components/Architect.astro";
 import OpenAIPixel from "@components/OpenAIPixel.astro";
+import MicrosoftPixel from "@components/MicrosoftPixel.astro";
 import { SITE } from "@data/site";
 // One locally hosted variable family serves headings and body text.
 import archivoWoff2 from "@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url";
@@ -123,6 +124,7 @@ const schemas = [orgSchema, webSiteSchema, webPageSchema, ...(Array.isArray(sche
 <html lang="en">
   <head>
     <OpenAIPixel />
+    <MicrosoftPixel />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
