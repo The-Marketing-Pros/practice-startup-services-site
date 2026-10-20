@@ -606,6 +606,9 @@ export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof
   pdf.cashChart([r.openingCash, ...r.months.map(m => m.balance)], plan.values.reserve);
   pdf.section("Your assumptions", undefined, true);
   const preset = new Set(plan.context?.presetFields ?? []);
+  // Inputs are reproduced exactly; only forecast totals use whole-dollar rounding.
+  const inputNumber = (value: number) => value.toLocaleString("en-US", {maximumFractionDigits: 20});
+  const inputMoney = (value: number) => `$${inputNumber(value)}`;
   pdf.line("USD throughout. Operating expenses and compensation are monthly totals. Read down each pair of columns.", 9);
   const shortLabels: Partial<Record<typeof financeFields[number][0], string>> = {
     visits: "Visits / provider / day at capacity",
@@ -617,7 +620,7 @@ export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof
   };
   const assumptions = financeFields.map(([key, label]) => [
     shortLabels[key] ?? label.replace(/ \(\$\)| \(%\)/g, ""),
-    `${label.includes("($)") ? cash(plan.values[key]) : plan.values[key].toLocaleString("en-US")}${label.includes("%") ? "%" : ""}${preset.has(key) ? " *" : ""}`,
+    `${label.includes("($)") ? inputMoney(plan.values[key]) : inputNumber(plan.values[key])}${label.includes("%") ? "%" : ""}${preset.has(key) ? " *" : ""}`,
   ]);
   const midpoint = Math.ceil(assumptions.length / 2);
   pdf.table(["Assumption", "Value", "Assumption", "Value"],
@@ -628,12 +631,12 @@ export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof
   pdf.section("Payer mix");
   const mix = plan.mix ?? newMix();
   pdf.table(["Payer", "Share of visits", "Net / visit"], payerKeys.map(k => [
-    payerLabels[k], `${mix.payers[k].share}%`, `${cash(mix.payers[k].net)}${preset.has(`mix-${k}-net`) ? " *" : ""}`,
+    payerLabels[k], `${mix.payers[k].share}%`, `${inputMoney(mix.payers[k].net)}${preset.has(`mix-${k}-net`) ? " *" : ""}`,
   ]), [96, 38, 38], {compact: true, numeric: [1, 2]});
   pdf.line(
     mix.enabled
-      ? `Payer mix is on. The share-weighted net collections per visit are ${cash(r.netPerVisit)}; the forecast uses this value.`
-      : `Payer mix is off. The forecast uses your single net collections per visit input: ${cash(r.netPerVisit)}.`,
+      ? `Payer mix is on. The share-weighted net collections per visit are ${inputMoney(r.netPerVisit)}; the forecast uses this value.`
+      : `Payer mix is off. The forecast uses your single net collections per visit input: ${inputMoney(r.netPerVisit)}.`,
     9,
     true,
   );
