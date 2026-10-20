@@ -30,6 +30,12 @@ The transfer is one-time, not ongoing synchronization. Pending drafts can resume
 
 ## Combined-main audit disposition / The eleventh thing
 
+**Subsequent audit:** [enabled-surface acceptance](enabled-surface-audit-2026-10-20.md)
+now accepts combined main `61d238a` for the currently enabled surface and starts
+the next integration count there. Research submission stays disabled with its
+separate activation requirements. The following paragraphs preserve the earlier
+incomplete disposition; they are historical, not the current enabled-surface gate.
+
 The prior 2026-10-20 combined-main audit at this base recorded bounded planner/static-site acceptance, but broader research-launch acceptance remains incomplete. There are 19 integrations since accepted baseline `5166aa7957e341e619102a82aa074b0780f96393`; the counter is NOT reset. No new integration occurs from this draft. The next five-integration boundary begins only after an accepted combined snapshot is recorded. Keep this feature draft pending that gate and receiver acceptance.
 
 Repeated-use risks covered in this feature: current versus stale local values, malformed companion data, repeated imports, lost acknowledgments, stale task/finance edits and migration replay. The PSS model/exports are preserved, while source/actor idempotency and native races are verified in PracticeElf. Cross-device resume and changed-source re-import are documented limitations, not silently destructive behaviors.
