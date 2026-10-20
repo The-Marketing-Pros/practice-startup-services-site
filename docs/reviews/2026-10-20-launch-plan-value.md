@@ -112,3 +112,35 @@ validation by the reviewer. This is agent review evidence, not a GitHub approval
 The follow-up commit recording this section is evidence-only, inspected separately by the
 implementer; it does not change the source snapshot reviewed above. Current hosted-check
 links and statuses are recorded in PR #44. No merge or production deployment was performed.
+
+## Owner correction: comprehensiveness takes priority
+
+The owner clarified that shorter documents were not requested. Preserve useful detail;
+page count is not an acceptance goal. Readability improvements must not remove explanatory
+content merely to reduce length.
+
+Current source head: `c8dbdeb3a98f1e6008fc3858bd9156826f67ac8b`; base unchanged.
+Full diff SHA-256: `12c17d353cd17ca07c65f9a34ac8bdedcd62c68e2425cbe18c698f3ec300f4a0`.
+The earlier finishing-pass receipts remain historical. Restored every optional-support
+description and descriptive link in the checklist and the worked weighted payer calculation
+in the financial PDF. All checklist tasks, instructions, completion criteria, owner/date/note
+fields, financial assumptions, forecast months and limitations were retained during formatting.
+Excel output was not changed by these formatting passes.
+
+V1: 160 planner tests passed; Astro check had zero errors/warnings and five existing hints;
+74-page build passed. Regenerated standard and stress samples; text bounds passed. Inspected
+all standard checklist pages and the restored payer calculation rendering. No content is cut
+off or constrained to a fixed page count.
+
+R1 round 4, 2026-10-20: same separately assigned `/root/independent_review` agent, inherited
+configuration, actual model identifier unavailable. Reviewed the current head above against
+the same base and compared content with `2793299`. Verdict: no supported actionable findings.
+Independently verified every distinct support description and descriptive link in extracted
+checklist PDF text and the worked calculation
+`30% x $120 + 35% x $100 + 30% x $65 + 5% x $90 = $95`. All 160 tests and diff checks passed;
+digest matches above. No additional loss of planning assumptions, instructions, notes or
+model limitations found. Limits: source/PDF text/tests only this round; no repeated full
+visual sweep, browser, native Excel, hosted or production checks. Not a GitHub approval.
+
+The commit adding this record is evidence-only and was inspected by the implementer.
+No source changes follow this review. No merge or production deployment performed.
