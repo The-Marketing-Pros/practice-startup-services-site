@@ -96,3 +96,5 @@ html:not(.rs-js) .launch-route{display:none}
 .rs-task-source{font-size:12px;margin:4px 0 0 35px}
 .rs-task-source a{color:#2b4fa8;text-underline-offset:3px}
 @media(max-width:640px){.rs-task-why,.rs-task-source,.rs-task-meta{margin-left:0}.launch-first{padding:16px}}
+
+.task-guide{margin:14px 0;padding:14px 16px;background:#f2f6fb;border:1px solid #dce5f1;border-radius:10px}.task-guide summary{cursor:pointer;font-weight:650;color:#254ba5}.task-guide ol{list-style:decimal;padding:12px 0 0 22px;display:grid;gap:8px;font-size:14px;line-height:1.6}.task-guide p{font-size:13px;line-height:1.6;margin-top:12px}.task-related a{color:#254ba5;text-decoration:underline}.task-related:empty{display:none}#checklist-next-list p{font-size:13px;margin:4px 0;color:#52627a}.rs-task input[type=checkbox]{scroll-margin-top:120px}

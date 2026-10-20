@@ -87,6 +87,36 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
   y += 3;
   return {
     doc, line, section, link, keep, check,
+    textHeight: (text: string, size = 10, bold = false, indent = 0) => {
+      doc.setFont("NotoSans", bold ? "bold" : "normal");
+      doc.setFontSize(size);
+      return (doc.splitTextToSize(text, width - indent) as string[]).length * (size * .42 + 1.3) + 2.5;
+    },
+    cashChart: (values: number[], reserve: number) => {
+      keep(59);
+      const min = Math.min(0, ...values), max = Math.max(reserve, 0, ...values);
+      const range = max - min || 1;
+      const x = (i: number) => left + 31 + i / Math.max(1, values.length - 1) * 139;
+      const cy = (v: number) => y + 39 - (v - min) / range * 35;
+      const dollars = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+      doc.setFont("NotoSans", "normal"); doc.setFontSize(7); doc.setTextColor(55, 66, 84);
+      doc.text(dollars(max), left, y + 6);
+      doc.text(dollars(min), left, y + 39);
+      doc.setDrawColor(160, 174, 193); doc.setLineWidth(.3);
+      doc.line(x(0), cy(0), x(values.length - 1), cy(0));
+      if (reserve > 0) {
+        doc.setDrawColor(132, 94, 30); doc.setLineDashPattern([2, 1], 0);
+        doc.line(x(0), cy(reserve), x(values.length - 1), cy(reserve));
+        doc.setLineDashPattern([], 0);
+      }
+      doc.setDrawColor(39, 71, 201); doc.setLineWidth(.7);
+      for (let i = 1; i < values.length; i++) doc.line(x(i - 1), cy(values[i - 1]), x(i), cy(values[i]));
+      doc.text("Opening", x(0), y + 45);
+      doc.text("Month 12", x(12), y + 45, {align: "center"});
+      doc.text("Month 24", x(values.length - 1), y + 45, {align: "right"});
+      doc.text(reserve > 0 ? "Blue: projected cash  |  Dashed: chosen reserve" : "Blue: projected cash  |  Gray: zero cash", left, y + 53);
+      y += 60;
+    },
     table: (headers: string[], rows: string[][], widths: number[]) => {
       const row = (values: string[], index: number) => {
         doc.setFont('NotoSans', index < 0 ? 'bold' : 'normal'); doc.setFontSize(8);

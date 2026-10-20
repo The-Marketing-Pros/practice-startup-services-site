@@ -1,5 +1,8 @@
+import { taskGuides } from "../lib/planners/task-guides";
 import { supportForTask } from "../lib/planners/support";
 import {
+  nextTasks,
+  relatedOpenTasks,
   newChecklist,
   parseChecklist,
   visibleTasks,
@@ -95,7 +98,7 @@ function summary() {
   element("launch-ring").style.setProperty("--progress", `${percent}%`);
   element("launch-completed").textContent = `${complete} ${complete === 1 ? "task" : "tasks"}`;
   element("launch-remaining").textContent = `${all.length - complete} remaining · ${stages.length} phases`;
-  const next = all.find(t => !taskProgress(plan, t).done);
+  const next = nextTasks(plan)[0];
   element("launch-next-title").textContent = next ? next.title : "Your current checklist is complete";
   element("launch-next-label").textContent = next ? "Go to this step" : "Review your plan";
   element<HTMLAnchorElement>("launch-next").href = next ? `#done-${next.id}` : "#launch-plan";
@@ -108,6 +111,14 @@ function summary() {
 
 }
 function renderTimeline() {
+  element("checklist-next-list").innerHTML = nextTasks(plan).map(t => {
+    const p = taskProgress(plan, t);
+    return `<li><a href="#done-${esc(t.id)}">${esc(t.title)}</a><p>${esc(p.owner ? `Owner: ${p.owner}` : "Choose an owner")}${p.due ? ` · ${p.dueSuggested ? "Suggested" : "Due"} ${esc(formatDay(p.due))}` : ""}</p></li>`;
+  }).join("") || '<li>Your current tasks are complete. Review the plan as your practice changes.</li>';
+  document.querySelectorAll<HTMLElement>("[data-related]").forEach(box => {
+    const task = visibleTasks(plan).find(t => t.id === box.dataset.related);
+    if (task) box.innerHTML = relatedHtml(task);
+  });
   const anchor = anchorDate(plan.profile);
   const note = element("checklist-anchor");
   note.hidden = !anchor.assumed;
@@ -144,6 +155,15 @@ function metaHtml(t: Task) {
   if (p.owner) chips.push(`<span>Owner: ${esc(p.owner)}</span>`);
   return chips.join("");
 }
+function relatedHtml(t: Task) {
+  const related = relatedOpenTasks(plan, t);
+  return related.length ? `<strong>Related work still open:</strong> ${related.map(r => `<a href="#done-${esc(r.id)}">${esc(r.title)}</a>`).join(" · ")}` : "";
+}
+function guideHtml(t: Task) {
+  const g = taskGuides[t.id];
+  if (!g) return "";
+  return `<details class="task-guide"><summary>How to complete this step</summary><ol>${g.steps.map(step => `<li>${esc(step)}</li>`).join("")}</ol><p><strong>Done when:</strong> ${esc(g.complete)}</p><p class="task-related" data-related="${esc(t.id)}">${relatedHtml(t)}</p></details>`;
+}
 function render() {
   summary();
   renderTimeline();
@@ -159,7 +179,7 @@ function render() {
           .map((t) => {
             const p = taskProgress(plan, t);
             const help = supportForTask(t.id);
-            return `<article class="rs-task ${p.done ? "done" : ""}" data-task="${t.id}"><div class="rs-task-line"><input type="checkbox" id="done-${t.id}" data-field="done" ${p.done ? "checked" : ""}><label class="rs-task-title" for="done-${t.id}">${esc(t.title)}</label>${t.id.startsWith("custom-") ? `<button class="rs-icon-btn" data-remove="${t.id}" aria-label="Remove ${esc(t.title)}">Remove</button>` : ""}</div><p class="rs-task-desc">${esc(t.detail)}</p><p class="rs-task-meta">${metaHtml(t)}</p>${t.reason ? `<p class="rs-task-why"><strong>Why this is on your plan:</strong> ${esc(t.reason)}</p>` : ""}${t.link ? `<p class="rs-task-source">Official source: <a href="${esc(t.link.url)}" target="_blank" rel="noopener">${esc(t.link.label)}<span class="sr-only"> (opens in a new tab)</span></a></p>` : ""}${help ? `<aside class="rs-task-support" aria-label="Optional help with this step"><span>Help with this step</span><strong>${esc(help.name)}</strong><p>${esc(help.description)}</p><a class="rs-link" href="${esc(help.url)}" target="_blank" rel="noopener">${esc(help.label)}<span class="sr-only"> (opens in a new tab)</span></a></aside>` : ""}<details><summary>Edit owner, due date & notes</summary><div class="rs-task-fields"><div class="rs-field"><label for="owner-${t.id}">Owner</label><input id="owner-${t.id}" data-field="owner" value="${esc(p.owner)}" maxlength="100"></div><div class="rs-field"><label for="due-${t.id}">Due date</label><input type="date" id="due-${t.id}" data-field="due" value="${p.due}" min="2000-01-01" max="2100-12-31"></div><div class="rs-field wide"><label for="notes-${t.id}">Notes</label><textarea id="notes-${t.id}" data-field="notes" maxlength="2000" rows="2">${esc(p.notes)}</textarea></div></div></details></article>`;
+            return `<article class="rs-task ${p.done ? "done" : ""}" data-task="${t.id}"><div class="rs-task-line"><input type="checkbox" id="done-${t.id}" data-field="done" ${p.done ? "checked" : ""}><label class="rs-task-title" for="done-${t.id}">${esc(t.title)}</label>${t.id.startsWith("custom-") ? `<button class="rs-icon-btn" data-remove="${t.id}" aria-label="Remove ${esc(t.title)}">Remove</button>` : ""}</div><p class="rs-task-desc">${esc(t.detail)}</p><p class="rs-task-meta">${metaHtml(t)}</p>${guideHtml(t)}${t.reason ? `<p class="rs-task-why"><strong>Why this is on your plan:</strong> ${esc(t.reason)}</p>` : ""}${t.link ? `<p class="rs-task-source">Official source: <a href="${esc(t.link.url)}" target="_blank" rel="noopener">${esc(t.link.label)}<span class="sr-only"> (opens in a new tab)</span></a></p>` : ""}${help ? `<aside class="rs-task-support" aria-label="Optional help with this step"><span>Help with this step</span><strong>${esc(help.name)}</strong><p>${esc(help.description)}</p><a class="rs-link" href="${esc(help.url)}" target="_blank" rel="noopener">${esc(help.label)}<span class="sr-only"> (opens in a new tab)</span></a></aside>` : ""}<details><summary>Edit owner, due date & notes</summary><div class="rs-task-fields"><div class="rs-field"><label for="owner-${t.id}">Owner</label><input id="owner-${t.id}" data-field="owner" value="${esc(p.owner)}" maxlength="100"></div><div class="rs-field"><label for="due-${t.id}">Due date</label><input type="date" id="due-${t.id}" data-field="due" value="${p.due}" min="2000-01-01" max="2100-12-31"></div><div class="rs-field wide"><label for="notes-${t.id}">Notes</label><textarea id="notes-${t.id}" data-field="notes" maxlength="2000" rows="2">${esc(p.notes)}</textarea></div></div></details></article>`;
           })
           .join("")}</section>`;
       })
@@ -315,3 +335,6 @@ lastZip = plan.profile.zip;
 fill();
 render();
 document.documentElement.classList.add("rs-js");
+
+// Saved-plan links may target tasks rendered after the initial document load.
+if (location.hash.startsWith("#done-")) document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: "center" });
