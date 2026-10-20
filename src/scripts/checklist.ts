@@ -1,3 +1,4 @@
+import { initPracticeElfHandoff } from "./practiceelf-handoff";
 import { taskGuides } from "../lib/planners/task-guides";
 import { supportForTask } from "../lib/planners/support";
 import {
@@ -338,3 +339,5 @@ document.documentElement.classList.add("rs-js");
 
 // Saved-plan links may target tasks rendered after the initial document load.
 if (location.hash.startsWith("#done-")) document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: "center" });
+
+initPracticeElfHandoff(() => plan);

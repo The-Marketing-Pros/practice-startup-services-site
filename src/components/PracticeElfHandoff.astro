@@ -1,0 +1,15 @@
+---
+// Enable only after the receiving application and migration have passed acceptance.
+const enabled = import.meta.env.DEV || import.meta.env.PUBLIC_PRACTICEELF_HANDOFF_ENABLED === "true";
+---
+{enabled && <section class="elf-handoff" data-elf-handoff aria-labelledby="elf-handoff-title">
+  <p class="elf-kicker">Keep your momentum</p>
+  <h2 id="elf-handoff-title">Your plan is ready.</h2>
+  <p class="elf-promise">Save it to your free PracticeElf workspace and start making progress.</p>
+  <button type="button" data-elf-save>Save my plan to PracticeElf <span aria-hidden="true">↗</span></button>
+  <p class="elf-detail">Bring your checklist, progress, and 24-month forecast. Review what you’re sharing, then sign in to save it. Your downloads stay available here.</p>
+  <p role="status" aria-live="polite" data-elf-status></p>
+</section>}
+<style>
+.elf-handoff{background:#142647;color:#fff;border-radius:16px;padding:28px;margin:24px 0}.elf-kicker{color:#bde7d6;text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:700}.elf-handoff h2{color:#fff;font-size:clamp(26px,3vw,34px);line-height:1.15;margin:10px 0}.elf-promise{max-width:58ch;font-size:19px;line-height:1.55;margin:12px 0 20px;text-wrap:pretty}.elf-handoff button{background:#c7efdf;color:#133c34;border:0;padding:14px 20px;min-height:48px;border-radius:8px;font-weight:700;cursor:pointer;white-space:normal}.elf-handoff button:focus-visible{outline:3px solid white;outline-offset:4px}.elf-handoff button:disabled{opacity:.65;cursor:wait}.elf-detail,[data-elf-status]{font-size:13px;line-height:1.65;max-width:74ch;color:#d6e0ed;margin-top:14px}[data-elf-status]:empty{display:none}@media(max-width:480px){.elf-handoff{padding:23px}.elf-handoff button{width:100%}}
+</style>

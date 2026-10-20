@@ -1,3 +1,4 @@
+import { initPracticeElfHandoff } from "./practiceelf-handoff";
 import {
   forecastDecisions,
   newFinance,
@@ -247,3 +248,5 @@ for (const [id, fn, format] of [
 fill();
 render();
 document.documentElement.classList.add("rs-js");
+
+initPracticeElfHandoff(() => plan);

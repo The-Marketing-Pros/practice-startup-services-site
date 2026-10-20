@@ -1,4 +1,5 @@
 ---
+import PracticeElfHandoff from "../../components/PracticeElfHandoff.astro";
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PlannerStorage from '@components/PlannerStorage.astro';
 import StartupRegistration from '@components/StartupRegistration.astro';
@@ -45,6 +46,7 @@ import '@styles/checklist-workspace.css';
    </form><PlannerStorage /></aside>
    <section class="rs-panel launch-plan" id="launch-plan"><div class="rs-toolbar"><div><p class="rs-kicker">02 / Put your plan in motion</p><h2 style="margin-bottom:5px">Your launch plan</h2><p class="rs-small" id="checklist-count" aria-live="polite"></p></div><div class="rs-actions launch-downloads"><button class="rs-btn" id="checklist-xlsx" aria-describedby="checklist-export-help">Download editable Excel</button><button class="rs-btn secondary" id="checklist-pdf" aria-describedby="checklist-export-help">Download printable PDF</button><a class="rs-link" href="#startup-registration">Claim your free LaborGenie license</a></div></div>
     <p class="rs-small" id="checklist-export-help">Keep updating tasks, owners, dates, and progress in the Excel spreadsheet (.xlsx). Use the PDF to print or share a snapshot of your plan. You can also keep editing your checklist here.</p>
+    <PracticeElfHandoff />
     <div class="rs-status" id="planner-status" role="status"></div>
     <div class="rs-progress launch-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
     <p class="rs-notice" id="checklist-anchor" hidden></p>
