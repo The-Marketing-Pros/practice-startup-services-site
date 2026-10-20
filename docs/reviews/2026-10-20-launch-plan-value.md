@@ -55,3 +55,60 @@ Limitations: source review and local automated tests only. No independent browse
 The commit adding this record contains documentation only and is not covered by the source-review SHA. Its diff was separately inspected by the implementer. Hosted CI links belong in the draft PR once available.
 
 This branch has not been integrated into main and adds zero to the integration counter. Reconcile the repository's current batch and five-integration audit boundary at any later authorized merge; historical governance baseline counts are not asserted as current.
+
+## PDF finishing pass — current implementation
+
+The owner requested finished PDF formatting before merging. Current source head:
+`f9a1c5ee16daf7c3a4979b17faacf7ca2037380e`, with the same base
+`c96f4c7965d0a8797832a639566b79b48f6d8fac`. Earlier receipts above are historical.
+Full diff SHA-256: `9377ca5f552bc04452c7a0ae0f762b0880e177c67ddbc7245e4ba46e306f448b`.
+
+Changes: opt-in compact spacing without reducing body type, nine-point financial table text,
+larger chart labels, aligned numeric columns, a checklist phase summary and continuation labels,
+short optional help links, paired financial assumptions, a payer table, and model notes kept
+with the monthly forecast. Spreadsheet generation is unchanged.
+
+V1 verification at this head: 160 planner tests and eight gate tests passed; Astro check
+reported zero errors, zero warnings and five existing hints; production build produced
+74 pages. Every page of the final standard sample PDFs was rendered with Poppler and visually
+inspected at 1100px: checklist nine pages (previously 11), financial report three (previously five).
+No clipped text, overlapping elements, isolated source-link page, or split normal task group
+was observed. Sample page counts are not limits on user-created documents.
+
+Additional samples: preset-derived forecast, long-name/high-value/zero-visit forecast, and
+checklist with long owner name, substantial notes and a custom task. Automated text-bound
+checks on all pages of these five sample documents found no text outside the page margins;
+representative stress-case pages were visually inspected. Exact $120.49 and $0.49 inputs
+were also verified in generated PDF text in assumptions, payer rates, and explanatory copy.
+This is layout QA on synthetic plans, not a usability study or native Excel recalculation.
+
+### R1 round 2 — historical, changes requested
+
+Same independently assigned reviewer `/root/independent_review`, inherited model configuration;
+actual model identifier unavailable. Reviewed head
+`7e75ecae62b2c6bd60f7eb7498b5bc06362a305f` against the base above on 2026-10-20.
+Full diff SHA-256: `ee36eaaf7a9aa07e863a8a96f60e03c4bd2cf0c9972f9f63d3a94fb7958d0b8e`.
+
+Finding: P2, new financial assumptions table rounded fractional dollar inputs to whole dollars.
+Disposition: fixed in `f9a1c5e`; input precision is preserved in assumptions, payer rates, and
+the payer explanation. Aggregate forecast displays remain whole-dollar estimates.
+Independent verification: 160 tests and diff whitespace checks passed. Sampled financial
+and checklist renderings showed no clipping or overlap. No source edits or GitHub approval.
+
+### R1 round 3 — current, resolved
+
+Same reviewer, third review round; not an additional independent reviewer. Inherited model
+configuration; actual model identifier unavailable. Reviewed
+`f9a1c5ee16daf7c3a4979b17faacf7ca2037380e` against the base above on 2026-10-20.
+Diff digest matches the current implementation digest recorded above.
+
+Verdict: P2 resolved; no remaining supported findings. Independently confirmed that both
+fractional-input PDFs contain the exact $120.49 or $0.49 three times on page two, reran
+all 160 planner tests successfully, and passed `git diff --check`.
+Limits: follow-up source, PDF text and automated tests; earlier sampled visual review remains
+applicable. No new full visual sweep, browser/mobile, native Excel, hosted CI or production
+validation by the reviewer. This is agent review evidence, not a GitHub approval.
+
+The follow-up commit recording this section is evidence-only, inspected separately by the
+implementer; it does not change the source snapshot reviewed above. Current hosted-check
+links and statuses are recorded in PR #44. No merge or production deployment was performed.
