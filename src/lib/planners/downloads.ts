@@ -540,7 +540,9 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
     if (p.notes) height += pdf.textHeight(`Notes: ${p.notes}`, 10, false, indent);
     if (t.reason) height += pdf.textHeight(`Why this is on your plan: ${t.reason}`, 9, false, indent);
     if (t.link) height += pdf.textHeight(`Official source: ${t.link.label}`, 9, false, indent) * 1.3;
-    if (help) height += pdf.textHeight(`Optional help: ${help.name}`, 9, false, indent) * 1.6;
+    if (help) height += pdf.textHeight(`Optional support: ${help.name}`, 9, true, indent)
+      + pdf.textHeight(help.description, 9, false, indent)
+      + pdf.textHeight(help.label, 9, false, indent) * 1.6;
     if (t.phase !== phase) {
       pdf.setPageContext(`Checklist / ${t.phase + 1}. ${stages[t.phase]}`);
       pdf.keep(Math.min(height + 27, 240));
@@ -567,7 +569,10 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
     if (t.reason) pdf.line(`Why this is on your plan: ${t.reason}`, 9, false, indent);
     if (t.link) pdf.link(`Official source: ${t.link.label}`, t.link.url, indent);
     if (help) {
-      pdf.link(`Optional help: ${help.name}`, help.url, indent);
+      pdf.keep(24);
+      pdf.line(`Optional support: ${help.name}`, 9, true, indent);
+      pdf.line(help.description, 9, false, indent);
+      pdf.link(help.label, help.url, indent);
     }
     pdf.space();
   }
@@ -635,7 +640,7 @@ export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof
   ]), [96, 38, 38], {compact: true, numeric: [1, 2]});
   pdf.line(
     mix.enabled
-      ? `Payer mix is on. The share-weighted net collections per visit are ${inputMoney(r.netPerVisit)}; the forecast uses this value.`
+      ? `Payer mix is on. Blended net collections per visit = ${payerKeys.map(k => `${inputNumber(mix.payers[k].share)}% x ${inputMoney(mix.payers[k].net)}`).join(" + ")} = ${inputMoney(r.netPerVisit)}. The forecast uses this share-weighted value.`
       : `Payer mix is off. The forecast uses your single net collections per visit input: ${inputMoney(r.netPerVisit)}.`,
     9,
     true,
