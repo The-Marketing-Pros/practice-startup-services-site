@@ -78,6 +78,7 @@ export const financeFields = [
     "startup",
   ],
   ["contingency", "Startup contingency (%)", 10, 0, 100, 1, "startup"],
+  ["reserve", "Minimum cash reserve to maintain ($)", 0, 0, 100000000, 1000, "startup"],
   [
     "preMonths",
     "Months of overhead paid before opening",
@@ -141,7 +142,7 @@ export const financeFields = [
 export type FinanceKey = (typeof financeFields)[number][0];
 export type Assumptions = Record<FinanceKey, number>;
 /** Fields added after launch, with the default that preserves older backups. */
-export const addedFieldDefaults: Partial<Assumptions> = { preMonths: 0 };
+export const addedFieldDefaults: Partial<Assumptions> = { preMonths: 0, reserve: 0 };
 const wholeNumberKeys = ["providers", "days", "ramp", "lag", "preMonths"];
 export const payerKeys = ["commercial", "medicare", "medicaid", "selfpay"] as const;
 export type PayerKey = (typeof payerKeys)[number];
@@ -376,6 +377,12 @@ export function project(p: FinancePlan) {
     });
   }
   const low = Math.min(openingCash, ...months.map((m) => m.balance));
+  const firstShortfall = openingCash < 0 ? 0 : months.find(m => m.balance < 0)?.month ?? null;
+  const firstBelowReserve = openingCash < a.reserve ? 0 : months.find(m => m.balance < a.reserve)?.month ?? null;
+  const contribution = netPerVisit * (1 - a.variable / 100);
+  // Steady-state volume after collections catch up. Never label this payback.
+  const breakEvenVisits = contribution > 0 && a.days > 0
+    ? (fixed + a.debt) / contribution / a.providers / a.days : null;
   const sum = (start: number, end: number, key: keyof Month) =>
     months.slice(start, end).reduce((s, m) => s + Number(m[key]), 0);
   return {
@@ -388,10 +395,32 @@ export function project(p: FinancePlan) {
     openingCash,
     lowestCash: low,
     fundingGap: Math.max(0, -low),
+    reserveGap: Math.max(0, a.reserve - low),
+    requiredFunding: Math.max(0, a.funding - low + a.reserve),
+    firstShortfall,
+    firstBelowReserve,
+    lowestCashMonth: openingCash === low ? 0 : months.find(m => m.balance === low)!.month,
+    breakEvenVisits,
     cashPositiveMonth: months.find((m) => m.netCash >= 0)?.month ?? null,
     year1: sum(0, 12, "netCash"),
     year2: sum(12, 24, "netCash"),
     totalCollections: sum(0, 24, "collected"),
     endingReceivables: months[23].receivables,
   };
+}
+
+export function forecastDecisions(plan: FinancePlan, result = project(plan)): string[] {
+  const money = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+  const when = (month: number) => month === 0 ? "before opening" : `in ${result.months[month - 1].label}`;
+  const messages = [
+    result.reserveGap > 0
+      ? `Your plan needs ${money(result.reserveGap)} more funding to maintain your ${money(plan.values.reserve)} reserve. Cash first falls below that target ${when(result.firstBelowReserve!)}.`
+      : `Your available funding maintains your ${money(plan.values.reserve)} reserve throughout the 24-month forecast.`,
+    `Cash is lowest ${when(result.lowestCashMonth)}, at ${money(result.lowestCash)}. These are monthly balances; shortfalls within a month are not modeled.`,
+    result.breakEvenVisits === null
+      ? "A visit break-even cannot be calculated with zero clinical days or no positive contribution per visit."
+      : `After collections catch up, about ${result.breakEvenVisits.toFixed(1)} visits per provider per day cover modeled costs, owner/provider compensation, and debt.${result.breakEvenVisits > plan.values.visits ? " This exceeds your planned daily capacity; review costs, rates, or capacity." : ""} This is not recovery of your startup investment.`,
+  ];
+  if (!plan.values.reserve) messages.push("No cash reserve is included yet. Choose a minimum balance in Startup costs & funding to allow for uncertainty.");
+  return messages;
 }

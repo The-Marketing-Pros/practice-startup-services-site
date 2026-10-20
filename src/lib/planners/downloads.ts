@@ -1,9 +1,11 @@
 import { pdfDocument } from "./pdf-layout.ts";
 export { pdfDocument } from "./pdf-layout.ts";
+import { taskGuides } from "./task-guides.ts";
 import { supportForTask } from "./support.ts";
 import type { Checklist } from "./checklist.ts";
-import { stages, visibleTasks, taskProgress, anchorDate, priorityTasks, formatDay } from "./checklist.ts";
+import { stages, visibleTasks, taskProgress, anchorDate, priorityTasks, nextTasks, relatedOpenTasks, formatDay } from "./checklist.ts";
 import {
+  forecastDecisions,
   financeFields,
   project,
   payerKeys,
@@ -99,6 +101,9 @@ export async function checklistWorkbook(plan: Checklist) {
     "Support link",
     "Why this is on your plan",
     "Official source",
+    "Done when",
+    "Steps to work through",
+    "Suggested related tasks",
   ]);
   for (const t of all) {
     const p = taskProgress(plan, t);
@@ -115,11 +120,14 @@ export async function checklistWorkbook(plan: Checklist) {
       help ? { text: help.label, hyperlink: help.url } : "",
       t.reason || "",
       t.link ? { text: t.link.label, hyperlink: t.link.url } : "",
+      taskGuides[t.id]?.complete || "",
+      taskGuides[t.id]?.steps.map((step, i) => `${i + 1}. ${step}`).join("\n") || "",
+      all.filter(other => taskGuides[t.id]?.after?.includes(other.id)).map(other => other.title).join("; "),
     ]);
     row.getCell(5).numFmt = "mmm d, yyyy";
   }
-  styleSheet(s, [17, 48, 14, 23, 15, 50, 70, 65, 35, 45, 40]);
-  s.autoFilter = "A7:K7";
+  styleSheet(s, [17, 48, 14, 23, 15, 50, 70, 65, 35, 45, 40, 65, 80, 60]);
+  s.autoFilter = "A7:N7";
   return w;
 }
 function openingLine(plan: Checklist) {
@@ -141,6 +149,7 @@ export async function financeWorkbook(plan: FinancePlan) {
   const w = await workbook();
   const a = plan.values;
   const r = project(plan);
+  const summary = w.addWorksheet("Summary");
   const inputs = w.addWorksheet("Assumptions");
   inputs.addRow(["PRACTICE STARTUP PRO FORMA"]);
   inputs.addRow([
@@ -262,7 +271,6 @@ export async function financeWorkbook(plan: FinancePlan) {
     .map(c)
     .join("+") +
     `+${c("preMonths")}*(${["rent", "software", "insurance", "marketing", "other"].map(c).join("+")})`;
-  const summary = w.addWorksheet("Summary");
   summary.addRow(["YOUR STARTUP CASH PLAN"]);
   summary.addRow([
     "Planning estimate; review assumptions and funding needs with your advisers.",
@@ -315,11 +323,19 @@ export async function financeWorkbook(plan: FinancePlan) {
       r.preOverhead,
     ],
   ];
+  results.push(
+    ["Minimum cash reserve", c("reserve"), a.reserve],
+    ["Additional funding to maintain reserve", `MAX(0,B19-B12)`, r.reserveGap],
+    ["Visits per provider per day to cover costs after collections catch up", `IF(OR(${blendedCell}<=0,${c("variable")}=100,${c("days")}=0),"Not available",(B11+${c("debt")})/(${blendedCell}*(1-${c("variable")}/100))/${c("providers")}/${c("days")})`, r.breakEvenVisits ?? "Not available"],
+    ["Total funding needed to maintain reserve", `MAX(0,${c("funding")}-B12+B19)`, r.requiredFunding],
+  );
   results.forEach(([label, formula, result]) => {
     const row = summary.addRow([label, { formula, result }]);
     row.getCell(2).numFmt = currency;
   });
-  styleSheet(summary, [56, 26]);
+  styleSheet(summary, [65, 26]);
+  summary.getCell("B21").numFmt = "0.0";
+  summary.getRow(21).height = 34;
   const monthly = w.addWorksheet("Monthly forecast");
   monthly.addRow(["24-MONTH CASH FORECAST"]);
   monthly.addRow([
@@ -439,7 +455,7 @@ export async function financeWorkbook(plan: FinancePlan) {
       "No tax liability, depreciation, inflation, seasonal variation, capital purchases after opening, debt amortization, or funding after opening is modeled.",
     ],
     [
-      "Additional funding is the modeled shortfall to keep cash at or above zero; add your own reserve. A positive month does not mean startup investment is repaid.",
+      "Additional funding to maintain reserve = MAX(0, chosen reserve minus lowest cash). The reserve is a target balance, not an expense. Visit break-even assumes steady collections and includes provider compensation and debt; it is not startup payback. A monthly balance can hide a shortfall within the month.",
     ],
     [
       "Source for planning framework: https://www.sba.gov/counseling/plan-your-business/",
@@ -468,6 +484,7 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
     "My practice startup checklist",
     plan.profile.name || "My practice",
     options.fontFetch,
+    {compact: true},
   );
   const all = visibleTasks(plan);
   const complete = all.filter((t) => taskProgress(plan, t).done).length;
@@ -478,38 +495,72 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
     "Suggested dates are editable planning targets, not required lead times. This checklist is a starting point; verify current requirements with your licensing board and advisers. Optional PPS services, LaborGenie, and UnfairCPA resources appear beside relevant tasks; you choose whether to use them.",
     9,
   );
-  const first = priorityTasks(plan);
-  if (first.length) {
-    pdf.space();
-    pdf.section("Start these first");
-    pdf.line("Their suggested start dates have already passed for your timeline. Longest lead times are listed first.", 9);
-    for (const t of first) {
-      const p = taskProgress(plan, t);
-      const due = formatDay(p.due);
-      pdf.line(`• ${t.title}${due ? ` (${p.dueSuggested ? "suggested" : "due"} ${due})` : ""}`, 10, false, 3);
-    }
+  pdf.section("Your launch brief");
+  pdf.line("Completion measures progress, not readiness to open. Suggested next actions account for dates and related work; review the order with your advisers.", 9);
+  const next = nextTasks(plan);
+  if (!next.length) pdf.line("Your current checklist is complete. Review it as the practice changes.");
+  for (const t of next) {
+    const p = taskProgress(plan, t);
+    pdf.keep(28);
+    pdf.line(t.title, 11, true);
+    pdf.line(`Owner: ${p.owner || "Choose an owner"}${p.due ? ` | ${p.dueSuggested ? "Suggested" : "Due"}: ${formatDay(p.due)}` : ""}`, 9);
+    if (taskGuides[t.id]) pdf.line(`Done when: ${taskGuides[t.id].complete}`, 9);
   }
+  const overdue = priorityTasks(plan, new Date(), 1000).length;
+  if (overdue) pdf.line(`${overdue} open tasks have passed their planning dates in the current priority view. Review the full checklist and adjust dates or responsibilities.`, 9, true);
+  pdf.space();
+  pdf.section("Progress by phase");
+  pdf.table(["Phase", "Complete", "Remaining"], stages.map((name, index) => {
+    const tasks = all.filter(t => t.phase === index);
+    const done = tasks.filter(t => taskProgress(plan, t).done).length;
+    return [`${index + 1}. ${name}`, `${done} / ${tasks.length}`, String(tasks.length - done)];
+  }), [110, 31, 31], {compact: true, numeric: [1, 2]});
+  pdf.line("Use the Excel download to keep editing owners, dates, notes and progress. This PDF is a snapshot; changes made in Excel do not sync back to the website.", 9);
+  pdf.section("Your detailed checklist", undefined, true);
   const indent = 7;
   let phase = -1;
   for (const t of all) {
     const help = supportForTask(t.id);
+    const p = taskProgress(plan, t);
+    const guide = taskGuides[t.id];
+    const related = guide ? relatedOpenTasks(plan, t) : [];
+    const due = formatDay(p.due);
+    const ownership = [
+      `Owner: ${p.owner || "Unassigned"}`,
+      p.done ? "Done" : due ? `${p.dueSuggested ? "Suggested date" : "Due"}: ${due}` : "Date: not set",
+    ].join("  |  ");
+    // Keep a normal task together; exceptionally long user notes may span pages.
+    let height = pdf.textHeight(t.title, 11, true, indent) + pdf.textHeight(t.detail, 10, false, indent)
+      + pdf.textHeight(ownership, 9, false, indent);
+    if (guide) {
+      height += guide.steps.reduce((sum, step, i) => sum + pdf.textHeight(`${i + 1}. ${step}`, 9, false, indent), 0)
+        + pdf.textHeight(`Done when: ${guide.complete}`, 9, true, indent);
+      if (related.length) height += pdf.textHeight(`Related work still open: ${related.map(item => item.title).join("; ")}`, 9, false, indent);
+    }
+    if (p.notes) height += pdf.textHeight(`Notes: ${p.notes}`, 10, false, indent);
+    if (t.reason) height += pdf.textHeight(`Why this is on your plan: ${t.reason}`, 9, false, indent);
+    if (t.link) height += pdf.textHeight(`Official source: ${t.link.label}`, 9, false, indent) * 1.3;
+    if (help) height += pdf.textHeight(`Optional support: ${help.name}`, 9, true, indent)
+      + pdf.textHeight(help.description, 9, false, indent)
+      + pdf.textHeight(help.label, 9, false, indent) * 1.6;
     if (t.phase !== phase) {
-      pdf.keep(help ? 80 : 60);
+      pdf.setPageContext(`Checklist / ${t.phase + 1}. ${stages[t.phase]}`);
+      pdf.keep(Math.min(height + 27, 240));
       pdf.space();
       const count = all.filter((x) => x.phase === t.phase).length;
       pdf.section(`${t.phase + 1}. ${stages[t.phase]} · ${count} ${count === 1 ? "task" : "tasks"}`);
       phase = t.phase;
     }
-    const p = taskProgress(plan, t);
-    pdf.keep(help ? 45 : 26);
+    pdf.keep(Math.min(height + 4, 212));
     pdf.check(t.title, p.done);
     pdf.line(t.detail, 10, false, indent);
-    const due = formatDay(p.due);
+    if (guide) {
+      for (const [i, step] of guide.steps.entries()) pdf.line(`${i + 1}. ${step}`, 9, false, indent);
+      pdf.line(`Done when: ${guide.complete}`, 9, true, indent);
+      if (related.length) pdf.line(`Related work still open: ${related.map(item => item.title).join("; ")}`, 9, false, indent);
+    }
     pdf.line(
-      [
-        `Owner: ${p.owner || "Unassigned"}`,
-        p.done ? "Done" : due ? `${p.dueSuggested ? "Suggested date" : "Due"}: ${due}` : "Date: not set",
-      ].join("  |  "),
+      ownership,
       9,
       false,
       indent,
@@ -523,6 +574,7 @@ export async function checklistPdf(plan: Checklist, options: {fontFetch?: typeof
       pdf.line(help.description, 9, false, indent);
       pdf.link(help.label, help.url, indent);
     }
+    pdf.space();
   }
   return pdf.finish(options.download === false ? undefined : "practice-startup-checklist.pdf");
 }
@@ -532,6 +584,7 @@ export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof
     "My practice startup pro forma",
     `${plan.name || "My practice"} | Opening ${plan.opening} | USD`,
     options.fontFetch,
+    {compact: true},
   );
   pdf.line(
     "Planning estimate based on your inputs. Sample values are illustrative, not industry benchmarks. This is a cash forecast, not an accrual income statement.",
@@ -543,56 +596,72 @@ export async function financePdf(plan: FinancePlan, options: {fontFetch?: typeof
       9,
     );
   }
-  for (const [label, v] of [
-    ["Startup costs", r.startup],
-    ["Opening cash", r.openingCash],
-    ["Lowest projected cash", r.lowestCash],
-    ["Additional funding to stay at $0", r.fundingGap],
-    ["Year 1 cash change after debt", r.year1],
-    ["Year 2 cash change after debt", r.year2],
-    ["Month 24 uncollected revenue", r.endingReceivables],
-  ] as const)
-    pdf.line(`${label}: ${cash(v)}`, 11, true);
-  pdf.line(
-    `First month with nonnegative cash change after debt: ${r.cashPositiveMonth ?? "Not within 24 months"}. This is not cumulative payback.`,
-  );
-  pdf.space();
-  pdf.section("Your assumptions");
+  pdf.section("Your cash decisions");
+  pdf.table(["Measure", "Your forecast"], [
+    ["Startup costs including contingency", cash(r.startup)],
+    ["Opening cash after startup costs", cash(r.openingCash)],
+    ["Minimum reserve you chose", cash(plan.values.reserve)],
+    ["Lowest projected cash", cash(r.lowestCash)],
+    ["Additional funding to maintain reserve", cash(r.reserveGap)],
+    ["Total funding needed to maintain reserve", cash(r.requiredFunding)],
+  ], [116, 56], {compact: true, numeric: [1]});
+  for (const decision of forecastDecisions(plan, r)) pdf.line(decision, 9);
+  pdf.keep(72);
+  pdf.line("Cash balance over 24 months", 11, true);
+  pdf.cashChart([r.openingCash, ...r.months.map(m => m.balance)], plan.values.reserve);
+  pdf.section("Your assumptions", undefined, true);
   const preset = new Set(plan.context?.presetFields ?? []);
-  for (const [key, label] of financeFields)
-    pdf.line(`${label}: ${plan.values[key].toLocaleString("en-US")}${preset.has(key) ? " (starting assumption: replace)" : ""}`);
-  pdf.line(`Pre-opening overhead = ${plan.values.preMonths} months x (rent + software + insurance + marketing + other) = ${cash(r.preOverhead)}. Included in startup costs. "Pre-opening payroll & one-time costs" excludes these recurring costs, so nothing is counted twice.`);
-  pdf.space();
+  // Inputs are reproduced exactly; only forecast totals use whole-dollar rounding.
+  const inputNumber = (value: number) => value.toLocaleString("en-US", {maximumFractionDigits: 20});
+  const inputMoney = (value: number) => `$${inputNumber(value)}`;
+  pdf.line("USD throughout. Operating expenses and compensation are monthly totals. Read down each pair of columns.", 9);
+  const shortLabels: Partial<Record<typeof financeFields[number][0], string>> = {
+    visits: "Visits / provider / day at capacity",
+    netPerVisit: "Net collections / visit",
+    preopening: "Pre-opening payroll & one-time costs",
+    reserve: "Minimum cash reserve",
+    preMonths: "Months of pre-opening overhead",
+    providerPay: "Total provider / owner pay",
+  };
+  const assumptions = financeFields.map(([key, label]) => [
+    shortLabels[key] ?? label.replace(/ \(\$\)| \(%\)/g, ""),
+    `${label.includes("($)") ? inputMoney(plan.values[key]) : inputNumber(plan.values[key])}${label.includes("%") ? "%" : ""}${preset.has(key) ? " *" : ""}`,
+  ]);
+  const midpoint = Math.ceil(assumptions.length / 2);
+  pdf.table(["Assumption", "Value", "Assumption", "Value"],
+    assumptions.slice(0, midpoint).map((item, i) => [...item, ...(assumptions[i + midpoint] ?? ["", ""])]),
+    [59, 27, 59, 27], {compact: true, numeric: [1, 3]});
+  if (preset.size) pdf.line("* Starting assumption: replace with your own fee schedules, contracts and quotes.", 9);
+  pdf.line(`Pre-opening overhead: ${plan.values.preMonths} months x (rent + software + insurance + marketing + other) = ${cash(r.preOverhead)}, included in startup costs. Pre-opening payroll and one-time costs exclude these recurring costs.`, 9);
   pdf.section("Payer mix");
   const mix = plan.mix ?? newMix();
-  for (const k of payerKeys)
-    pdf.line(`${payerLabels[k]}: ${mix.payers[k].share}% of visits x ${cash(mix.payers[k].net)} net per visit${preset.has(`mix-${k}-net`) ? " (starting assumption: replace)" : ""}`);
+  pdf.table(["Payer", "Share of visits", "Net / visit"], payerKeys.map(k => [
+    payerLabels[k], `${mix.payers[k].share}%`, `${inputMoney(mix.payers[k].net)}${preset.has(`mix-${k}-net`) ? " *" : ""}`,
+  ]), [96, 38, 38], {compact: true, numeric: [1, 2]});
   pdf.line(
     mix.enabled
-      ? `Blended net collections per visit = ${payerKeys.map((k) => `${mix.payers[k].share}% x ${cash(mix.payers[k].net)}`).join(" + ")} = ${cash(r.netPerVisit)}. The forecast uses this value.`
-      : `Payer mix is off. The forecast uses your single net collections per visit input: ${cash(r.netPerVisit)}.`,
-    10,
+      ? `Payer mix is on. Blended net collections per visit = ${payerKeys.map(k => `${inputNumber(mix.payers[k].share)}% x ${inputMoney(mix.payers[k].net)}`).join(" + ")} = ${inputMoney(r.netPerVisit)}. The forecast uses this share-weighted value.`
+      : `Payer mix is off. The forecast uses your single net collections per visit input: ${inputMoney(r.netPerVisit)}.`,
+    9,
     true,
   );
+  pdf.link("Planning framework: SBA business planning", "https://www.sba.gov/counseling/plan-your-business/");
   pdf.space();
   pdf.section("Monthly cash forecast", undefined, true);
   pdf.table(["Month", "Visits", "Earned", "Collected", "Net cash", "Balance"],
     r.months.map(m => [m.label, m.visits.toFixed(1), cash(m.earned), cash(m.collected), cash(m.netCash), cash(m.balance)]),
-    [29, 17, 31, 31, 31, 33]);
-  pdf.line("Net cash is after operating outflow and debt payments. The Excel export includes the full monthly calculation detail.", 9);
-  pdf.space();
-  pdf.keep(65);
-  pdf.section("Model notes");
+    [29, 17, 31, 31, 31, 33], {compact: true, numeric: [1, 2, 3, 4, 5]});
+  pdf.keep(54);
+  pdf.line("How to read this forecast", 11, true);
   pdf.line(
-    "Startup costs are paid before opening. Available funding is received upfront. Volume ramps linearly; provider count and monthly costs remain constant. Collections lag by whole months. Variable costs follow cash collections. Owner/provider compensation and payroll burden are included.",
+    "Startup costs are paid before opening; funding is received upfront. Volume ramps linearly. Providers and monthly costs stay constant. Collections lag by whole months; variable costs follow collections. Owner/provider pay and payroll burden are included.", 9,
   );
   pdf.line(
-    "Excludes taxes, depreciation, inflation, seasonal changes, later capital purchases, and later funding. Opening receivables are zero. Additional funding covers only the modeled shortfall, with no extra reserve. Review with your advisers.",
+    "Excludes taxes, depreciation, inflation, seasonality, later capital purchases and later funding. Opening receivables are zero. Reserve is a target balance, not an expense; additional funding covers the modeled shortfall to that target. Review with your advisers.", 9,
   );
   pdf.line(
-    "Payer mix, when on, sets net collections per visit to the share-weighted sum of each payer's net per visit. Pre-opening overhead counts months of fixed costs before opening.",
+    "Earned is expected net revenue from visits; collected reflects the collection delay. Net cash is after operating costs and debt. A positive month does not mean startup investment has been recovered. Excel includes the full calculation detail.", 9,
   );
-  pdf.line("Planning framework: sba.gov/counseling/plan-your-business/");
   return pdf.finish(options.download === false ? undefined : "practice-startup-pro-forma.pdf");
 }
 

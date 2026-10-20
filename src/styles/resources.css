@@ -950,3 +950,5 @@ html.rs-js .rs-has-js {
 .rs-research-feature .rs-tool-body { padding: 34px; align-self: center; }
 .rs-research-feature .rs-small { max-width: 65ch; }
 @media (max-width: 760px) { .rs-research-feature { grid-template-columns: 1fr; } .rs-research-art { padding: 24px; } .rs-research-feature .rs-tool-body { padding: 24px; } }
+
+.forecast-decisions{padding:22px;margin:22px 0;border:1px solid #d5e2ec;background:#f4f8fb;border-radius:12px}.forecast-decisions h3{margin-bottom:12px}.forecast-decisions ul{padding-left:20px;list-style:disc;display:grid;gap:12px;font-size:14px;line-height:1.65}

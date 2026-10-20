@@ -1,6 +1,7 @@
 import { personalTasks, personalTaskIds, stageHides, baseTaskLinks, type OfficialLink } from "./personal-tasks.ts";
 import { specialtyIds, practiceModels, launchStages, payerMixes } from "../startup/options.ts";
 import { validZip } from "../startup/zip3.ts";
+import { taskGuides } from "./task-guides.ts";
 export const stages = [
   "Decide",
   "Plan",
@@ -379,6 +380,21 @@ export function priorityTasks(plan: Checklist, today: Date = new Date(), limit =
     })
     .sort((a, b) => b.weeks - a.weeks)
     .slice(0, limit);
+}
+/** Only applicable, unfinished prerequisites influence the suggested next steps.
+ * Completion percentage is progress, never an opening-readiness certification. */
+export function relatedOpenTasks(plan: Checklist, task: Task, today = new Date()): Task[] {
+  const ids = taskGuides[task.id]?.after ?? [];
+  return visibleTasks(plan).filter(t => ids.includes(t.id) && !taskProgress(plan, t, today).done);
+}
+export function nextTasks(plan: Checklist, today = new Date(), limit = 3): Task[] {
+  return visibleTasks(plan)
+    .filter(t => !taskProgress(plan, t, today).done && !relatedOpenTasks(plan, t, today).length)
+    .sort((a, b) => {
+      const dateA = taskProgress(plan, a, today).due || "9999";
+      const dateB = taskProgress(plan, b, today).due || "9999";
+      return dateA.localeCompare(dateB) || a.phase - b.phase || b.weeks - a.weeks;
+    }).slice(0, limit);
 }
 export function validDate(value: unknown): value is string {
   return (

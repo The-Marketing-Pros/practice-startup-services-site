@@ -12,7 +12,7 @@ import '@styles/checklist-workspace.css';
  <div class="rs-wrap">
   <section class="launch-hero" aria-labelledby="checklist-title">
    <div class="launch-hero-copy">
-    <div class="rs-breadcrumb"><a href="/resources/">Free resources</a><span>/</span><span>Startup checklist</span></div>
+    <div class="rs-breadcrumb"><a href="/my-launch-plan/">My launch plan</a><span>/</span><span>Startup checklist</span></div>
     <p class="rs-kicker">An independent practice starts here</p>
     <h1 id="checklist-title">Build your<br/><span>startup checklist.</span></h1>
     <p class="rs-intro">Your next chapter, one clear step at a time. Tell us your provider type, specialty, ZIP and launch stage, and the plan changes with you: tasks, order, dates and state steps.</p>
@@ -23,7 +23,7 @@ import '@styles/checklist-workspace.css';
     <div class="launch-dashboard-top"><span>Your launch at a glance</span><span class="launch-live">Your progress</span></div>
     <div class="launch-dashboard-body"><div class="launch-ring" id="launch-ring" aria-hidden="true"><div><strong id="launch-percent">0%</strong><span>complete</span></div></div><div class="launch-metrics"><strong id="launch-completed">0 tasks</strong><span>checked off your list</span><p id="launch-remaining">Make your first move.</p></div></div>
     <a class="launch-next" id="launch-next" href="#launch-plan"><span>Next on your list</span><strong id="launch-next-title">Explore your launch plan</strong><span class="launch-next-action"><span id="launch-next-label">Go to this step</span> <span aria-hidden="true">↓</span></span></a>
-    <p class="launch-dashboard-note">A little progress today. A clearer path to opening day.</p>
+    <p class="launch-dashboard-note">Task completion measures progress. Review unresolved launch risks before deciding to open.</p>
    </aside>
   </section>
   <nav class="launch-route rs-has-js rs-no-print" id="launch-route" aria-label="Jump to a checklist phase">{stages.map((stage,i)=><a href={`#phase-0${i+1}`} data-phase={i}><span class="launch-route-number">0{i+1}</span><strong>{stage}</strong><span class="launch-route-count" id={`route-count-${i}`}>View tasks</span></a>)}</nav>
@@ -48,6 +48,7 @@ import '@styles/checklist-workspace.css';
     <div class="rs-status" id="planner-status" role="status"></div>
     <div class="rs-progress launch-progress" aria-hidden="true"><span id="checklist-progress"></span></div>
     <p class="rs-notice" id="checklist-anchor" hidden></p>
+    <section class="launch-first" aria-labelledby="checklist-next-title"><h3 id="checklist-next-title">Your next three actions</h3><p class="rs-small">Suggested by date and related work. Adjust the order with your advisers.</p><ol id="checklist-next-list"></ol></section>
     <section class="launch-first" id="checklist-first" aria-labelledby="checklist-first-title" hidden><h3 id="checklist-first-title">Start these first</h3><p class="rs-small" id="checklist-first-intro"></p><ol id="checklist-first-list"></ol></section>
     <p class="rs-notice">A starting point for your launch, with editable planning dates. Requirements and lead times vary. Review the plan with your licensing board, legal adviser, and accountant. PPS services, LaborGenie, and UnfairCPA appear beside relevant steps and in your downloads. These are optional ways to get help.</p>
     <div class="rs-tabs"><button id="show-all" aria-pressed="true">All tasks</button><button id="show-open" aria-pressed="false">To do</button><a class="rs-text-btn" href="#custom-task">Add my own task</a></div>

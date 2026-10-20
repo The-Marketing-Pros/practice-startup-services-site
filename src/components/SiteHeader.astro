@@ -2,14 +2,31 @@
 import { SITE } from "@data/site";
 import { CONSULT_BOOKING_URL } from "@config/site";
 
-const headerNav = [
-  { label: "Free resources", href: "/resources/" },
-  { label: "Checklist", href: "/resources/startup-checklist/" },
-  { label: "Pro forma", href: "/resources/pro-forma/" },
-  { label: "Launch guides", href: "/journey/" },
-  { label: "Articles & videos", href: "/resources/articles/" },
+const navigation = [
+  { label: "Start here", href: "/start-here/" },
+  { label: "Planning tools", href: "/resources/", children: [
+    { label: "All free resources", href: "/resources/" },
+    { label: "Startup checklist", href: "/resources/startup-checklist/" },
+    { label: "Financial planner", href: "/resources/pro-forma/" },
+    { label: "Market research", href: "/resources/startup-research/" },
+    { label: "Launch readiness scan", href: "/scan/" },
+  ] },
+  { label: "Launch roadmap", href: "/journey/", children: [
+    { label: "The seven launch phases", href: "/journey/" },
+    { label: "Guides by specialty", href: "/specialty/" },
+    { label: "Guides by state", href: "/states/" },
+    { label: "Articles", href: "/resources/articles/" },
+    { label: "Videos", href: "/resources/videos/" },
+  ] },
+  { label: "How we help", href: "/services/", children: [
+    { label: "All PPS services", href: "/services/" },
+    { label: "Startup consulting", href: "/services/practice-startup-consulting/" },
+    { label: "Credentialing", href: "/services/medical-credentialing/" },
+    { label: "About PPS", href: "/about/" },
+    { label: "Free LaborGenie license", href: "/resources/hipaa-training/" },
+  ] },
 ];
-const mobileNav = [...headerNav, {label:"Claim free LaborGenie license", href:"/resources/hipaa-training/"}, {label:"PPS services",href:"/services/"}, {label:"About PPS",href:"/about/"}];
+const current = (href: string) => Astro.url.pathname === href ? 'page' as const : undefined;
 ---
 
 <header class="site-header">
@@ -19,62 +36,64 @@ const mobileNav = [...headerNav, {label:"Claim free LaborGenie license", href:"/
       <span class="brand-name">Practice Startup<span class="brand-caption">SERVICES <span>BY PPS</span></span></span>
     </a>
     <nav class="header-nav" aria-label="Primary">
-      {headerNav.map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}
+      {navigation.map(item => item.children ? <details class="nav-group" name="primary-navigation"><summary>{item.label}<span aria-hidden="true">⌄</span></summary><div class="nav-dropdown">{item.children.map(link => <a href={link.href} aria-current={current(link.href)}>{link.label}</a>)}</div></details> : <a href={item.href} aria-current={current(item.href)}>{item.label}</a>)}
+      <a href="/my-launch-plan/" aria-current={current('/my-launch-plan/')} class="plan-link">My launch plan</a>
     </nav>
     <div class="header-actions">
-      <a href={CONSULT_BOOKING_URL} target="_blank" rel="noopener" class="header-cta">Talk to PPS</a>
+      <a href={CONSULT_BOOKING_URL} class="header-cta"><span class="cta-full">Book a free consultation</span><span class="cta-short">Free consultation</span></a>
       <details class="header-menu" id="mobile-menu">
         <summary aria-label="Site menu"><svg class="menu-open-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9" stroke="currentColor" stroke-width="1.8"/></svg><svg class="menu-close-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8"/></svg></summary>
-        <nav aria-label="Mobile">{mobileNav.map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
+        <nav aria-label="Mobile"><a href="/my-launch-plan/" aria-current={current('/my-launch-plan/')}>My launch plan</a>{navigation.map(item => <div class="mobile-group"><a href={item.href} aria-current={current(item.href)}>{item.label}</a>{item.children?.filter(link => link.href !== item.href).map(link => <a class="mobile-child" href={link.href} aria-current={current(link.href)}>{link.label}</a>)}</div>)}</nav>
       </details>
     </div>
   </div>
 </header>
 <style>
   .site-header{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid #e2e8f2;box-shadow:0 4px 24px #13244006}
-  .header-inner{max-width:1360px;margin:auto;padding:0 36px;min-height:90px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+  .header-inner{max-width:1440px;margin:auto;padding:0 36px;min-height:90px;display:flex;align-items:center;justify-content:space-between;gap:16px}
   .site-brand{display:flex;align-items:center;gap:12px;flex-shrink:0;color:#122344;text-decoration:none}
   .brand-mark{display:grid;place-items:center;width:48px;height:48px;background:#122344;color:#c2f0da;border-radius:14px 14px 14px 3px}
   .brand-name{font-size:21px;font-weight:750;letter-spacing:-.045em;line-height:1.15}
   .brand-caption{display:flex;gap:11px;margin-top:6px;font-size:10px;font-weight:600;letter-spacing:.18em;color:#5b6b83}
   .brand-caption span{border-left:1px solid #c6d0df;padding-left:11px;color:#224cb8}
   .header-nav{display:flex;align-items:center;gap:5px}
-  .header-nav a{display:flex;align-items:center;min-height:44px;padding:0 13px;border-radius:8px;font-size:14px;font-weight:600;color:#44516a;text-decoration:none}
+  .header-nav a{display:flex;align-items:center;min-height:44px;padding:0 10px;border-radius:8px;font-size:14px;font-weight:600;color:#44516a;text-decoration:none}
   .header-nav a:hover,.header-nav a[aria-current]{color:#254dd2;background:#edf2ff}
   .header-actions{display:flex;align-items:center;gap:10px}
   .header-cta{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 21px;background:#3155d9;color:#fff;border:1px solid #3155d9;border-radius:9px;font-size:14px;font-weight:650;white-space:nowrap;box-shadow:0 4px 10px #3155d922}
   .header-cta:hover{background:#2342b6}
   .header-menu{display:none;position:relative}
-  summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d5deeb;border-radius:8px;cursor:pointer;color:#152847}
-  summary::-webkit-details-marker{display:none}
+  .header-menu summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d5deeb;border-radius:8px;cursor:pointer;color:#152847}
+  .header-menu summary::-webkit-details-marker{display:none}
   .menu-close-icon{display:none}
   details[open] .menu-open-icon{display:none}
   details[open] .menu-close-icon{display:block}
   .header-menu nav{position:absolute;top:calc(100% + 18px);right:0;width:290px;max-width:calc(100vw - 32px);max-height:70vh;overflow-y:auto;padding:10px;background:#fff;border:1px solid #dce4ef;border-radius:14px;box-shadow:0 20px 60px #14264726}
   .header-menu nav a{display:block;padding:14px;font-size:15px;color:#142647;border-radius:7px;font-weight:600}
   .header-menu nav a:hover,.header-menu nav a[aria-current]{background:#edf2ff;color:#254dd2}
-  @media(max-width:1100px){.header-nav{display:none}.header-menu{display:block}.header-inner{min-height:78px;padding:0 24px}}
+  @media(max-width:1240px){.header-nav{display:none}.header-menu{display:block}.header-inner{min-height:78px;padding:0 24px}}
   @media(max-width:540px){.header-inner{min-height:74px;padding:0 16px;gap:10px}.brand-mark{width:38px;height:42px;border-radius:10px 10px 10px 2px}.brand-mark svg{width:24px}.site-brand{gap:8px}.brand-name{font-size:16px}.brand-caption{font-size:8px;gap:6px;letter-spacing:.11em}.brand-caption span{padding-left:6px}.header-cta{padding:0 12px;font-size:12px;min-height:42px}.header-actions{gap:7px}}
   @media(max-width:359px){.brand-caption{display:none}.brand-name{max-width:95px}.header-inner{padding:0 10px}.site-brand{gap:6px}.header-cta{padding:0 9px}}
+  .nav-group{position:relative}.nav-group summary{list-style:none;display:flex;align-items:center;gap:7px;min-height:44px;padding:0 10px;font-size:14px;font-weight:600;color:#44516a;cursor:pointer;border-radius:8px}.nav-group summary::-webkit-details-marker{display:none}.nav-group[open]>summary{background:#edf2ff;color:#254dd2}.nav-dropdown{position:absolute;top:calc(100% + 12px);left:0;width:260px;padding:10px;border:1px solid #dce4ef;border-radius:14px;background:#fff;box-shadow:0 20px 60px #14264726}.nav-dropdown a{line-height:1.4;padding:12px}.header-nav .plan-link{color:#254dd2}.header-menu .mobile-child{font-weight:400;font-size:14px;padding-left:24px}.mobile-group{border-top:1px solid #e2e8f2}.cta-short{display:none}.site-header :is(a,summary):focus-visible{outline:3px solid #3155d9;outline-offset:3px}
+  @media(max-width:540px){.cta-full{display:none}.cta-short{display:inline}}
 </style>
 
 <script is:inline>
-  // Progressive enhancement only — the <details> menu is fully usable without
-  // this. Close on outside click / Escape so it behaves like a real menu.
   (function () {
-    var menu = document.getElementById("mobile-menu");
-    if (!menu) return;
-    document.addEventListener("click", function (e) {
-      if (menu.hasAttribute("open") && !menu.contains(e.target)) {
-        menu.removeAttribute("open");
-      }
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && menu.hasAttribute("open")) {
-        menu.removeAttribute("open");
-        var summary = menu.querySelector("summary");
-        if (summary) summary.focus();
-      }
+    var menus = document.querySelectorAll('.site-header details');
+    menus.forEach(function(menu) {
+      document.addEventListener('click', function(e) {
+        if (!menu.contains(e.target)) menu.removeAttribute('open');
+      });
+      menu.addEventListener('toggle', function() {
+        if (menu.open) menus.forEach(function(other) { if (other !== menu) other.removeAttribute('open'); });
+      });
+      menu.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && menu.open) {
+          menu.removeAttribute('open');
+          menu.querySelector('summary').focus();
+        }
+      });
     });
   })();
 </script>

@@ -1,4 +1,5 @@
 import {
+  forecastDecisions,
   newFinance,
   newMix,
   parseFinance,
@@ -88,10 +89,12 @@ function render() {
     element<HTMLButtonElement>(id).disabled = !!errors.length;
   if (errors.length) return;
   const r = project(plan);
+  element("finance-decisions").innerHTML = forecastDecisions(plan, r).map(text => `<li>${esc(text)}</li>`).join("");
+  element("finance-reserve-note").textContent = `Additional funding includes your ${money(plan.values.reserve)} minimum reserve. The reserve is a target balance, not an expense.`;
   for (const [id, value] of [
     ["startup-total", r.startup],
     ["lowest-cash", r.lowestCash],
-    ["funding-gap", r.fundingGap],
+    ["funding-gap", r.reserveGap],
     ["year-one", r.year1],
     ["year-two", r.year2],
     ["receivables", r.endingReceivables],

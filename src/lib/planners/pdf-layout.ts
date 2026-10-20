@@ -1,5 +1,5 @@
 /** Shared print layout for the report, checklist and pro forma. A4, embedded fonts. */
-export async function pdfDocument(title: string, subtitle: string, fontFetch: typeof fetch = fetch) {
+export async function pdfDocument(title: string, subtitle: string, fontFetch: typeof fetch = fetch, options: {compact?: boolean} = {}) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF();
   for (const weight of ["Regular", "Bold"]) {
@@ -16,13 +16,20 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
   let y = 32;
   const anchors = new Map<string, {pageNumber: number; top: number}>();
   const jumps: {id: string; page: number; y: number; height: number}[] = [];
-  const newPage = () => { doc.addPage(); y = 32; };
+  let pageContext = "";
+  const continuations = new Map<number, string>();
+  const newPage = () => {
+    doc.addPage(); y = 32;
+    if (pageContext) continuations.set(doc.getNumberOfPages(), pageContext);
+  };
   const keep = (height: number) => { if (y + height > bottom) newPage(); };
+  const leadingFor = (size: number) => options.compact ? size * .38 + .8 : size * .42 + 1.3;
+  const paragraphGap = options.compact ? 1.7 : 2.5;
   const line = (text: string, size = 10, bold = false, indent = 0) => {
     doc.setFont("NotoSans", bold ? "bold" : "normal");
     doc.setFontSize(size);
     doc.setTextColor(...(bold ? [19, 39, 73] : [55, 66, 84]) as [number, number, number]);
-    const leading = size * 0.42 + 1.3;
+    const leading = leadingFor(size);
     const lines = doc.splitTextToSize(text, width - indent) as string[];
     // Keep short paragraphs and titles together. Longer paragraphs may span pages.
     keep(Math.min(lines.length, 3) * leading + 3);
@@ -31,7 +38,7 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
       doc.text(l, left + indent, y);
       y += leading;
     }
-    y += 2.5;
+    y += paragraphGap;
   };
   /** A checklist item: a drawn box (ticked when done) beside a bold title. */
   const check = (text: string, done: boolean, size = 11) => {
@@ -39,7 +46,7 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
     doc.setFont("NotoSans", "bold");
     doc.setFontSize(size);
     doc.setTextColor(19, 39, 73);
-    const leading = size * 0.42 + 1.3;
+    const leading = leadingFor(size);
     const lines = doc.splitTextToSize(text, width - indent) as string[];
     keep(Math.min(lines.length, 3) * leading + 3);
     const top = y - box + 0.6;
@@ -61,7 +68,7 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
       doc.text(l, left + indent, y);
       y += leading;
     }
-    y += 2.5;
+    y += paragraphGap;
   };
   const section = (text: string, id?: string, fresh = false) => {
     if (fresh && y > 33) newPage();
@@ -87,19 +94,57 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
   y += 3;
   return {
     doc, line, section, link, keep, check,
-    table: (headers: string[], rows: string[][], widths: number[]) => {
+    setPageContext: (label: string) => { pageContext = label; },
+    textHeight: (text: string, size = 10, bold = false, indent = 0) => {
+      doc.setFont("NotoSans", bold ? "bold" : "normal");
+      doc.setFontSize(size);
+      return (doc.splitTextToSize(text, width - indent) as string[]).length * leadingFor(size) + paragraphGap;
+    },
+    cashChart: (values: number[], reserve: number) => {
+      keep(59);
+      const min = Math.min(0, ...values), max = Math.max(reserve, 0, ...values);
+      const range = max - min || 1;
+      const x = (i: number) => left + 31 + i / Math.max(1, values.length - 1) * 139;
+      const cy = (v: number) => y + 39 - (v - min) / range * 35;
+      const dollars = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+      doc.setFont("NotoSans", "normal"); doc.setFontSize(8); doc.setTextColor(55, 66, 84);
+      doc.text(dollars(max), left, y + 6);
+      doc.text(dollars(min), left, y + 39);
+      doc.setDrawColor(160, 174, 193); doc.setLineWidth(.3);
+      doc.line(x(0), cy(0), x(values.length - 1), cy(0));
+      if (reserve > 0) {
+        doc.setDrawColor(132, 94, 30); doc.setLineDashPattern([2, 1], 0);
+        doc.line(x(0), cy(reserve), x(values.length - 1), cy(reserve));
+        doc.setLineDashPattern([], 0);
+      }
+      doc.setDrawColor(39, 71, 201); doc.setLineWidth(.7);
+      for (let i = 1; i < values.length; i++) doc.line(x(i - 1), cy(values[i - 1]), x(i), cy(values[i]));
+      doc.text("Opening", x(0), y + 45);
+      doc.text("Month 12", x(12), y + 45, {align: "center"});
+      doc.text("Month 24", x(values.length - 1), y + 45, {align: "right"});
+      doc.text(reserve > 0 ? "Blue: projected cash  |  Dashed: chosen reserve" : "Blue: projected cash  |  Gray: zero cash", left, y + 53);
+      y += 60;
+    },
+    table: (headers: string[], rows: string[][], widths: number[], settings: {compact?: boolean; numeric?: number[]} = {}) => {
+      const fontSize = settings.compact ? 9 : 8;
+      const rowLeading = settings.compact ? 4 : 4.3;
+      const rowPadding = settings.compact ? 2.5 : 4;
       const row = (values: string[], index: number) => {
-        doc.setFont('NotoSans', index < 0 ? 'bold' : 'normal'); doc.setFontSize(8);
+        doc.setFont('NotoSans', index < 0 ? 'bold' : 'normal'); doc.setFontSize(fontSize);
         const cells = values.map((v, i) => doc.splitTextToSize(v, widths[i] - 4) as string[]);
-        const height = Math.max(...cells.map(c => c.length)) * 4.3 + 4;
+        const height = Math.max(...cells.map(c => c.length)) * rowLeading + rowPadding;
         if (y + height > bottom) { newPage(); if (index >= 0) row(headers, -1); }
         doc.setFillColor(...(index < 0 ? [19,39,73] : index % 2 === 0 ? [241,245,250] : [255,255,255]) as [number,number,number]);
         doc.rect(left, y - 4, width, height, 'F');
         // A repeated header may have changed the font.
-        doc.setFont('NotoSans', index < 0 ? 'bold' : 'normal'); doc.setFontSize(8);
+        doc.setFont('NotoSans', index < 0 ? 'bold' : 'normal'); doc.setFontSize(fontSize);
         doc.setTextColor(...(index < 0 ? [255,255,255] : [55,66,84]) as [number,number,number]);
         let x = left;
-        cells.forEach((cell, i) => { cell.forEach((text, j) => doc.text(text, x + 2, y + j * 4.3)); x += widths[i]; });
+        cells.forEach((cell, i) => {
+          const right = settings.numeric?.includes(i);
+          cell.forEach((text, j) => doc.text(text, right ? x + widths[i] - 2 : x + 2, y + j * rowLeading, {align: right ? "right" : "left"}));
+          x += widths[i];
+        });
         y += height;
       };
       keep(25); row(headers, -1); rows.forEach((values, i) => row(values, i)); y += 6;
@@ -128,6 +173,8 @@ export async function pdfDocument(title: string, subtitle: string, fontFetch: ty
         doc.text('BY PHYSICIAN PRACTICE SPECIALISTS', 191, 15, {align:'right'});
         doc.setDrawColor(217, 225, 238); doc.setLineWidth(.3);
         doc.line(left, 21, 191, 21); doc.line(left, 281, 191, 281);
+        const context = continuations.get(i);
+        if (context) doc.text(context, 191, 27, {align: "right"});
         doc.text('practicestartupservices.com', left, 288);
         doc.text(`${i} / ${pages}`, 191, 288, {align:'right'});
       }
