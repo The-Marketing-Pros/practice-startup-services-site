@@ -1,3 +1,4 @@
+import { initPracticeElfHandoff } from "./practiceelf-handoff";
 import { parseChecklist, visibleTasks, taskProgress, nextTasks } from "../lib/planners/checklist";
 import { parseFinance, project } from "../lib/planners/finance";
 import { escapeHtml as esc, element } from "../lib/planners/browser";
@@ -40,3 +41,5 @@ function refresh() {
 refresh();
 window.addEventListener("storage", refresh);
 window.addEventListener("pageshow", refresh);
+
+initPracticeElfHandoff();
